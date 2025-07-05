@@ -1,0 +1,13 @@
+[package]
+name = "decal-macros"
+description = "Under development"
+version = "0.0.0"
+edition = "2021"
+license.workspace = true
+rust-version = "1.87.0"
+repository = "https://github.com/mem-red/decal"
+
+[lib]
+proc-macro = true
+
+[dependencies]

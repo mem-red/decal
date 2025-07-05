@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "decal-core",
+    "decale-macros",
+]
+default-members = ["decal-core"]
+resolver = "2"
+
+[workspace.package]
+license = "MIT"
