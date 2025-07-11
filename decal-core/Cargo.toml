@@ -8,3 +8,5 @@ rust-version = "1.87.0"
 repository = "https://github.com/mem-red/decal"
 
 [dependencies]
+atree = "0.5.2"
+decal-macros = { path = "../decal-macros" }
