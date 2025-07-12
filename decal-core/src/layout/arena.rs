@@ -1,11 +1,11 @@
-use crate::nodes::{Column, Root, Row, Text};
+use crate::nodes::{Column, Fragment, Root, Row, Snippet, Text};
 use atree::{Arena, Token};
 
 pub(crate) trait Renderable {
     fn to_svg(&self) -> &str;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Decal {
     pub arena: Arena<Node>,
 }
@@ -21,12 +21,12 @@ impl Decal {
     }
 }
 
-#[derive(Debug)]
-pub struct DecalPartial {
+#[derive(Debug, Clone)]
+pub struct DecalFragment {
     pub arena: Arena<Node>,
 }
 
-impl DecalPartial {
+impl DecalFragment {
     pub fn new(node_kind: NodeKind) -> (Self, Token) {
         let (arena, root_tkn) = Arena::with_data(Node::new(node_kind));
         (Self { arena }, root_tkn)
@@ -37,9 +37,11 @@ impl DecalPartial {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum NodeKind {
     Root(Root),
+    Fragment(Fragment),
+    Snippet(Snippet),
     Column(Column),
     Row(Row),
     Text(Text),
@@ -52,11 +54,13 @@ impl Renderable for Node {
             NodeKind::Column(inner) => inner.to_svg(),
             NodeKind::Row(inner) => inner.to_svg(),
             NodeKind::Text(inner) => inner.to_svg(),
+            NodeKind::Fragment(inner) => inner.to_svg(),
+            NodeKind::Snippet(inner) => inner.to_svg(),
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node {
     pub kind: NodeKind,
     // Cache

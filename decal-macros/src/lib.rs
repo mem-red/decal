@@ -17,7 +17,7 @@ pub fn decal(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro]
-pub fn decal_partial(input: TokenStream) -> TokenStream {
+pub fn decal_fragment(input: TokenStream) -> TokenStream {
     let DecalTree { root } = parse_macro_input!(input as DecalTree);
     let mut ident_gen = IdentGen::new();
     let expanded = root.to_tokens_partial(&mut ident_gen, None);

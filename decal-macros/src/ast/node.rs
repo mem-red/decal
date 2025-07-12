@@ -2,13 +2,14 @@ use crate::{
     IdentGen,
     ast::{
         child::{NodeChild, parse_children},
+        ctrl_expr::CtrlExpr,
         method_call::NodeMethodCall,
     },
 };
 use proc_macro2::{Ident as PM2Ident, TokenStream};
-use quote::{format_ident, quote};
+use quote::{format_ident, quote, ToTokens};
 use syn::{
-    Error as SynError, Expr, Ident, Result as SynResult, Token, braced, parenthesized,
+    Block, Error as SynError, Expr, Ident, Result as SynResult, Token, braced, parenthesized,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
     token::{self, Comma},
@@ -24,6 +25,8 @@ pub struct Node {
 impl Parse for Node {
     fn parse(input: ParseStream) -> SynResult<Self> {
         let name: Ident = input.parse()?;
+        let is_fragment = name == "Fragment";
+        let is_snippet = name == "Snippet";
 
         let args = if input.peek(token::Paren) {
             let content;
@@ -35,13 +38,40 @@ impl Parse for Node {
 
         let children = if input.peek(token::Brace) {
             let content;
-            braced!(content in input);
-            parse_children(&content)?
+            let brace_token = braced!(content in input);
+
+            if is_snippet {
+                let block = Block {
+                    brace_token,
+                    stmts: content.call(Block::parse_within)?,
+                };
+
+                vec![NodeChild::CtrlExpr(CtrlExpr::Snipped(block))]
+            } else {
+                parse_children(&content)?
+            }
+        } else if is_snippet {
+            return Err(input.error("expected `{` after the [decal::prelude::Snippet] node"));
         } else {
-            vec![]
+            Vec::new()
         };
 
-        let mut methods = vec![];
+        // Validate fragment node
+        if is_fragment {
+            let err_msg = if !children.is_empty() {
+                Some("[decal::prelude::Fragment] node cannot contain children")
+            } else if args.len() != 1 {
+                Some("[decal::prelude::Fragment] node expects a single argument")
+            } else {
+                None
+            };
+
+            if let Some(err_msg) = err_msg {
+                return Err(SynError::new_spanned(name, err_msg));
+            }
+        }
+
+        let mut methods = Vec::new();
         while input.peek(Token![.]) {
             input.parse::<Token![.]>()?;
             methods.push(input.parse()?);
@@ -99,6 +129,8 @@ impl Node {
             .to_compile_error();
         }
 
+        
+        
         let mut root_found = Some(root_found);
         let ToTokensReturnValue {
             node_kind_ident,
@@ -152,7 +184,7 @@ impl Node {
         if self.name == "Root" {
             return SynError::new_spanned(
                 &self.name,
-                "[decal::prelude::Root] nodes are not allowed inside partials",
+                "[decal::prelude::Root] node is not allowed inside fragments",
             )
             .to_compile_error();
         }
@@ -172,7 +204,7 @@ impl Node {
                 #node_assignment
                 #method_call_tokens
                 let #node_tkn = #parent_tkn.append(
-                    decal_partial.arena_mut(),
+                    fragment.arena_mut(),
                     Node::new(NodeKind::#node_kind_ident(#node_var))
                 );
                 #children_tokens
@@ -183,9 +215,9 @@ impl Node {
                     use decal::prelude::*;
                     #node_assignment
                     #method_call_tokens
-                    let (mut decal_partial, #node_tkn) = DecalPartial::new(NodeKind::#node_kind_ident(#node_var));
+                    let (mut fragment, #node_tkn) = DecalFragment::new(NodeKind::#node_kind_ident(#node_var));
                     #children_tokens
-                    decal_partial
+                    fragment
                 }
             }
         }

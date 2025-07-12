@@ -1,6 +1,6 @@
 use crate::layout::Renderable;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Column {
     pub spacing: Option<f32>,
     pub padding: Option<f32>,

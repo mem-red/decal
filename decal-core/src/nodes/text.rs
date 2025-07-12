@@ -1,8 +1,8 @@
 use crate::layout::Renderable;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Text {
-    pub content: String,
+    pub content: Option<u32>,
 }
 
 impl Renderable for Text {

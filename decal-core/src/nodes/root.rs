@@ -1,6 +1,6 @@
 use crate::{attributes::Fill, layout::Renderable};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Root {
     pub width: f32,
     pub height: f32,
