@@ -19,4 +19,9 @@ impl Row {
     pub fn new() -> Self {
         Self::default()
     }
+
+    pub fn set_spacing(&mut self, value: Option<f32>) -> &mut Self {
+        self.spacing = value;
+        self
+    }
 }

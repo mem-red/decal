@@ -1,5 +1,4 @@
-use crate::layout::{DecalFragment, Node, Renderable};
-use atree::Arena;
+use crate::layout::{DecalFragment, Renderable};
 
 #[derive(Debug, Clone)]
 pub struct Fragment {
@@ -15,9 +14,5 @@ impl Renderable for Fragment {
 impl Fragment {
     pub fn new(fragment: DecalFragment) -> Self {
         Self { fragment }
-    }
-
-    pub fn get_arena(&self) -> &Arena<Node> {
-        &self.fragment.arena
     }
 }

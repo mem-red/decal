@@ -7,32 +7,55 @@ pub(crate) trait Renderable {
 
 #[derive(Debug, Clone)]
 pub struct Decal {
-    pub arena: Arena<Node>,
+    arena: Arena<Node>,
+    root_token: Token,
 }
 
 impl Decal {
-    pub fn new(root_node: Root) -> (Self, Token) {
-        let (arena, root_tkn) = Arena::with_data(Node::new(NodeKind::Root(root_node)));
-        (Self { arena }, root_tkn)
+    pub fn new(root_node: Root) -> Self {
+        let (arena, root_token) = Arena::with_data(Node::new(NodeKind::Root(root_node)));
+        Self { arena, root_token }
     }
 
-    pub fn arena_mut(&mut self) -> &mut Arena<Node> {
+    pub fn root(&self) -> Token {
+        self.root_token
+    }
+
+    pub fn append_child(&mut self, under: Token, node: Node) -> Token {
+        under.append(self.arena_mut(), node)
+    }
+
+    pub fn append_fragment(&mut self, under: Token, fragment: DecalFragment) {
+        self.arena
+            .copy_and_append_subtree(under, &fragment.arena, fragment.root());
+    }
+
+    fn arena_mut(&mut self) -> &mut Arena<Node> {
         &mut self.arena
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct DecalFragment {
-    pub arena: Arena<Node>,
+    arena: Arena<Node>,
+    root_token: Token,
 }
 
 impl DecalFragment {
-    pub fn new(node_kind: NodeKind) -> (Self, Token) {
-        let (arena, root_tkn) = Arena::with_data(Node::new(node_kind));
-        (Self { arena }, root_tkn)
+    pub fn new(node_kind: NodeKind) -> Self {
+        let (arena, root_token) = Arena::with_data(Node::new(node_kind));
+        Self { arena, root_token }
     }
 
-    pub fn arena_mut(&mut self) -> &mut Arena<Node> {
+    pub fn root(&self) -> Token {
+        self.root_token
+    }
+
+    pub fn append_child(&mut self, under: Token, node: Node) -> Token {
+        under.append(self.arena_mut(), node)
+    }
+
+    fn arena_mut(&mut self) -> &mut Arena<Node> {
         &mut self.arena
     }
 }

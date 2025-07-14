@@ -1,4 +1,4 @@
-use crate::layout::Renderable;
+use crate::{layout::Renderable, prelude::Fill};
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Column {
@@ -18,5 +18,10 @@ impl Renderable for Column {
 impl Column {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn set_spacing(&mut self, value: Option<f32>) -> &mut Self {
+        self.spacing = value;
+        self
     }
 }

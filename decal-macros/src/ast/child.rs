@@ -2,10 +2,12 @@ use super::ctrl_expr::{CtrlExpr, TokenGenMode};
 use super::node::Node;
 use crate::IdentGen;
 use proc_macro2::{Ident as PM2Ident, TokenStream, TokenTree};
-use syn::{Ident, Result as SynResult, parse::Parse, parse::ParseStream, token};
+use quote::{ToTokens, quote};
+use syn::{Block, Ident, Result as SynResult, parse::Parse, parse::ParseStream, token};
 
 pub enum NodeChild {
     Node(Node),
+    Snippet(Block),
     CtrlExpr(CtrlExpr),
 }
 
@@ -25,7 +27,7 @@ impl Parse for NodeChild {
                     let ident: Ident = input.fork().parse()?;
 
                     if is_valid_node(&ident) {
-                          Ok(NodeChild::Node(input.parse()?))
+                        Ok(NodeChild::Node(input.parse()?))
                     } else {
                         Err(syn::Error::new_spanned(
                             ident.clone(),
@@ -54,34 +56,40 @@ impl NodeChild {
     pub fn to_tokens(
         &self,
         ident_gen: &mut IdentGen,
-        parent_tkn: Option<&PM2Ident>,
+        parent_token: Option<&PM2Ident>,
         root_found: &mut bool,
     ) -> TokenStream {
         let mut mode = TokenGenMode::Full { root_found };
-        self.to_tokens_with_mode(&mut mode, ident_gen, parent_tkn)
+        self.to_tokens_with_mode(&mut mode, ident_gen, parent_token)
     }
 
     pub fn to_tokens_partial(
         &self,
         ident_gen: &mut IdentGen,
-        parent_tkn: Option<&PM2Ident>,
+        parent_token: Option<&PM2Ident>,
     ) -> TokenStream {
         let mut mode = TokenGenMode::Partial;
-        self.to_tokens_with_mode(&mut mode, ident_gen, parent_tkn)
+        self.to_tokens_with_mode(&mut mode, ident_gen, parent_token)
     }
 
     pub fn to_tokens_with_mode(
         &self,
         mode: &mut TokenGenMode,
         ident_gen: &mut IdentGen,
-        parent_tkn: Option<&PM2Ident>,
+        parent_token: Option<&PM2Ident>,
     ) -> TokenStream {
         match self {
             NodeChild::Node(node) => match mode {
-                TokenGenMode::Full { root_found: rf } => node.to_tokens(ident_gen, parent_tkn, *rf),
-                TokenGenMode::Partial => node.to_tokens_partial(ident_gen, parent_tkn),
+                TokenGenMode::Full { root_found } => {
+                    node.to_tokens(ident_gen, parent_token, *root_found)
+                }
+                TokenGenMode::Partial => node.to_tokens_partial(ident_gen, parent_token),
             },
-            NodeChild::CtrlExpr(expr) => expr.to_tokens_with_mode(mode, ident_gen, parent_tkn),
+            NodeChild::Snippet(block) => {
+                let block_tokens = block.stmts.iter().map(|stmt| stmt.to_token_stream());
+                quote! { #(#block_tokens)* }
+            }
+            NodeChild::CtrlExpr(expr) => expr.to_tokens_with_mode(mode, ident_gen, parent_token),
         }
     }
 }
