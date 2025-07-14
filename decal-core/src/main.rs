@@ -1,4 +1,3 @@
-use atree::{Arena, Token};
 use decal_macros::{decal, decal_fragment};
 
 fn main() {
@@ -74,10 +73,11 @@ fn main() {
                         Row() {}
                     },
                     "c" => Snippet { if b == c {
-                        
+
                         } let b = c; },
                     "d" => Snippet {},
                     "e" => Snippet { let c = 5; },
+                    "f" => Fragment(fragment),
                     _ => Row {},
                 }
             }
