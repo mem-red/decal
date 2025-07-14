@@ -49,7 +49,7 @@ impl Parse for Node {
                 parse_children(&content)?
             }
         } else if is_snippet {
-            return Err(input.error("expected `{` after the [decal::prelude::Snippet] node"));
+            return Err(input.error("expected `{` after the [`decal::prelude::Snippet`] node"));
         } else {
             Vec::new()
         };
@@ -57,9 +57,9 @@ impl Parse for Node {
         // Validate fragment node
         if is_fragment {
             let err_msg = if !children.is_empty() {
-                Some("[decal::prelude::Fragment] node cannot contain children")
+                Some("[`decal::prelude::Fragment`] node cannot contain children")
             } else if args.len() != 1 {
-                Some("[decal::prelude::Fragment] node expects a single argument")
+                Some("[`decal::prelude::Fragment`] node expects a single argument")
             } else {
                 None
             };
@@ -98,14 +98,14 @@ impl Tokenize for Node {
                     if self.name != "Root" {
                         return SynError::new_spanned(
                             &self.name,
-                            "expected the top-level node to be a [decal::prelude::Root] node",
+                            "expected the top-level node to be a [`decal::prelude::Root`] node",
                         )
                         .to_compile_error();
                     }
                     if **root_found {
                         return SynError::new_spanned(
                             &self.name,
-                            "only one [decal::prelude::Root] node is allowed",
+                            "only one [`decal::prelude::Root`] node is allowed",
                         )
                         .to_compile_error();
                     }
@@ -114,7 +114,7 @@ impl Tokenize for Node {
                 Some(_) if self.name == "Root" => {
                     return SynError::new_spanned(
                         &self.name,
-                        "nested [decal::prelude::Root] nodes are not allowed",
+                        "nested [`decal::prelude::Root`] nodes are not allowed",
                     )
                     .to_compile_error();
                 }
@@ -124,7 +124,7 @@ impl Tokenize for Node {
             if self.name == "Root" {
                 return SynError::new_spanned(
                     &self.name,
-                    "[decal::prelude::Root] node is not allowed inside fragments",
+                    "[`decal::prelude::Root`] node is not allowed inside fragments",
                 )
                 .to_compile_error();
             }

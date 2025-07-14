@@ -1,0 +1,5 @@
+error: expected the top-level node to be a [`decal::prelude::Root`] node
+ --> tests/ui/exm.rs:4:25
+  |
+4 |     let elem = decal! { Row {} };
+  |                         ^^^

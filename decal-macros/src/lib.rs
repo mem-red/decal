@@ -13,18 +13,24 @@ pub fn decal(input: TokenStream) -> TokenStream {
     let mut mode = TokenGenMode::Full {
         root_found: &mut root_found,
     };
-    impl_macro(input, &mut mode)
+    decal_impl(input, &mut mode)
 }
 
 #[proc_macro]
 pub fn fragment(input: TokenStream) -> TokenStream {
     let mut mode = TokenGenMode::Partial;
-    impl_macro(input, &mut mode)
+    decal_impl(input, &mut mode)
 }
 
-fn impl_macro(input: TokenStream, mode: &mut TokenGenMode) -> TokenStream {
+fn decal_impl(input: TokenStream, mode: &mut TokenGenMode) -> TokenStream {
     let DecalTree { root } = parse_macro_input!(input as DecalTree);
     let mut ident_gen = IdentGen::new();
     let expanded = root.tokenize(mode, &mut ident_gen, None);
     TokenStream::from(expanded)
+}
+
+#[test]
+fn ui() {
+    let t = trybuild::TestCases::new();
+    t.compile_fail("tests/ui/*.rs");
 }
