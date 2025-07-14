@@ -5,9 +5,12 @@ use crate::{
 };
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Expr, Label, Pat, Token, braced, parse::Parse};
+use syn::{
+    Expr, Label, Pat, Result as SynResult, Token, braced,
+    parse::{Parse, ParseStream},
+};
 
-pub struct CtrlExprForLoop {
+pub(crate) struct CtrlExprForLoop {
     label: Option<Label>,
     for_token: Token![for],
     pat: Box<Pat>,
@@ -17,7 +20,7 @@ pub struct CtrlExprForLoop {
 }
 
 impl Parse for CtrlExprForLoop {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: ParseStream) -> SynResult<Self> {
         let label: Option<Label> = input.parse()?;
         let for_token: Token![for] = input.parse()?;
         let pat = Pat::parse_multi_with_leading_vert(input)?;

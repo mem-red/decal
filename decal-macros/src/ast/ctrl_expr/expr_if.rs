@@ -5,9 +5,13 @@ use crate::{
 };
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Expr, Token, braced, parse::Parse, token};
+use syn::{
+    Expr, Result as SynResult, Token, braced,
+    parse::{Parse, ParseStream},
+    token,
+};
 
-pub struct CtrlExprIf {
+pub(crate) struct CtrlExprIf {
     if_token: Token![if],
     cond: Box<Expr>,
     then_branch: Vec<NodeChild>,
@@ -15,7 +19,7 @@ pub struct CtrlExprIf {
 }
 
 impl Parse for CtrlExprIf {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: ParseStream) -> SynResult<Self> {
         let if_token: Token![if] = input.parse()?;
         let cond = input.call(Expr::parse_without_eager_brace)?;
 

@@ -5,16 +5,19 @@ use crate::{
 };
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Label, Token, braced, parse::Parse};
+use syn::{
+    Label, Result as SynResult, Token, braced,
+    parse::{Parse, ParseStream},
+};
 
-pub struct CtrlExprLoop {
+pub(crate) struct CtrlExprLoop {
     label: Option<Label>,
     loop_token: Token![loop],
     body: Vec<NodeChild>,
 }
 
 impl Parse for CtrlExprLoop {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: ParseStream) -> SynResult<Self> {
         let label: Option<Label> = input.parse()?;
         let loop_token: Token![loop] = input.parse()?;
 

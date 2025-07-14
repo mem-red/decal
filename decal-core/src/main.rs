@@ -1,7 +1,7 @@
-use decal_macros::{decal, decal_fragment};
+use decal_macros::{decal, fragment};
 
 fn main() {
-    let fragment = decal_fragment! {
+    let fragment = fragment! {
             Row {
                 Column {
                     Row {}

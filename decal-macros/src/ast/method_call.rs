@@ -5,9 +5,9 @@ use syn::{
     token::Comma,
 };
 
-pub struct NodeMethodCall {
-    pub name: Ident,
-    pub args: Punctuated<Expr, Comma>,
+pub(crate) struct NodeMethodCall {
+    pub(crate) name: Ident,
+    pub(crate) args: Punctuated<Expr, Comma>,
 }
 
 impl Parse for NodeMethodCall {

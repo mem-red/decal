@@ -4,13 +4,14 @@ use syn::{
     parse::{Parse, ParseStream},
 };
 
-pub struct DecalTree {
-    pub root: Node,
+pub(crate) struct DecalTree {
+    pub(crate) root: Node,
 }
 
 impl Parse for DecalTree {
     fn parse(input: ParseStream) -> SynResult<Self> {
-        let root = input.parse()?;
-        Ok(Self { root })
+        Ok(Self {
+            root: input.parse()?,
+        })
     }
 }

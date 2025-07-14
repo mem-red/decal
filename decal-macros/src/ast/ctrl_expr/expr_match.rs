@@ -6,12 +6,12 @@ use crate::{
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use syn::{
-    Expr, Pat, Token, braced,
+    Expr, Pat, Result as SynResult, Token, braced,
     parse::{Parse, ParseStream},
     token,
 };
 
-pub struct CtrlExprMatch {
+pub(crate) struct CtrlExprMatch {
     match_token: Token![match],
     expr: Box<Expr>,
     brace_token: token::Brace,
@@ -19,7 +19,7 @@ pub struct CtrlExprMatch {
 }
 
 impl Parse for CtrlExprMatch {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: ParseStream) -> SynResult<Self> {
         let match_token: Token![match] = input.parse()?;
         let expr = Expr::parse_without_eager_brace(input)?;
 
@@ -77,7 +77,7 @@ struct MatchArm {
 }
 
 impl MatchArm {
-    fn parse_multiple(input: ParseStream) -> syn::Result<Vec<Self>> {
+    fn parse_multiple(input: ParseStream) -> SynResult<Vec<Self>> {
         let mut arms = Vec::new();
         while !input.is_empty() {
             arms.push(input.call(MatchArm::parse)?);
@@ -95,7 +95,7 @@ impl MatchArm {
 }
 
 impl Parse for MatchArm {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: ParseStream) -> SynResult<Self> {
         let requires_comma;
         Ok(Self {
             pat: Pat::parse_multi_with_leading_vert(input)?,

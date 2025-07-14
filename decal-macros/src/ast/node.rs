@@ -1,11 +1,12 @@
 use crate::{
     IdentGen,
     ast::{
-        child::{NodeChild, parse_children},
+        child::{NodeChild, Tokenize, parse_children},
+        ctrl_expr::TokenGenMode,
         method_call::NodeMethodCall,
     },
 };
-use proc_macro2::{Ident as PM2Ident, TokenStream};
+use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::{
     Block, Error as SynError, Expr, Ident, Result as SynResult, Token, braced, parenthesized,
@@ -14,11 +15,11 @@ use syn::{
     token::{self, Comma},
 };
 
-pub struct Node {
-    pub name: Ident,
-    pub args: Punctuated<Expr, Comma>,
-    pub children: Vec<NodeChild>,
-    pub methods: Vec<NodeMethodCall>,
+pub(crate) struct Node {
+    pub(crate) name: Ident,
+    pub(crate) args: Punctuated<Expr, Comma>,
+    pub(crate) children: Vec<NodeChild>,
+    pub(crate) methods: Vec<NodeMethodCall>,
 }
 
 impl Parse for Node {
@@ -83,194 +84,52 @@ impl Parse for Node {
     }
 }
 
-/// Holds the return values for the [`Node::to_tokens_impl`] method.
-struct ToTokensReturnValue {
-    /// The [`NodeKind`](decal::prelude::NodeKind) variant.
-    node_kind_ident: Ident,
-    /// The unique identifier variable for this node's token.
-    node_token: Ident,
-    /// The expression that constructs this node.
-    node_expr: TokenStream,
-    /// The generated token stream for this node's children.
-    children_tokens: TokenStream,
-}
-
-impl Node {
-    /// Generates a [`TokenStream`] representing this node and its children.
-    ///
-    /// # Parameters
-    /// - `ident_gen`: A mutable reference to an [identifier generator](IdentGen).
-    /// - `parent_token`: The parent node's identifier, or `None` if this is the root.
-    /// - `root_found`: A mutable boolean flag indicating if the root node has already been found.
-    ///
-    /// # Returns
-    /// A [`TokenStream`] for macro expansion.
-    pub fn to_tokens(
+impl Tokenize for Node {
+    fn tokenize(
         &self,
+        mode: &mut TokenGenMode,
         ident_gen: &mut IdentGen,
-        parent_token: Option<&PM2Ident>,
-        root_found: &mut bool,
+        parent_token: Option<&proc_macro2::Ident>,
     ) -> TokenStream {
-        // Root node validation
-        match parent_token {
-            None => {
-                if self.name != "Root" {
+        // Validation
+        if let TokenGenMode::Full { root_found } = mode {
+            match parent_token {
+                None => {
+                    if self.name != "Root" {
+                        return SynError::new_spanned(
+                            &self.name,
+                            "expected the top-level node to be a [decal::prelude::Root] node",
+                        )
+                        .to_compile_error();
+                    }
+                    if **root_found {
+                        return SynError::new_spanned(
+                            &self.name,
+                            "only one [decal::prelude::Root] node is allowed",
+                        )
+                        .to_compile_error();
+                    }
+                    **root_found = true;
+                }
+                Some(_) if self.name == "Root" => {
                     return SynError::new_spanned(
                         &self.name,
-                        "expected the top-level node to be a [decal::prelude::Root] node",
+                        "nested [decal::prelude::Root] nodes are not allowed",
                     )
                     .to_compile_error();
                 }
-
-                if *root_found {
-                    return SynError::new_spanned(
-                        &self.name,
-                        "only one [decal::prelude::Root] node is allowed",
-                    )
-                    .to_compile_error();
-                }
-
-                *root_found = true;
+                _ => {}
             }
-            Some(_) if self.name == "Root" => {
+        } else {
+            if self.name == "Root" {
                 return SynError::new_spanned(
                     &self.name,
-                    "nested [decal::prelude::Root] nodes are not allowed",
+                    "[decal::prelude::Root] node is not allowed inside fragments",
                 )
                 .to_compile_error();
             }
-            _ => {}
         }
 
-        let mut root_found = Some(root_found);
-        let ToTokensReturnValue {
-            node_kind_ident,
-            node_token,
-            node_expr,
-            children_tokens,
-        } = self.to_tokens_impl(ident_gen, &mut root_found);
-
-        match parent_token {
-            // Root node
-            None => quote! {
-                {
-                    use decal::prelude::*;
-                    let mut decal = Decal::new(#node_expr);
-                    let #node_token = decal.root();
-                    #children_tokens
-                    decal
-                }
-            },
-            // Child node
-            Some(parent_token) => self.generate_non_root_node_tokens(
-                parent_token,
-                &node_kind_ident,
-                &node_token,
-                &node_expr,
-                &children_tokens,
-            ),
-        }
-    }
-
-    /// Generates a [`TokenStream`] for this node and its children as part of a fragment.
-    ///
-    /// # Parameters
-    /// - `ident_gen`: A mutable reference to an [identifier generator](IdentGen).
-    /// - `parent_token`: The parent node's identifier, or `None` if this is the fragment root.
-    ///
-    /// # Returns
-    /// A [`TokenStream`] for macro expansion.
-    pub fn to_tokens_partial(
-        &self,
-        ident_gen: &mut IdentGen,
-        parent_token: Option<&PM2Ident>,
-    ) -> TokenStream {
-        if self.name == "Root" {
-            return SynError::new_spanned(
-                &self.name,
-                "[decal::prelude::Root] node is not allowed inside fragments",
-            )
-            .to_compile_error();
-        }
-
-        let mut root_found = None;
-        let ToTokensReturnValue {
-            node_kind_ident,
-            node_token,
-            node_expr,
-            children_tokens,
-        } = self.to_tokens_impl(ident_gen, &mut root_found);
-
-        match parent_token {
-            // Fragment root node
-            None => quote! {
-                {
-                    use decal::prelude::*;
-                    let mut decal = DecalFragment::new(NodeKind::#node_kind_ident(#node_expr));
-                    let #node_token = decal.root();
-                    #children_tokens
-                    decal
-                }
-            },
-            // Child node
-            Some(parent_token) => self.generate_non_root_node_tokens(
-                parent_token,
-                &node_kind_ident,
-                &node_token,
-                &node_expr,
-                &children_tokens,
-            ),
-        }
-    }
-
-    /// Generates token stream for non-root nodes.
-    ///
-    /// # Parameters
-    /// - `parent_token`: The parent node's identifier.
-    /// - `node_kind_ident`: The [`NodeKind`](decal::prelude::NodeKind) variant.
-    /// - `node_token`: The unique identifier variable for this node's token.
-    /// - `node_expr`: The expression that constructs this node.
-    /// - `children_tokens`: The generated token stream for this node's children.
-    ///
-    /// # Returns
-    /// A [`TokenStream`] for the non-root node.
-    fn generate_non_root_node_tokens(
-        &self,
-        parent_token: &PM2Ident,
-        node_kind_ident: &Ident,
-        node_token: &Ident,
-        node_expr: &TokenStream,
-        children_tokens: &TokenStream,
-    ) -> TokenStream {
-        if self.name == "Fragment" {
-            let args = &self.args;
-            quote! { decal.append_fragment(#parent_token, #args.clone()); }
-        } else if self.name == "Snippet" {
-            quote! { #children_tokens }
-        } else {
-            quote! {
-                let #node_token = decal.append_child(
-                    #parent_token,
-                    Node::new(NodeKind::#node_kind_ident(#node_expr))
-                );
-                #children_tokens
-            }
-        }
-    }
-
-    /// Generates the node's construction and its children.
-    ///
-    /// # Parameters
-    /// - `ident_gen`: A mutable reference to an [identifier generator](IdentGen).
-    /// - `root_found`: An optional mutable reference to the root-found flag.
-    ///
-    /// # Returns
-    /// A [`ToTokensReturnValue`] for code generation.
-    fn to_tokens_impl(
-        &self,
-        ident_gen: &mut IdentGen,
-        root_found: &mut Option<&mut bool>,
-    ) -> ToTokensReturnValue {
         let name_lowercased = self.name.to_string().to_lowercase();
         let node_kind_ident = format_ident!("{}", self.name);
         let node_token = ident_gen.uniq(&format!("{}_token", name_lowercased));
@@ -293,19 +152,81 @@ impl Node {
             }
         };
 
-        let children_tokens = self.children.iter().map(|child| {
-            if let Some(root_found) = root_found {
-                child.to_tokens(ident_gen, Some(&node_token), *root_found)
-            } else {
-                child.to_tokens_partial(ident_gen, Some(&node_token))
-            }
-        });
+        let children_tokens = if let TokenGenMode::Full { root_found } = mode {
+            self.children
+                .iter()
+                .map(|child| child.to_tokens(ident_gen, Some(&node_token), root_found))
+                .collect::<Vec<_>>()
+        } else {
+            self.children
+                .iter()
+                .map(|child| child.to_tokens_partial(ident_gen, Some(&node_token)))
+                .collect::<Vec<_>>()
+        };
 
-        ToTokensReturnValue {
-            node_kind_ident,
-            node_token: node_token.clone(),
-            node_expr,
-            children_tokens: quote! { #(#children_tokens)* },
+        let decal_assignment = match mode {
+            TokenGenMode::Full { .. } => quote! { Decal::new(#node_expr); },
+            TokenGenMode::Partial => {
+                quote! { DecalFragment::new(NodeKind::#node_kind_ident(#node_expr)); }
+            }
+        };
+
+        match parent_token {
+            // Root node
+            None => quote! {
+                {
+                    use decal::prelude::*;
+                    let mut decal = #decal_assignment
+                    let #node_token = decal.root();
+                    #(#children_tokens)*
+                    decal
+                }
+            },
+            // Child node
+            Some(parent_token) => self.generate_non_root_node_tokens(
+                parent_token,
+                &node_kind_ident,
+                &node_token,
+                &node_expr,
+                quote! { #(#children_tokens)* },
+            ),
+        }
+    }
+}
+
+impl Node {
+    /// Generates token stream for non-root nodes.
+    ///
+    /// # Parameters
+    /// - `parent_token`: The parent node's identifier.
+    /// - `node_kind_ident`: The [`NodeKind`](decal::prelude::NodeKind) variant.
+    /// - `node_token`: The unique identifier variable for this node's token.
+    /// - `node_expr`: The expression that constructs this node.
+    /// - `children_tokens`: The generated token stream for this node's children.
+    ///
+    /// # Returns
+    /// A [`TokenStream`] for the non-root node.
+    fn generate_non_root_node_tokens(
+        &self,
+        parent_token: &proc_macro2::Ident,
+        node_kind_ident: &Ident,
+        node_token: &Ident,
+        node_expr: &TokenStream,
+        children_tokens: TokenStream,
+    ) -> TokenStream {
+        if self.name == "Fragment" {
+            let args = &self.args;
+            quote! { decal.append_fragment(#parent_token, #args.clone()); }
+        } else if self.name == "Snippet" {
+            quote! { #children_tokens }
+        } else {
+            quote! {
+                let #node_token = decal.append_child(
+                    #parent_token,
+                    Node::new(NodeKind::#node_kind_ident(#node_expr))
+                );
+                #children_tokens
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ use syn::{Block, Ident, Result as SynResult, parse::Parse, parse::ParseStream, t
 
 static VALID_NODES: &[&str] = &["Root", "Fragment", "Snippet", "Column", "Row", "Text"];
 
-pub trait Tokenize {
+pub(crate) trait Tokenize {
     fn tokenize(
         &self,
         mode: &mut TokenGenMode,
@@ -16,7 +16,7 @@ pub trait Tokenize {
     ) -> TokenStream;
 }
 
-pub enum NodeChild {
+pub(crate) enum NodeChild {
     Node(Node),
     Snippet(Block),
     CtrlExpr(CtrlExpr),
@@ -68,12 +68,7 @@ impl Tokenize for NodeChild {
         parent_token: Option<&proc_macro2::Ident>,
     ) -> TokenStream {
         match self {
-            NodeChild::Node(node) => match mode {
-                TokenGenMode::Full { root_found } => {
-                    node.to_tokens(ident_gen, parent_token, *root_found)
-                }
-                TokenGenMode::Partial => node.to_tokens_partial(ident_gen, parent_token),
-            },
+            NodeChild::Node(node) => node.tokenize(mode, ident_gen, parent_token),
             NodeChild::Snippet(block) => {
                 let block_tokens = block.stmts.iter().map(|stmt| stmt.to_token_stream());
                 quote! { #(#block_tokens)* }
@@ -84,7 +79,7 @@ impl Tokenize for NodeChild {
 }
 
 impl NodeChild {
-    pub fn to_tokens(
+    pub(crate) fn to_tokens(
         &self,
         ident_gen: &mut IdentGen,
         parent_token: Option<&PM2Ident>,
@@ -94,7 +89,7 @@ impl NodeChild {
         self.tokenize(&mut mode, ident_gen, parent_token)
     }
 
-    pub fn to_tokens_partial(
+    pub(crate) fn to_tokens_partial(
         &self,
         ident_gen: &mut IdentGen,
         parent_token: Option<&PM2Ident>,
@@ -104,7 +99,7 @@ impl NodeChild {
     }
 }
 
-pub fn parse_children(input: ParseStream) -> SynResult<Vec<NodeChild>> {
+pub(crate) fn parse_children(input: ParseStream) -> SynResult<Vec<NodeChild>> {
     let mut children = Vec::new();
     while !input.is_empty() {
         children.push(input.parse()?);

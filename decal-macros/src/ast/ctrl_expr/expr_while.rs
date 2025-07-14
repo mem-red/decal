@@ -5,9 +5,12 @@ use crate::{
 };
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Expr, Label, Token, braced, parse::Parse};
+use syn::{
+    Expr, Label, Result as SynResult, Token, braced,
+    parse::{Parse, ParseStream},
+};
 
-pub struct CtrlExprWhile {
+pub(crate) struct CtrlExprWhile {
     label: Option<Label>,
     while_token: Token![while],
     cond: Box<Expr>,
@@ -15,7 +18,7 @@ pub struct CtrlExprWhile {
 }
 
 impl Parse for CtrlExprWhile {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: ParseStream) -> SynResult<Self> {
         let label: Option<Label> = input.parse()?;
         let while_token: Token![while] = input.parse()?;
         let cond = Expr::parse_without_eager_brace(input)?;
