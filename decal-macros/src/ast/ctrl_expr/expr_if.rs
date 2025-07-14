@@ -1,7 +1,7 @@
-use super::{CtrlExpr, TokenGenMode, Tokenize};
+use super::{CtrlExpr, TokenGenMode};
 use crate::{
     IdentGen,
-    ast::child::{NodeChild, parse_children},
+    ast::child::{NodeChild, Tokenize, parse_children},
 };
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -66,7 +66,7 @@ impl Tokenize for CtrlExprIf {
         } = self;
         let then_branch_tokens = then_branch
             .iter()
-            .map(|child| child.to_tokens_with_mode(mode, ident_gen, parent_token))
+            .map(|child| child.tokenize(mode, ident_gen, parent_token))
             .collect::<Vec<_>>();
 
         let else_tokens = match else_branch {
@@ -79,8 +79,7 @@ impl Tokenize for CtrlExprIf {
                 {
                     // Simple else-if statement
                     let nested_else_if_tokens =
-                        else_children[0].to_tokens_with_mode(mode, ident_gen, parent_token);
-
+                        else_children[0].tokenize(mode, ident_gen, parent_token);
                     quote! {
                         #else_token #nested_else_if_tokens
                     }
@@ -88,8 +87,7 @@ impl Tokenize for CtrlExprIf {
                     // Multiple children in else branch, wrap in braces
                     let else_branch_tokens = else_children
                         .iter()
-                        .map(|child| child.to_tokens_with_mode(mode, ident_gen, parent_token));
-
+                        .map(|child| child.tokenize(mode, ident_gen, parent_token));
                     quote! {
                         #else_token {
                             #(#else_branch_tokens)*

@@ -1,5 +1,8 @@
-use super::{TokenGenMode, Tokenize};
-use crate::{IdentGen, ast::child::NodeChild};
+use super::TokenGenMode;
+use crate::{
+    IdentGen,
+    ast::child::{NodeChild, Tokenize},
+};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use syn::{
@@ -49,7 +52,6 @@ impl Tokenize for CtrlExprMatch {
         let mut tokens = TokenStream::new();
         match_token.to_tokens(&mut tokens);
         expr.to_tokens(&mut tokens);
-
         brace_token.surround(&mut tokens, |tokens| {
             for (i, arm) in arms.iter().enumerate() {
                 arm.tokenize(mode, ident_gen, parent_token)
@@ -60,7 +62,6 @@ impl Tokenize for CtrlExprMatch {
                 }
             }
         });
-
         tokens
     }
 }
@@ -133,19 +134,16 @@ impl Tokenize for MatchArm {
     ) -> TokenStream {
         let mut tokens = TokenStream::new();
         self.pat.to_tokens(&mut tokens);
-
         if let Some((if_token, guard)) = &self.guard {
             if_token.to_tokens(&mut tokens);
             guard.to_tokens(&mut tokens);
         }
-
         self.fat_arrow_token.to_tokens(&mut tokens);
         token::Brace::default().surround(&mut tokens, |tokens| {
             self.body
-                .to_tokens_with_mode(mode, ident_gen, parent_token)
+                .tokenize(mode, ident_gen, parent_token)
                 .to_tokens(tokens)
         });
-
         self.comma.to_tokens(&mut tokens);
         tokens
     }

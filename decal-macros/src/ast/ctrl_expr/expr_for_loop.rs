@@ -1,7 +1,7 @@
-use super::{TokenGenMode, Tokenize};
+use super::TokenGenMode;
 use crate::{
     IdentGen,
-    ast::child::{NodeChild, parse_children},
+    ast::child::{NodeChild, Tokenize, parse_children},
 };
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -56,7 +56,7 @@ impl Tokenize for CtrlExprForLoop {
         } = self;
         let child_tokens = body
             .iter()
-            .map(|child| child.to_tokens_with_mode(mode, ident_gen, parent_token));
+            .map(|child| child.tokenize(mode, ident_gen, parent_token));
 
         quote! {
             #label #for_token #pat #in_token #expr {

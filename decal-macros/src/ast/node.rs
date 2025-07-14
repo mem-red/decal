@@ -2,7 +2,6 @@ use crate::{
     IdentGen,
     ast::{
         child::{NodeChild, parse_children},
-        ctrl_expr::CtrlExpr,
         method_call::NodeMethodCall,
     },
 };
@@ -154,11 +153,13 @@ impl Node {
         match parent_token {
             // Root node
             None => quote! {
-                use decal::prelude::*;
-                let mut decal = Decal::new(#node_expr);
-                let #node_token = decal.root();
-                #children_tokens
-                decal
+                {
+                    use decal::prelude::*;
+                    let mut decal = Decal::new(#node_expr);
+                    let #node_token = decal.root();
+                    #children_tokens
+                    decal
+                }
             },
             // Child node
             Some(parent_token) => self.generate_non_root_node_tokens(
@@ -203,11 +204,13 @@ impl Node {
         match parent_token {
             // Fragment root node
             None => quote! {
-                use decal::prelude::*;
-                let mut decal = DecalFragment::new(NodeKind::#node_kind_ident(#node_expr));
-                let #node_token = decal.root();
-                #children_tokens
-                decal
+                {
+                    use decal::prelude::*;
+                    let mut decal = DecalFragment::new(NodeKind::#node_kind_ident(#node_expr));
+                    let #node_token = decal.root();
+                    #children_tokens
+                    decal
+                }
             },
             // Child node
             Some(parent_token) => self.generate_non_root_node_tokens(

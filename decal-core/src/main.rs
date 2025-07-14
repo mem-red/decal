@@ -1,21 +1,16 @@
 use decal_macros::{decal, decal_fragment};
 
 fn main() {
-    // TODO: Check fragment nesting (cyclic loops)
-
-    let fragment = {
-        decal_fragment! {
+    let fragment = decal_fragment! {
             Row {
                 Column {
                     Row {}
                 }
             }.set_spacing(None)
-        }
     };
 
     let cond = "";
-    let item = {
-        decal! {
+    let item = decal! {
             Root(1200.0, 630.0) {
                 Column {
                      'loop1: for  _ in 0..4 {
@@ -48,7 +43,6 @@ fn main() {
                     }
                 }
 
-
                 match cond {
                     "col" => Column {
                         Row {
@@ -80,9 +74,42 @@ fn main() {
                     "f" => Fragment(fragment),
                     _ => Row {},
                 }
+
+                'myloop: loop {
+                    Row {}
+
+                    if cond == "c" {
+                        Snippet { break 'myloop; }
+                    }
+                }
+                
+                loop {
+                    Row {}
+
+                    if cond == "c" {
+                        Snippet { break 'myloop; }
+                    }
+                }
+                
+                Row {
+                    'myloop: while 1 == 2 {
+                        Row {}
+    
+                        if cond == "c" {
+                            Snippet { break 'myloop; }
+                        }
+                    }
+                    
+                    while 3 == 4 {
+                        Row {}
+    
+                        if cond == "c" {
+                            Snippet { break 'myloop; }
+                        }
+                    } 
+                }
             }
                 .set_background(Some(Fill::Color))
                 .set_background(None)
-        }
     };
 }
