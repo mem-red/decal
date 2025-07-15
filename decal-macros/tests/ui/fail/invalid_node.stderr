@@ -1,0 +1,5 @@
+error: `Spaghetti` is not a valid node. Expected one of: Root, Fragment, Snippet, Column, Row, Text
+ --> tests/ui/fail/invalid_node.rs:6:13
+  |
+6 |             Spaghetti {
+  |             ^^^^^^^^^

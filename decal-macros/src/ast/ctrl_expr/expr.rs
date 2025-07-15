@@ -1,4 +1,6 @@
-use super::{CtrlExprForLoop, CtrlExprIf, CtrlExprLoop, CtrlExprMatch, CtrlExprWhile};
+use super::{
+    CtrlExprBreak, CtrlExprForLoop, CtrlExprIf, CtrlExprLoop, CtrlExprMatch, CtrlExprWhile,
+};
 use crate::{IdentGen, ast::child::Tokenize};
 use proc_macro2::TokenStream;
 use syn::{
@@ -18,6 +20,7 @@ pub(crate) enum CtrlExpr {
     Loop(CtrlExprLoop),
     ForLoop(CtrlExprForLoop),
     While(CtrlExprWhile),
+    Break(CtrlExprBreak),
     NotAnExpr, // Pass-through for rendering DSL nodes
 }
 
@@ -27,6 +30,8 @@ impl Parse for CtrlExpr {
             Ok(Self::If(input.parse()?))
         } else if input.peek(Token![match]) {
             Ok(Self::Match(input.parse()?))
+        } else if input.peek(Token![break]) {
+            Ok(Self::Break(input.parse()?))
         } else if input.peek(Token![while])
             || (input.peek(Lifetime) && input.peek2(Token![:]) && input.peek3(Token![while]))
         {
@@ -58,6 +63,7 @@ impl Tokenize for CtrlExpr {
             CtrlExpr::Loop(expr) => expr.tokenize(mode, ident_gen, parent_token),
             CtrlExpr::ForLoop(expr) => expr.tokenize(mode, ident_gen, parent_token),
             CtrlExpr::While(expr) => expr.tokenize(mode, ident_gen, parent_token),
+            CtrlExpr::Break(expr) => expr.tokenize(mode, ident_gen, parent_token),
             CtrlExpr::NotAnExpr => unreachable!(),
         }
     }

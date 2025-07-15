@@ -16,10 +16,14 @@ impl Renderable for Root {
 }
 
 impl Root {
-    pub fn new(width: f32, height: f32) -> Self {
+    pub fn new<W, H>(width: W, height: H) -> Self
+    where
+        W: Into<f32>,
+        H: Into<f32>,
+    {
         Self {
-            width,
-            height,
+            width: width.into(),
+            height: height.into(),
             background: None,
             foreground: None,
         }

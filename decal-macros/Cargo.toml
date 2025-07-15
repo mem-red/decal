@@ -17,3 +17,5 @@ syn = { version = "2.0.104", features = ["full"] }
 
 [dev-dependencies]
 trybuild = "1.0.106"
+decal = { path = "../decal-core" }
+walkdir = "2.5.0"

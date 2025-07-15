@@ -1,0 +1,5 @@
+error: unexpected token
+ --> tests/ui/fail/multiple_roots.rs:9:9
+  |
+9 |         Root(64.0, 64.0) {
+  |         ^^^^

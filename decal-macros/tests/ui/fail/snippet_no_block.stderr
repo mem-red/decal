@@ -1,0 +1,5 @@
+error: unexpected end of input, expected `{` after the [`decal::prelude::Snippet`] node
+ --> tests/ui/fail/snippet_no_block.rs:7:9
+  |
+7 |         }
+  |         ^

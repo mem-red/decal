@@ -28,9 +28,3 @@ fn decal_impl(input: TokenStream, mode: &mut TokenGenMode) -> TokenStream {
     let expanded = root.tokenize(mode, &mut ident_gen, None);
     TokenStream::from(expanded)
 }
-
-#[test]
-fn ui() {
-    let t = trybuild::TestCases::new();
-    t.compile_fail("tests/ui/*.rs");
-}

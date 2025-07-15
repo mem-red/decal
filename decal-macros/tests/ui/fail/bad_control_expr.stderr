@@ -1,0 +1,5 @@
+error: unexpected end of input, expected an expression
+ --> tests/ui/fail/bad_control_expr.rs:7:9
+  |
+7 |         }
+  |         ^

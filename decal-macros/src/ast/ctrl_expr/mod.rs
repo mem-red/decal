@@ -1,4 +1,5 @@
 mod expr;
+mod expr_break;
 mod expr_for_loop;
 mod expr_if;
 mod expr_loop;
@@ -6,6 +7,7 @@ mod expr_match;
 mod expr_while;
 
 pub(crate) use expr::*;
+use expr_break::*;
 use expr_for_loop::*;
 use expr_if::*;
 use expr_loop::*;

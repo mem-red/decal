@@ -1,4 +1,4 @@
-use crate::{layout::Renderable, prelude::Fill};
+use crate::layout::Renderable;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Column {
