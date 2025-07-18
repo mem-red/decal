@@ -1,7 +1,11 @@
+// Private
+mod macros;
+
+// Public
 pub mod attributes;
 pub mod layout;
 pub mod nodes;
 pub mod prelude;
 
-// Macros
+// Public macros re-export
 pub use decal_macros::*;

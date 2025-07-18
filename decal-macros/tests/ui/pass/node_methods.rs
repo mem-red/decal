@@ -9,8 +9,3 @@ fn main() {
         }.set_background(None)
     };
 }
-
-// TODO: Allow this kind of parsing:
-// Column().spacing(10).padding(5) {
-//     Text("method chain")
-// }

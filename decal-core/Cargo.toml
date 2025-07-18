@@ -9,4 +9,6 @@ repository = "https://github.com/mem-red/decal"
 
 [dependencies]
 atree = "0.5.2"
+cosmic-text = "0.14.2"
 decal-macros = { path = "../decal-macros" }
+taffy = "0.8.3"

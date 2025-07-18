@@ -1,115 +1,58 @@
+use decal::prelude::*;
+use taffy::prelude::*;
 use decal_macros::{decal, fragment};
 
-fn main() {
-    let fragment = fragment! {
-            Row {
-                Column {
-                    Row {}
-                }
-            }.set_spacing(None)
-    };
+fn row_with_text(vertical_pos: &str) -> DecalFragment {
+    fragment! {
+        Row {
+            Text(format!("{vertical_pos}_left"))
+            Text(format!("{vertical_pos}_right"))
+        }
+    }
+}
 
-    let cond = "";
-    let item = decal! {
-            Root(1200.0, 630.0) {
-                Column {
-                     'loop1: for  _ in 0..4 {
-                        Row {
-                            for zed in 0..5 {
-                                for b in 1..5 {
-                                    Row {}
-                                }
-                                Column {
-                                    Row {
-                                        Fragment(fragment)
+// fn main() {
+//     let _item = decal! {
+//             Root(1200.0, 630.0) {
+//                 Column {
+//                     Fragment(row_with_text("top"))
+//                     Fragment(row_with_text("bottom"))
+//                 }
+//                 .spacing(12.0)
+//                 .width(Dimension::AUTO)
+//             }
+//     };
+// }
 
-                                        if 0 == zed || 3 == 4 || 5 != 5 {
-                                            for c in 0..1 {
-                                                Column {
-                                                    Row {}
-                                                }
-                                            }
-                                        } else if 2 == 10 {
-                                            Snippet {
-                                                break 'loop1;
-                                            }
-                                        } else {
-                                            Column {}
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+fn main() -> Result<(), taffy::TaffyError> {
+    let mut taffy: TaffyTree<()> = TaffyTree::new();
 
-                match cond {
-                    "col" => Column {
-                        Row {
-                            Column {
-                                Snippet {
-                                    let my_const: usize = 45;
-                                }
-
-                                Row {
-                                    Snippet {
-                                        let another: usize = 10;
-                                        println!("{}", my_const);
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    x if x == "cond" => Snippet {
-                      let a = 5;
-                    },
-                    y =>  for e in 0..10 {
-                        Row() {}
-                    },
-                    "c" => Snippet { if b == c {
-
-                        } let b = c; },
-                    "d" => Snippet {},
-                    "e" => Snippet { let c = 5; },
-                    "f" => Fragment(fragment),
-                    _ => Row {},
-                }
-
-                'myloop: loop {
-                    Row {}
-
-                    if cond == "c" {
-                        Snippet { break 'myloop; }
-                    }
-                }
-                
-                loop {
-                    Row {}
-
-                    if cond == "c" {
-                        Snippet { break 'myloop; }
-                    }
-                }
-                
-                Row {
-                    'myloop: while 1 == 2 {
-                        Row {}
+    let child = taffy.new_leaf(Style {
+        size: Size { width: Dimension::from_percent(0.5), height: Dimension::AUTO },
+        ..Default::default()
+    })?;
     
-                        if cond == "c" {
-                            Snippet { break 'myloop; }
-                        }
-                    }
-                    
-                    while 3 == 4 {
-                        Row {}
-    
-                        if cond == "c" {
-                            Snippet { break 'myloop; }
-                        }
-                    } 
-                }
-            }
-                .set_background(Some(Fill::Color))
-                .set_background(None)
-    };
+    let node = taffy.new_with_children(
+        Style {
+            size: Size { width: Dimension::from_length(100.0), height: Dimension::from_length(100.0) },
+            justify_content: Some(JustifyContent::Center), 
+            ..Default::default()
+        },
+        &[child],
+    )?;
+
+    println!("Compute layout with 100x100 viewport:");
+    taffy.compute_layout(
+        node,
+        Size { height: AvailableSpace::Definite(100.0), width: AvailableSpace::Definite(100.0) },
+    )?;
+    println!("node: {:#?}", taffy.layout(node)?);
+    println!("child: {:#?}", taffy.layout(child)?);
+
+    println!("Compute layout with undefined (infinite) viewport:");
+    taffy.compute_layout(node, Size::MAX_CONTENT)?;
+    println!("node: {:#?}", taffy.layout(node)?);
+    println!("child: {:#?}", taffy.layout(child)?);
+
+    Ok(())
 }

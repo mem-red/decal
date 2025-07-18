@@ -1,8 +1,53 @@
 use crate::nodes::{Column, Fragment, Root, Row, Snippet, Text};
 use atree::{Arena, Token};
+use taffy::prelude::*;
+
+pub type NodeId = usize;
 
 pub(crate) trait Renderable {
     fn to_svg(&self) -> &str;
+}
+
+fn main() -> Result<(), taffy::TaffyError> {
+    let mut taffy: TaffyTree<()> = TaffyTree::new();
+
+    let child = taffy.new_leaf(Style {
+        size: Size {
+            width: Dimension::from_percent(0.5),
+            height: Dimension::AUTO,
+        },
+        ..Default::default()
+    })?;
+
+    let node = taffy.new_with_children(
+        Style {
+            size: Size {
+                width: Dimension::from_length(100.0),
+                height: Dimension::from_length(100.0),
+            },
+            justify_content: Some(JustifyContent::Center),
+            ..Default::default()
+        },
+        &[child],
+    )?;
+
+    println!("Compute layout with 100x100 viewport:");
+    taffy.compute_layout(
+        node,
+        Size {
+            height: AvailableSpace::Definite(100.0),
+            width: AvailableSpace::Definite(100.0),
+        },
+    )?;
+    println!("node: {:#?}", taffy.layout(node)?);
+    println!("child: {:#?}", taffy.layout(child)?);
+
+    println!("Compute layout with undefined (infinite) viewport:");
+    taffy.compute_layout(node, Size::MAX_CONTENT)?;
+    println!("node: {:#?}", taffy.layout(node)?);
+    println!("child: {:#?}", taffy.layout(child)?);
+
+    Ok(())
 }
 
 #[derive(Debug, Clone)]
@@ -86,17 +131,13 @@ impl Renderable for Node {
 #[derive(Debug, Clone)]
 pub struct Node {
     pub kind: NodeKind,
-    // Cache
-    pub(crate) computed_width: Option<f32>,
-    pub(crate) computed_height: Option<f32>,
+    pub style: Style,
 }
 
 impl Node {
     pub fn new(kind: NodeKind) -> Self {
         Self {
-            kind,
-            computed_height: None,
-            computed_width: None,
+            kind, 
         }
     }
 }
