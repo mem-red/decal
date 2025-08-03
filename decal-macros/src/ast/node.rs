@@ -6,7 +6,7 @@ use crate::{
         method_call::NodeMethodCall,
     },
 };
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use quote::{format_ident, quote};
 use syn::{
     Block, Error as SynError, Expr, Ident, Result as SynResult, Token, braced, parenthesized,
@@ -130,9 +130,14 @@ impl Tokenize for Node {
             }
         }
 
+        let is_root = self.name == "Root";
         let name_lowercased = self.name.to_string().to_lowercase();
         let node_kind_ident = format_ident!("{}", self.name);
-        let node_token = ident_gen.uniq(&format!("{}_token", name_lowercased));
+        let node_token = if is_root {
+            format_ident!("{}", name_lowercased, span = Span::call_site())
+        } else {
+            ident_gen.uniq(&format!("{}_node", name_lowercased))
+        };
         let ctor_args = &self.args;
 
         // Chain method calls for the node
@@ -142,14 +147,10 @@ impl Tokenize for Node {
             quote! { .#method_name(#method_args) }
         });
 
-        let node_expr = if self.methods.is_empty() {
-            quote! { #node_kind_ident::new(#ctor_args) }
-        } else {
-            // Deref the "&mut Node" returned from the last method call
-            quote! {
-                *#node_kind_ident::new(#ctor_args)
-                    #(#method_call_tokens)*
-            }
+        let node_expr = quote! {
+            #node_kind_ident::new(#ctor_args)
+                #(#method_call_tokens)*
+            .build()
         };
 
         let children_tokens = if let TokenGenMode::Full { root_found } = mode {
@@ -164,28 +165,20 @@ impl Tokenize for Node {
                 .collect::<Vec<_>>()
         };
 
-        let decal_assignment = match mode {
-            TokenGenMode::Full { .. } => quote! { Decal::new(#node_expr); },
-            TokenGenMode::Partial => {
-                quote! { DecalFragment::new(NodeKind::#node_kind_ident(#node_expr)); }
-            }
-        };
-
         match parent_token {
             // Root node
             None => quote! {
                 {
                     use decal::prelude::*;
-                    let mut decal = #decal_assignment
-                    let #node_token = decal.root();
+                    let mut #node_token = #node_expr;
+                    // let mut #node_token = decal.root();
                     #(#children_tokens)*
-                    decal
+                    #node_token
                 }
             },
             // Child node
             Some(parent_token) => self.generate_non_root_node_tokens(
                 parent_token,
-                &node_kind_ident,
                 &node_token,
                 &node_expr,
                 quote! { #(#children_tokens)* },
@@ -199,7 +192,6 @@ impl Node {
     ///
     /// # Parameters
     /// - `parent_token`: The parent node's identifier.
-    /// - `node_kind_ident`: The [`NodeKind`](decal::prelude::NodeKind) variant.
     /// - `node_token`: The unique identifier variable for this node's token.
     /// - `node_expr`: The expression that constructs this node.
     /// - `children_tokens`: The generated token stream for this node's children.
@@ -209,21 +201,19 @@ impl Node {
     fn generate_non_root_node_tokens(
         &self,
         parent_token: &proc_macro2::Ident,
-        node_kind_ident: &Ident,
         node_token: &Ident,
         node_expr: &TokenStream,
         children_tokens: TokenStream,
     ) -> TokenStream {
         if self.name == "Fragment" {
             let args = &self.args;
-            quote! { decal.append_fragment(#parent_token, #args.clone()); }
+            quote! { #parent_token.append_child(#args); }
         } else if self.name == "Snippet" {
             quote! { #children_tokens }
         } else {
             quote! {
-                let #node_token = decal.append_child(
-                    #parent_token,
-                    Node::new(NodeKind::#node_kind_ident(#node_expr))
+                let mut #node_token = #parent_token.append_child(
+                    #node_expr
                 );
                 #children_tokens
             }
