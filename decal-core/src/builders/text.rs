@@ -3,8 +3,13 @@ use taffy::prelude::*;
 
 #[derive(Debug)]
 pub struct Text {
-    content: String,
+    meta: TextMeta,
     style: Style,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct TextMeta {
+    content: String,
 }
 
 impl Text {
@@ -13,17 +18,14 @@ impl Text {
         S: Into<String>,
     {
         Self {
-            content: content.into(),
+            meta: TextMeta {
+                content: content.into(),
+            },
             style: Style::default(),
         }
     }
 
     pub fn build(&self) -> Node {
-        Node::new(
-            NodeKind::Text {
-                content: self.content.to_owned(),
-            },
-            self.style.to_owned(),
-        )
+        Node::new(NodeKind::Text(self.meta.to_owned()), self.style.to_owned())
     }
 }

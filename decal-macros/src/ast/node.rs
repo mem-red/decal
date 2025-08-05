@@ -170,15 +170,15 @@ impl Tokenize for Node {
             None => quote! {
                 {
                     use decal::prelude::*;
-                    let mut #node_token = #node_expr;
-                    // let mut #node_token = decal.root();
+                    let mut decal = Decal::new(#node_expr);
+                    let mut #node_token = decal.root_id();
                     #(#children_tokens)*
-                    #node_token
+                    decal
                 }
             },
             // Child node
-            Some(parent_token) => self.generate_non_root_node_tokens(
-                parent_token,
+            Some(parent_id) => self.generate_non_root_node_tokens(
+                parent_id,
                 &node_token,
                 &node_expr,
                 quote! { #(#children_tokens)* },
@@ -191,7 +191,7 @@ impl Node {
     /// Generates token stream for non-root nodes.
     ///
     /// # Parameters
-    /// - `parent_token`: The parent node's identifier.
+    /// - `parent_id`: The parent node's identifier.
     /// - `node_token`: The unique identifier variable for this node's token.
     /// - `node_expr`: The expression that constructs this node.
     /// - `children_tokens`: The generated token stream for this node's children.
@@ -200,19 +200,20 @@ impl Node {
     /// A [`TokenStream`] for the non-root node.
     fn generate_non_root_node_tokens(
         &self,
-        parent_token: &proc_macro2::Ident,
+        parent_id: &proc_macro2::Ident,
         node_token: &Ident,
         node_expr: &TokenStream,
         children_tokens: TokenStream,
     ) -> TokenStream {
         if self.name == "Fragment" {
             let args = &self.args;
-            quote! { #parent_token.append_child(#args); }
+            quote! { decal.append_fragment(#parent_id, #args); }
         } else if self.name == "Snippet" {
             quote! { #children_tokens }
         } else {
             quote! {
-                let mut #node_token = #parent_token.append_child(
+                let #node_token = decal.append_child(
+                    #parent_id,
                     #node_expr
                 );
                 #children_tokens

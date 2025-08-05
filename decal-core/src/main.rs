@@ -2,31 +2,38 @@ use decal::prelude::*;
 use decal_macros::{decal, fragment};
 use taffy::{Size, prelude::TaffyMaxContent};
 
-fn row_with_text(vertical_pos: &str) -> Node {
+fn another() -> Decal {
     fragment! {
         Row {
-            Text(format!("{vertical_pos}_left"))
-            Text(format!("{vertical_pos}_right"))
+            Text("another?")
         }
     }
 }
 
+fn row_with_text(vertical_pos: &str) -> Decal {
+    fragment! {
+        Row {
+            Text(format!("{vertical_pos}_left"))
+            Fragment(another())
+            Text(format!("{vertical_pos}_right"))
+        }.reverse(true)
+    }
+}
+
 fn main() {
-    let mut decal_1 = decal! {
+    let mut dcl = decal! {
             Root(1200, 630) {
                 Column {
                     Fragment(row_with_text("top"))
-                    Fragment(row_with_text("bottom"))
                     Row {
                         Column {
-                            Row {
                                 Text("abcdb")
-                            }.reverse(false)
-                        }.reverse(true)
+                        }
                     }.reverse(false)
                 }
             }
     };
 
-    decal_1.compute_layout(Size::MAX_CONTENT);
+    dcl.compute_layout(Size::MAX_CONTENT, true);
+    dcl.print_tree();
 }

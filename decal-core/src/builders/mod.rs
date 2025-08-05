@@ -1,11 +1,11 @@
 mod column;
-mod fragment;
+mod flex;
 mod root;
 mod row;
 mod text;
 
 pub use column::*;
-pub use fragment::*;
+pub use flex::*;
 pub use root::*;
 pub use row::*;
 pub use text::*;
