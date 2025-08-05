@@ -1,4 +1,7 @@
-use crate::layout::{Node, NodeKind};
+use crate::{
+    layout::{Node, NodeKind},
+    prelude::Padding,
+};
 use taffy::prelude::*;
 
 #[derive(Debug)]
@@ -23,6 +26,16 @@ impl Column {
         } else {
             FlexDirection::Column
         };
+        self
+    }
+
+    pub fn padding<T>(&mut self, value: T) -> &mut Self
+    where
+        T: Into<Option<Padding>>,
+    {
+        self.style.padding = value
+            .into()
+            .map_or(taffy::Rect::zero(), |inner| inner.to_style());
         self
     }
 

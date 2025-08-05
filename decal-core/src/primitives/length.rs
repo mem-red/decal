@@ -9,7 +9,7 @@ pub enum Length {
 }
 
 impl Length {
-    fn to_length_percentage(&self) -> LengthPercentage {
+    pub(crate) fn to_length_percentage(&self) -> LengthPercentage {
         match *self {
             Self::Zero => LengthPercentage::ZERO,
             Self::Pixels(value) => LengthPercentage::length(value),

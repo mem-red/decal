@@ -3,10 +3,10 @@ pub struct Rect<T>
 where
     T: Copy,
 {
-    top: T,
-    right: T,
-    bottom: T,
-    left: T,
+    pub(crate) top: T,
+    pub(crate) right: T,
+    pub(crate) bottom: T,
+    pub(crate) left: T,
 }
 
 impl<T> Rect<T>

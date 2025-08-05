@@ -33,6 +33,8 @@ fn main() {
                         }
                     }.reverse(false)
                 }
+                .padding(*Padding::new().top(Length::Percent(0.65)))
+                .padding(None)
             }
     };
 
