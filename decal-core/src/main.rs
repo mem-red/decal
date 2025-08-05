@@ -1,11 +1,13 @@
 use decal::prelude::*;
 use decal_macros::{decal, fragment};
-use taffy::{Size, prelude::TaffyMaxContent};
 
 fn another() -> Decal {
     fragment! {
         Row {
             Text("another?")
+            Block {
+                Image("https://t.co/img.jpeg")
+            }
         }
     }
 }
@@ -34,6 +36,6 @@ fn main() {
             }
     };
 
-    dcl.compute_layout(Size::MAX_CONTENT, true);
+    dcl.compute_layout(true);
     dcl.print_tree();
 }

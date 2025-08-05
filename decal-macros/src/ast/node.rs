@@ -2,6 +2,7 @@ use crate::{
     IdentGen,
     ast::{
         child::{NodeChild, Tokenize, parse_children},
+        constants::ATOMIC_NODES,
         ctrl_expr::TokenGenMode,
         method_call::NodeMethodCall,
     },
@@ -37,6 +38,10 @@ impl Parse for Node {
         };
 
         let children = if input.peek(token::Brace) {
+            if ATOMIC_NODES.contains(&name.to_string().as_str()) {
+                return Err(input.error("this node cannot contain children"));
+            }
+
             let content;
             let brace_token = braced!(content in input);
 

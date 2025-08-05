@@ -1,7 +1,11 @@
-use crate::builders::{RootMeta, TextMeta};
+use crate::{
+    builders::{RootMeta, TextMeta},
+    prelude::ImageMeta,
+};
 use taffy::{
     Cache, CacheTree, compute_block_layout, compute_cached_layout, compute_flexbox_layout,
-    compute_leaf_layout, compute_root_layout, prelude::*, print_tree, round_layout,
+    compute_grid_layout, compute_leaf_layout, compute_root_layout, prelude::*, print_tree,
+    round_layout,
 };
 
 const ROOT_ID: usize = 0;
@@ -28,6 +32,7 @@ impl Decal {
     }
 
     pub fn append_child(&mut self, parent_id: usize, child: Node) -> usize {
+        self.assert_non_atomic(parent_id);
         self.nodes.push(child);
         let child_id = self.nodes.len() - 1;
         self.nodes[parent_id].children.push(child_id);
@@ -39,6 +44,7 @@ impl Decal {
             return;
         }
 
+        self.assert_non_atomic(parent_id);
         let root_id = self.nodes.len(); // Fragment root node
         self.nodes[parent_id].children.push(root_id);
         self.nodes.reserve(fragment.nodes.len()); // Pre-allocation
@@ -53,11 +59,8 @@ impl Decal {
         }
     }
 
-    pub fn compute_layout(&mut self, available_space: Size<AvailableSpace>, use_rounding: bool) {
-        // let root_node = &self.nodes[ROOT_ID];
-        compute_root_layout(self, NodeId::from(ROOT_ID), available_space);
-
-        // root_node;
+    pub fn compute_layout(&mut self, use_rounding: bool) {
+        compute_root_layout(self, NodeId::from(ROOT_ID), Size::MAX_CONTENT);
 
         if use_rounding {
             round_layout(self, NodeId::from(ROOT_ID))
@@ -68,7 +71,14 @@ impl Decal {
         print_tree(self, NodeId::from(ROOT_ID));
     }
 
-    //
+    /// Panics if the node with the given `id` is atomic (cannot have children).
+    ///
+    /// Note: This is a safety check. The macro should prevent adding children to atomic nodes at compile time.
+    fn assert_non_atomic(&self, id: usize) {
+        if self.nodes[id].atomic {
+            panic!("node with id {id} is atomic and cannot contain children");
+        }
+    }
 
     #[inline(always)]
     fn node_from_id(&self, node_id: NodeId) -> &Node {
@@ -84,16 +94,34 @@ impl Decal {
 #[derive(Debug, Clone)]
 pub(crate) enum NodeKind {
     Root(RootMeta),
+    Block,
     Flex,
     Column,
     Row,
+    Grid,
     Text(TextMeta),
+    Image(ImageMeta),
+}
+
+impl NodeKind {
+    fn is_atomic(&self) -> bool {
+        match self {
+            NodeKind::Root(_)
+            | NodeKind::Block
+            | NodeKind::Flex
+            | NodeKind::Column
+            | NodeKind::Row
+            | NodeKind::Grid => false,
+            NodeKind::Text(_) | NodeKind::Image(_) => true,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct Node {
     kind: NodeKind,
     style: Style,
+    atomic: bool,
     children: Vec<usize>,
     // Computed
     cache: Cache,
@@ -104,6 +132,7 @@ pub struct Node {
 impl Node {
     pub(crate) fn new(kind: NodeKind, style: Style) -> Self {
         Self {
+            atomic: kind.is_atomic(),
             kind,
             style,
             children: Vec::new(),
@@ -174,9 +203,11 @@ impl taffy::LayoutPartialTree for Decal {
             // };
 
             match node.kind {
-                NodeKind::Root(_) => compute_block_layout(tree, node_id, inputs),
-                NodeKind::Column | NodeKind::Row => compute_flexbox_layout(tree, node_id, inputs),
-                // NodeKind::Grid => compute_grid_layout(node, node_id, inputs),
+                NodeKind::Root(_) | NodeKind::Block => compute_block_layout(tree, node_id, inputs),
+                NodeKind::Flex | NodeKind::Column | NodeKind::Row => {
+                    compute_flexbox_layout(tree, node_id, inputs)
+                }
+                NodeKind::Grid => compute_grid_layout(tree, node_id, inputs),
                 NodeKind::Text(_) => compute_leaf_layout(
                     inputs,
                     &node.style,
@@ -192,15 +223,16 @@ impl taffy::LayoutPartialTree for Decal {
                         // )
                     },
                 ),
-                _ => unreachable!(),
-                // NodeKind::Image => compute_leaf_layout(
-                //     inputs,
-                //     &node.style,
-                //     |_val, _basis| 0.0,
-                //     |known_dimensions, _available_space| {
-                //         image_measure_function(known_dimensions, node.image_data.as_ref().unwrap())
-                //     },
-                // ),
+                NodeKind::Image(_) => compute_leaf_layout(
+                    inputs,
+                    &node.style,
+                    |_val, _basis| 0.0,
+                    |known_dimensions, _available_space| {
+                        // TODO:
+                        Size::zero()
+                        // image_measure_function(known_dimensions, node.image_data.as_ref().unwrap())
+                    },
+                ),
             }
         })
     }
@@ -314,10 +346,13 @@ impl taffy::PrintTree for Decal {
     fn get_debug_label(&self, node_id: NodeId) -> &'static str {
         match self.node_from_id(node_id).kind {
             NodeKind::Root(_) => "ROOT",
+            NodeKind::Block => "BLOCK",
             NodeKind::Flex => "FLEX",
             NodeKind::Column => "COLUMN",
             NodeKind::Row => "ROW",
+            NodeKind::Grid => "GRID",
             NodeKind::Text(_) => "TEXT",
+            NodeKind::Image(_) => "IMAGE",
         }
     }
 
