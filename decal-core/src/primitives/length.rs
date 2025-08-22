@@ -1,19 +1,58 @@
-use taffy::{LengthPercentage, prelude::TaffyZero};
+use taffy::prelude::TaffyZero;
 
 #[derive(Debug, Clone, Copy, Default)]
-pub enum Length {
+enum LengthInner {
     #[default]
     Zero,
     Pixels(f32),
     Percent(f32),
 }
 
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Length(LengthInner);
+
 impl Length {
-    pub(crate) fn to_length_percentage(&self) -> LengthPercentage {
-        match *self {
-            Self::Zero => LengthPercentage::ZERO,
-            Self::Pixels(value) => LengthPercentage::length(value),
-            Self::Percent(value) => LengthPercentage::percent(value),
+    pub const fn zero() -> Self {
+        Self(LengthInner::Zero)
+    }
+
+    pub fn pixels<T>(value: T) -> Self
+    where
+        T: Into<f64>,
+    {
+        Self(LengthInner::Pixels(value.into() as f32))
+    }
+
+    pub fn percent<T>(value: T) -> Self
+    where
+        T: Into<f64>,
+    {
+        Self(LengthInner::Percent(value.into() as f32))
+    }
+
+    pub(crate) fn to_length_percentage(&self) -> taffy::LengthPercentage {
+        match self.0 {
+            LengthInner::Zero => taffy::LengthPercentage::ZERO,
+            LengthInner::Pixels(value) => taffy::LengthPercentage::length(value),
+            LengthInner::Percent(value) => taffy::LengthPercentage::percent(value / 100.0),
         }
+    }
+}
+
+pub(super) mod helpers {
+    use super::Length;
+
+    pub fn pix<T>(value: T) -> Length
+    where
+        T: Into<f64>,
+    {
+        Length::pixels(value)
+    }
+
+    pub fn pct<T>(value: T) -> Length
+    where
+        T: Into<f64>,
+    {
+        Length::percent(value)
     }
 }

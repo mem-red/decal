@@ -5,12 +5,12 @@ use syn::{
     token::Comma,
 };
 
-pub(crate) struct NodeMethodCall {
+pub(crate) struct MethodCall {
     pub(crate) name: Ident,
     pub(crate) args: Punctuated<Expr, Comma>,
 }
 
-impl Parse for NodeMethodCall {
+impl Parse for MethodCall {
     fn parse(input: ParseStream) -> SynResult<Self> {
         let name: Ident = input.parse()?;
         let content;

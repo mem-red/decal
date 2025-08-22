@@ -4,7 +4,7 @@ use crate::{
         child::{NodeChild, Tokenize, parse_children},
         constants::ATOMIC_NODES,
         ctrl_expr::TokenGenMode,
-        method_call::NodeMethodCall,
+        method_call::MethodCall,
     },
 };
 use proc_macro2::{Span, TokenStream};
@@ -20,7 +20,7 @@ pub(crate) struct Node {
     pub(crate) name: Ident,
     pub(crate) args: Punctuated<Expr, Comma>,
     pub(crate) children: Vec<NodeChild>,
-    pub(crate) methods: Vec<NodeMethodCall>,
+    pub(crate) methods: Vec<MethodCall>,
 }
 
 impl Parse for Node {
@@ -146,11 +146,10 @@ impl Tokenize for Node {
         let ctor_args = &self.args;
 
         // Chain method calls for the node
-        let method_call_tokens = self.methods.iter().map(|method| {
-            let method_name = &method.name;
-            let method_args = &method.args;
-            quote! { .#method_name(#method_args) }
-        });
+        let method_call_tokens = self
+            .methods
+            .iter()
+            .map(|MethodCall { name, args }| quote! { .#name(#args) });
 
         let node_expr = quote! {
             #node_kind_ident::new(#ctor_args)

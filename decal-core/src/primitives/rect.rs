@@ -54,4 +54,8 @@ where
         self.bottom = value;
         self
     }
+    
+    pub fn build(& self) -> Self {
+        *self
+    }
 }

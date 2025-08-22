@@ -13,6 +13,28 @@ pub(crate) struct RootMeta {
     height: f32,
 }
 
+pub trait LengthExt {
+    fn px(self) -> u32;
+    fn pr(self) -> u32;
+}
+
+macro_rules! impl_length_ext_for_int {
+    ($($t:ty),*) => {
+        $(
+            impl LengthExt for $t {
+                fn px(self) -> u32 {
+                    self as u32
+                }
+                fn pr(self) -> u32 {
+                    self as u32
+                }
+            }
+        )*
+    }
+}
+
+impl_length_ext_for_int!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize);
+
 impl Root {
     pub fn new<W, H>(width: W, height: H) -> Self
     where

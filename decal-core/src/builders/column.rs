@@ -1,6 +1,6 @@
 use crate::{
     layout::{Node, NodeKind},
-    prelude::Padding,
+    prelude::{IntoPadding, Padding},
 };
 use taffy::prelude::*;
 
@@ -31,10 +31,10 @@ impl Column {
 
     pub fn padding<T>(&mut self, value: T) -> &mut Self
     where
-        T: Into<Option<Padding>>,
+        T: IntoPadding,
     {
         self.style.padding = value
-            .into()
+            .into_padding()
             .map_or(taffy::Rect::zero(), |inner| inner.to_style());
         self
     }

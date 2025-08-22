@@ -11,3 +11,6 @@ repository = "https://github.com/mem-red/decal"
 cosmic-text = "0.14.2"
 decal-macros = { path = "../decal-macros" }
 taffy = "0.8.3"
+
+[features]
+helpers = []
