@@ -10,7 +10,10 @@ repository = "https://github.com/mem-red/decal"
 [dependencies]
 cosmic-text = "0.14.2"
 decal-macros = { path = "../decal-macros" }
+resvg = "0.45.1"
 taffy = "0.8.3"
+tiny-skia = "0.11.4"
+usvg = "0.45.1"
 
 [features]
 helpers = []

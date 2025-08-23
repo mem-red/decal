@@ -9,7 +9,7 @@ pub struct Image {
 
 #[derive(Debug, Clone)]
 pub(crate) struct ImageMeta {
-    source: String,
+    pub(crate) source: String,
 }
 
 impl Image {

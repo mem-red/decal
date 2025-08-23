@@ -1,7 +1,10 @@
-#[derive(Debug, Clone, Copy)]
+use crate::attributes::Color;
+
+#[derive(Debug, Clone, Copy, Default)]
 pub enum Fill {
-    Color,
-    Transparent, // ?? Merge this into color ??
+    #[default]
+    None,
+    Color(Color),
     Gradient,
     Pattern,
     Image,

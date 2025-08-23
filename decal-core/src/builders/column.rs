@@ -1,12 +1,14 @@
 use crate::{
+    attributes::Fill,
     layout::{Node, NodeKind},
-    prelude::{IntoPadding, Padding},
+    macros::{impl_margin_methods, impl_padding_methods},
 };
 use taffy::prelude::*;
 
 #[derive(Debug)]
 pub struct Column {
     style: Style,
+    background: Fill,
 }
 
 impl Column {
@@ -17,6 +19,7 @@ impl Column {
                 flex_direction: FlexDirection::Column,
                 ..Default::default()
             },
+            background: Fill::default(),
         }
     }
 
@@ -29,13 +32,8 @@ impl Column {
         self
     }
 
-    pub fn padding<T>(&mut self, value: T) -> &mut Self
-    where
-        T: IntoPadding,
-    {
-        self.style.padding = value
-            .into_padding()
-            .map_or(taffy::Rect::zero(), |inner| inner.to_style());
+    pub fn background(&mut self, value: Fill) -> &mut Self {
+        self.background = value;
         self
     }
 
@@ -43,3 +41,6 @@ impl Column {
         Node::new(NodeKind::Column, self.style.to_owned())
     }
 }
+
+impl_padding_methods!(Column);
+impl_margin_methods!(Column);

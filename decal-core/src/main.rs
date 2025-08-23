@@ -1,5 +1,10 @@
+use std::sync::Arc;
+
 use decal::prelude::*;
 use decal_macros::{decal, fragment};
+use resvg::render;
+use tiny_skia::Pixmap;
+use usvg::{Options, Transform, Tree, fontdb::Database};
 
 fn another() -> Decal {
     fragment! {
@@ -33,10 +38,31 @@ fn main() {
                         }
                     }.reverse(false)
                 }
-                .padding((pix(5), pix(4), Length::zero(), pct(10)))
+                .padding([pix(5), pix(4), Length::zero(), pct(10)])
+                .padding_right(pix(96))
+                .background(Fill::Color(Color {
+                    r: 25,
+                    g: 30,
+                    b: 105,
+                    a: 100
+                }))
             }
     };
 
     dcl.compute_layout(true);
-    dcl.print_tree();
+    let svg = dcl.to_svg();
+
+    let mut fontdb = Database::new();
+    fontdb.load_system_fonts();
+    let tree = Tree::from_str(
+        &svg,
+        &Options {
+            fontdb: Arc::new(fontdb),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    let mut pixmap = Pixmap::new(1200, 630).unwrap();
+    render(&tree, Transform::default(), &mut pixmap.as_mut());
+    pixmap.save_png("./output.png").unwrap();
 }

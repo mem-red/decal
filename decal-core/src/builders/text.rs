@@ -9,7 +9,7 @@ pub struct Text {
 
 #[derive(Debug, Clone)]
 pub(crate) struct TextMeta {
-    content: String,
+    pub(crate) content: String,
 }
 
 impl Text {
