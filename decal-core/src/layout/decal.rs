@@ -1,4 +1,6 @@
+use crate::layout::text::measure_function;
 use crate::layout::{Node, NodeKind};
+use cosmic_text::{FontSystem, Metrics};
 use std::fmt::Write;
 use taffy::{
     CacheTree, compute_block_layout, compute_cached_layout, compute_flexbox_layout,
@@ -170,10 +172,7 @@ impl taffy::LayoutPartialTree for Decal {
     ) -> taffy::tree::LayoutOutput {
         compute_cached_layout(self, node_id, inputs, |tree, node_id, inputs| {
             let node = &mut tree.nodes[usize::from(node_id)];
-            // let font_metrics = FontMetrics {
-            //     char_width: 10.0,
-            //     char_height: 10.0,
-            // };
+            let mut font_system = FontSystem::new();
 
             match node.kind {
                 NodeKind::Root(_) | NodeKind::Block => compute_block_layout(tree, node_id, inputs),
@@ -181,19 +180,17 @@ impl taffy::LayoutPartialTree for Decal {
                     compute_flexbox_layout(tree, node_id, inputs)
                 }
                 NodeKind::Grid => compute_grid_layout(tree, node_id, inputs),
-                NodeKind::Text(_) => compute_leaf_layout(
+                NodeKind::Text(ref mut text_node) => compute_leaf_layout(
                     inputs,
                     &node.style,
                     |_val, _basis| 0.0,
                     |known_dimensions, available_space| {
-                        // TODO:
-                        Size::zero()
-                        // text_measure_function(
-                        //     known_dimensions,
-                        //     available_space,
-                        //     node.text_data.as_ref().unwrap(),
-                        //     &font_metrics,
-                        // )
+                        measure_function(
+                            known_dimensions,
+                            available_space,
+                            Some(&mut text_node.context),
+                            &mut font_system,
+                        )
                     },
                 ),
                 NodeKind::Image(_) => compute_leaf_layout(

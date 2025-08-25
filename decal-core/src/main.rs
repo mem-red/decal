@@ -21,7 +21,7 @@ fn row_with_text(vertical_pos: &str) -> Decal {
     fragment! {
         Row {
             Text(format!("{vertical_pos}_left"))
-            Fragment(another())
+            // Fragment(another())
             Text(format!("{vertical_pos}_right"))
         }.reverse(true)
     }
@@ -31,33 +31,36 @@ fn main() {
     let mut dcl = decal! {
             Root(1200, 630) {
                 Column {
-                    Fragment(row_with_text("top"))
-                    Row {
-                        Column {
-                                Text("abcdb")
-                        }
-                    }.reverse(false)
-                }
-                .padding([pix(5), pix(4), Length::zero(), pct(10)])
-                .padding_right(pix(96))
-                .background(Fill::Color(Color {
-                    r: 25,
-                    g: 30,
-                    b: 105,
-                    a: 100
-                }))
+                    Text("hello world!")
+                    Text("second line 🥹")
+                }.padding([pix(0)])
+                // Column {
+                //     // Fragment(row_with_text("123000000"))
+                //     // Row {
+                //     //     Column {
+                //     //             Text("abcdb")
+                //     //     }
+                //     // }.reverse(false)
+                // }
+                // .padding([pix(100)])
+                // .background(Fill::Color(Color {
+                //     r: 25,
+                //     g: 30,
+                //     b: 105,
+                //     a: 100
+                // }))
             }
     };
 
     dcl.compute_layout(true);
+    dcl.print_tree();
     let svg = dcl.to_svg();
+    println!("{}\n\n\n", svg);
 
-    let mut fontdb = Database::new();
-    fontdb.load_system_fonts();
     let tree = Tree::from_str(
         &svg,
         &Options {
-            fontdb: Arc::new(fontdb),
+            fontdb: Arc::new(Database::new()),
             ..Default::default()
         },
     )

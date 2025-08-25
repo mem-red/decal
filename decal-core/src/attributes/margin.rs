@@ -37,6 +37,17 @@ impl IntoMargin for Margin {
     }
 }
 
+impl IntoMargin for [Length; 1] {
+    fn into_margin(self) -> Option<Margin> {
+        Some(Margin(Rect {
+            top: self[0],
+            right: self[0],
+            bottom: self[0],
+            left: self[0],
+        }))
+    }
+}
+
 impl IntoMargin for [Length; 2] {
     fn into_margin(self) -> Option<Margin> {
         Some(Margin(Rect {

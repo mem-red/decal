@@ -37,6 +37,17 @@ impl IntoPadding for Padding {
     }
 }
 
+impl IntoPadding for [Length; 1] {
+    fn into_padding(self) -> Option<Padding> {
+        Some(Padding(Rect {
+            top: self[0],
+            right: self[0],
+            bottom: self[0],
+            left: self[0],
+        }))
+    }
+}
+
 impl IntoPadding for [Length; 2] {
     fn into_padding(self) -> Option<Padding> {
         Some(Padding(Rect {

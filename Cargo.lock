@@ -139,6 +139,7 @@ dependencies = [
  "taffy",
  "tiny-skia",
  "usvg",
+ "zeno",
 ]
 
 [[package]]

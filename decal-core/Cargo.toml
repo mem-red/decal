@@ -14,6 +14,7 @@ resvg = "0.45.1"
 taffy = "0.8.3"
 tiny-skia = "0.11.4"
 usvg = "0.45.1"
+zeno = "0.3.3"
 
 [features]
 helpers = []

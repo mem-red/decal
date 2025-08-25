@@ -68,12 +68,18 @@ impl Node {
                 .unwrap();
             }
             NodeKind::Text(meta) => {
-                write!(
+                let ctx = &meta.context;
+                ctx.write_vertorized_text(
+                    (self.final_layout.location.x, self.final_layout.location.y),
                     out,
-                    r#"<text x="{}" y="{}">{}</text>"#,
-                    self.final_layout.location.x, self.final_layout.location.y, meta.content,
-                )
-                .unwrap();
+                );
+
+                // write!(
+                //     out,
+                //     r#"<text x="{}" y="{}">{}</text>"#,
+                //     self.final_layout.location.x, self.final_layout.location.y, meta.content,
+                // )
+                // .unwrap();
             }
             NodeKind::Image(meta) => {
                 write!(
