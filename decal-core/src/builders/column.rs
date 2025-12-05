@@ -1,30 +1,35 @@
-use crate::{
-    attributes::Fill,
-    layout::{Node, NodeKind},
-    macros::{impl_margin_methods, impl_padding_methods},
-};
+use crate::layout::{Node, NodeKind};
+use crate::macros::impl_node_methods;
+use crate::paint::Appearance;
+use crate::prelude::Typography;
 use taffy::prelude::*;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Column {
-    style: Style,
-    background: Fill,
+    layout: Style,
+    visual: Appearance,
+    typography: Typography,
 }
 
 impl Column {
     pub fn new() -> Self {
         Self {
-            style: Style {
+            layout: Style {
                 display: Display::Flex,
                 flex_direction: FlexDirection::Column,
                 ..Default::default()
             },
-            background: Fill::default(),
+            ..Default::default()
         }
     }
 
+    pub fn hidden(&mut self, value: bool) -> &mut Self {
+        self.layout.display = if value { Display::None } else { Display::Flex };
+        self
+    }
+
     pub fn reverse(&mut self, reverse: bool) -> &mut Self {
-        self.style.flex_direction = if reverse {
+        self.layout.flex_direction = if reverse {
             FlexDirection::ColumnReverse
         } else {
             FlexDirection::Column
@@ -32,15 +37,33 @@ impl Column {
         self
     }
 
-    pub fn background(&mut self, value: Fill) -> &mut Self {
-        self.background = value;
-        self
-    }
-
     pub fn build(&self) -> Node {
-        Node::new(NodeKind::Column, self.style.to_owned())
+        Node::new(
+            NodeKind::Column,
+            self.layout.to_owned(),
+            self.visual.to_owned(),
+            Some(self.typography.to_owned()),
+        )
     }
 }
 
-impl_padding_methods!(Column);
-impl_margin_methods!(Column);
+impl_node_methods!(
+    Column,
+    [
+        aspect_ratio,
+        background,
+        border,
+        border_color,
+        container_align,
+        corner_radius,
+        dimensions,
+        flex_wrap,
+        gap,
+        margin,
+        overflow,
+        padding,
+        position,
+        self_align,
+        text
+    ]
+);
