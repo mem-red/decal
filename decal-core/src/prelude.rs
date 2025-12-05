@@ -1,1 +1,1 @@
-pub use crate::{attributes::*, builders::*, layout::*, primitives::*};
+pub use crate::{attributes::*, builders::*, layout::*, primitives::*, text::*};
