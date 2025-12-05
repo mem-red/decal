@@ -5,7 +5,7 @@ fn main() {
         Root(64.0, 64.0) {
             Column {
                 Text("method chain")
-            }
-        }.set_background(None)
+            }.background(None)
+        }
     };
 }
