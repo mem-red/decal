@@ -1,45 +1,62 @@
 use crate::primitives::{Length, Rect};
 
 #[derive(Debug, Clone, Copy, Default)]
-pub struct Padding(pub Rect<Length>);
+pub struct Border(pub Rect<Length>);
 
-impl Padding {
-    pub(crate) fn to_style(&self) -> taffy::Rect<taffy::LengthPercentage> {
+impl Into<taffy::Rect<taffy::LengthPercentage>> for Border {
+    fn into(self) -> taffy::Rect<taffy::LengthPercentage> {
         taffy::Rect {
-            top: self.top.to_length_percentage(),
-            right: self.right.to_length_percentage(),
-            bottom: self.bottom.to_length_percentage(),
-            left: self.left.to_length_percentage(),
+            top: self.top.into(),
+            right: self.right.into(),
+            bottom: self.bottom.into(),
+            left: self.left.into(),
         }
     }
 }
 
-impl std::ops::Deref for Padding {
+impl std::ops::Deref for Border {
     type Target = Rect<Length>;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-pub trait IntoPadding {
-    fn into_padding(self) -> Option<Padding>;
+impl std::ops::DerefMut for Border {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
 }
 
-impl IntoPadding for Option<Padding> {
-    fn into_padding(self) -> Option<Padding> {
+pub trait IntoBorder {
+    fn into_border(self) -> Option<Border>;
+}
+
+impl IntoBorder for Option<Border> {
+    fn into_border(self) -> Option<Border> {
         self
     }
 }
 
-impl IntoPadding for Padding {
-    fn into_padding(self) -> Option<Padding> {
+impl IntoBorder for Border {
+    fn into_border(self) -> Option<Border> {
         Some(self)
     }
 }
 
-impl IntoPadding for [Length; 1] {
-    fn into_padding(self) -> Option<Padding> {
-        Some(Padding(Rect {
+impl IntoBorder for Length {
+    fn into_border(self) -> Option<Border> {
+        Some(Border(Rect {
+            top: self,
+            right: self,
+            bottom: self,
+            left: self,
+        }))
+    }
+}
+
+impl IntoBorder for [Length; 1] {
+    fn into_border(self) -> Option<Border> {
+        Some(Border(Rect {
             top: self[0],
             right: self[0],
             bottom: self[0],
@@ -48,9 +65,9 @@ impl IntoPadding for [Length; 1] {
     }
 }
 
-impl IntoPadding for [Length; 2] {
-    fn into_padding(self) -> Option<Padding> {
-        Some(Padding(Rect {
+impl IntoBorder for [Length; 2] {
+    fn into_border(self) -> Option<Border> {
+        Some(Border(Rect {
             top: self[0],
             right: self[1],
             bottom: self[0],
@@ -59,9 +76,20 @@ impl IntoPadding for [Length; 2] {
     }
 }
 
-impl IntoPadding for [Length; 4] {
-    fn into_padding(self) -> Option<Padding> {
-        Some(Padding(Rect {
+impl IntoBorder for [Length; 3] {
+    fn into_border(self) -> Option<Border> {
+        Some(Border(Rect {
+            top: self[0],
+            right: self[1],
+            bottom: self[2],
+            left: self[1],
+        }))
+    }
+}
+
+impl IntoBorder for [Length; 4] {
+    fn into_border(self) -> Option<Border> {
+        Some(Border(Rect {
             top: self[0],
             right: self[1],
             bottom: self[2],

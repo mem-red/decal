@@ -3,13 +3,13 @@ use crate::primitives::{Length, Rect};
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Margin(pub Rect<Length>);
 
-impl Margin {
-    pub(crate) fn to_style(&self) -> taffy::Rect<taffy::LengthPercentageAuto> {
+impl Into<taffy::Rect<taffy::LengthPercentageAuto>> for Margin {
+    fn into(self) -> taffy::Rect<taffy::LengthPercentageAuto> {
         taffy::Rect {
-            top: self.top.to_length_percentage_auto(),
-            right: self.right.to_length_percentage_auto(),
-            bottom: self.bottom.to_length_percentage_auto(),
-            left: self.left.to_length_percentage_auto(),
+            top: self.top.into(),
+            right: self.right.into(),
+            bottom: self.bottom.into(),
+            left: self.left.into(),
         }
     }
 }
@@ -18,6 +18,12 @@ impl std::ops::Deref for Margin {
     type Target = Rect<Length>;
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl std::ops::DerefMut for Margin {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
@@ -34,6 +40,17 @@ impl IntoMargin for Option<Margin> {
 impl IntoMargin for Margin {
     fn into_margin(self) -> Option<Margin> {
         Some(self)
+    }
+}
+
+impl IntoMargin for Length {
+    fn into_margin(self) -> Option<Margin> {
+        Some(Margin(Rect {
+            top: self,
+            right: self,
+            bottom: self,
+            left: self,
+        }))
     }
 }
 
@@ -54,6 +71,17 @@ impl IntoMargin for [Length; 2] {
             top: self[0],
             right: self[1],
             bottom: self[0],
+            left: self[1],
+        }))
+    }
+}
+
+impl IntoMargin for [Length; 3] {
+    fn into_margin(self) -> Option<Margin> {
+        Some(Margin(Rect {
+            top: self[0],
+            right: self[1],
+            bottom: self[2],
             left: self[1],
         }))
     }
