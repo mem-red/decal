@@ -29,7 +29,7 @@ impl Parse for NodeChild {
     fn parse(input: ParseStream) -> SynResult<Self> {
         match input.parse::<CtrlExpr>()? {
             CtrlExpr::NotAnExpr => {
-                // Parse DSL nodes
+                // parse DSL nodes
                 if input.peek(Ident) && (input.peek2(token::Paren) || input.peek2(token::Brace)) {
                     let ident: Ident = input.fork().parse()?;
 
@@ -53,7 +53,7 @@ impl Parse for NodeChild {
                     ))
                 }
             }
-            // Parse control expressions
+            // parse control expressions
             expr => Ok(NodeChild::CtrlExpr(expr)),
         }
     }
