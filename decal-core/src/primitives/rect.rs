@@ -36,3 +36,17 @@ impl Default for Rect<Length> {
         )
     }
 }
+
+impl<T> Into<taffy::Rect<T>> for Rect<T>
+where
+    T: Copy,
+{
+    fn into(self) -> taffy::Rect<T> {
+        taffy::Rect {
+            top: self.top,
+            right: self.right,
+            bottom: self.bottom,
+            left: self.left,
+        }
+    }
+}
