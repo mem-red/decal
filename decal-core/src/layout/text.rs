@@ -1,139 +1,172 @@
-use cosmic_text::{Attrs, Buffer, Command, FontSystem, Metrics, Shaping, SwashCache};
+use crate::layout::{DEFAULT_FONT_FAMILY, Typography};
+use crate::prelude::{BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry};
+use crate::text::{FontStyle, FontWeight};
+use crate::utils::{PathBuilder, encode_image};
+use base64::Engine;
+use base64::engine::general_purpose::STANDARD as BASE64;
+use cosmic_text::{Attrs, Buffer, Command, Family, FontSystem, Metrics, Shaping, SwashCache};
+use png::EncodingError;
+use std::sync::{Arc, Mutex};
+use swash::scale::image::Content;
 use taffy::prelude::*;
+use thiserror::Error;
 use zeno::Point;
 
-#[derive(Debug, Clone)]
-pub(crate) struct CosmicTextContext {
-    buffer: cosmic_text::Buffer,
-    metrics: Metrics,
+const DEFAULT_COLOR: &'static str = "#000";
+
+#[derive(Error, Debug)]
+pub enum TextVectorizationError {
+    #[error("cannot write to stream")]
+    SvgWrite(#[from] std::fmt::Error),
+    #[error("failed to encode image")]
+    ImageEncoding(#[from] EncodingError),
 }
 
-impl CosmicTextContext {
-    pub(crate) fn new(
-        metrics: Metrics,
-        spans: &[(&str, Attrs)],
-        attrs: Attrs,
-        font_system: &mut FontSystem,
-    ) -> Self {
-        let mut buffer = Buffer::new_empty(metrics);
-        buffer.set_size(font_system, None, None);
-        buffer.set_rich_text(
-            font_system,
-            spans.iter().map(|(text, attrs)| (*text, attrs.clone())),
-            &attrs,
-            Shaping::Advanced,
-            None,
-        );
-        Self { buffer, metrics }
+#[derive(Debug, Clone)]
+pub(crate) struct TextMeta {
+    pub(crate) content: String,
+    pub(crate) buffer: Buffer,
+    pub(crate) typography: Typography,
+}
+
+impl TextMeta {
+    pub(crate) fn new(content: String) -> Self {
+        Self {
+            content,
+            buffer: Buffer::new_empty(Metrics::new(BASE_FONT_SIZE, BASE_LINE_HEIGHT)),
+            typography: Typography::default(),
+        }
     }
 
-    pub(crate) fn write_vertorized_text(&self, offset: (f32, f32), out: &mut String) {
-        let mut font_system = FontSystem::new(); // TODO!
-        let inter_variable = include_bytes!("../inter.ttf");
-        font_system.db_mut().load_font_data(inter_variable.to_vec());
+    pub(crate) fn set_typography(&mut self, typography: Typography) {
+        self.typography = typography;
+    }
 
+    pub(crate) fn write_vectorized_text<T>(
+        &self,
+        out: &mut T,
+        offset: (f32, f32),
+        font_system: &mut FontSystem,
+    ) -> Result<(), TextVectorizationError>
+    where
+        T: std::fmt::Write,
+    {
         let mut cache = SwashCache::new();
-        let line_height = self.metrics.line_height;
 
         for run in self.buffer.layout_runs() {
             for glyph in run.glyphs.iter() {
                 let physical = glyph.physical(offset, 1.0);
                 let glyph_x = physical.x as f32;
                 let glyph_y = physical.y as f32;
+                let line_y = run.line_y;
                 let cache_key = physical.cache_key;
 
-                //
-                //
+                if let Some(image) = cache.get_image_uncached(font_system, cache_key) {
+                    // handle emoji/color glyphs
+                    if image.content == Content::Color {
+                        write!(
+                            out,
+                            r#"<image href="data:image/png;base64,{}" x="{}" y="{}" width="{}" height="{}"/>"#,
+                            BASE64.encode(encode_image(&image)?),
+                            glyph_x + image.placement.left as f32,
+                            line_y + glyph_y - image.placement.top as f32,
+                            image.placement.width,
+                            image.placement.height
+                        )?;
 
-                dbg!(run.text);
-                dbg!(&physical.cache_key);
+                        continue;
+                    }
+                }
 
-                let Some(image) = cache.get_image_uncached(&mut font_system, cache_key) else {
-                    println!("No rasterization needed?");
-                    continue;
-                };
+                if let Some(outline_commands) = cache.get_outline_commands(font_system, cache_key) {
+                    if outline_commands.len() == 0 {
+                        continue;
+                    }
 
-                dbg!(image.source);
-                dbg!(image.content);
-                dbg!(image.placement);
-                dbg!(image.data.len());
+                    write!(out, r#"<path fill=""#)?;
+                    write!(
+                        out,
+                        "{}",
+                        self.typography
+                            .color
+                            .map_or(DEFAULT_COLOR.to_string(), |c| c.to_string())
+                    )?;
+                    write!(out, r#"" d=""#,)?;
 
-                //
-                //
-
-                if let Some(outline_commands) =
-                    cache.get_outline_commands(&mut font_system, cache_key)
-                {
-                    out.push_str(r#"<path d=""#);
+                    let mut d = PathBuilder::new(out);
 
                     for command in outline_commands.iter() {
                         match *command {
                             Command::MoveTo(Point { x, y }) => {
-                                out.push_str(&format!(
-                                    "M{} {} ",
-                                    x + glyph_x,
-                                    line_height - y + glyph_y
-                                ));
+                                d.move_to(x + glyph_x, line_y + glyph_y - y);
                             }
                             Command::LineTo(Point { x, y }) => {
-                                out.push_str(&format!(
-                                    "L{} {} ",
-                                    x + glyph_x,
-                                    line_height - y + glyph_y
-                                ));
+                                d.line_to(x + glyph_x, line_y + glyph_y - y);
                             }
                             Command::CurveTo(
                                 Point { x: x1, y: y1 },
                                 Point { x: x2, y: y2 },
                                 Point { x, y },
                             ) => {
-                                out.push_str(&format!(
-                                    "C{} {} {} {} {} {} ",
+                                d.curve_to(
                                     x1 + glyph_x,
-                                    line_height - y1 + glyph_y,
+                                    line_y + glyph_y - y1,
                                     x2 + glyph_x,
-                                    line_height - y2 + glyph_y,
+                                    line_y + glyph_y - y2,
                                     x + glyph_x,
-                                    line_height - y + glyph_y
-                                ));
+                                    line_y + glyph_y - y,
+                                );
                             }
                             Command::QuadTo(Point { x: cx, y: cy }, Point { x, y }) => {
-                                out.push_str(&format!(
-                                    "Q{} {} {} {} ",
+                                d.quad_to(
                                     cx + glyph_x,
-                                    line_height - cy + glyph_y,
+                                    line_y + glyph_y - cy,
                                     x + glyph_x,
-                                    line_height - y + glyph_y
-                                ));
+                                    line_y + glyph_y - y,
+                                );
                             }
-                            Command::Close => out.push_str("Z"),
+                            Command::Close => d.close()?,
                         }
                     }
 
-                    out.push_str(r#"" />"#);
+                    write!(out, r#"" />"#)?;
                 }
             }
         }
+
+        Ok(())
     }
 
-    fn measure(
+    pub(crate) fn measure(
         &mut self,
-        known_dimensions: taffy::Size<Option<f32>>,
-        available_space: taffy::Size<taffy::AvailableSpace>,
-        font_system: &mut FontSystem,
-    ) -> taffy::Size<f32> {
-        // Set width constraint
+        known_dimensions: Size<Option<f32>>,
+        available_space: Size<AvailableSpace>,
+        fonts: Arc<Mutex<FontRegistry>>,
+    ) -> Size<f32> {
+        let Ok(mut fonts) = fonts.lock() else {
+            return Size::zero();
+        };
+
+        self.init_buffer(&mut fonts);
+
+        if let Size {
+            width: Some(width),
+            height: Some(height),
+        } = known_dimensions
+        {
+            return Size { width, height };
+        }
+
         let width_constraint = known_dimensions.width.or(match available_space.width {
             AvailableSpace::MinContent => Some(0.0),
             AvailableSpace::MaxContent => None,
             AvailableSpace::Definite(width) => Some(width),
         });
-        self.buffer.set_size(font_system, width_constraint, None);
 
-        // Compute layout
-        self.buffer.shape_until_scroll(font_system, false);
+        self.buffer
+            .set_size(&mut fonts.system, width_constraint, None);
+        self.buffer.shape_until_scroll(&mut fonts.system, false);
 
-        // Determine measured size of text
         let (width, total_lines) = self
             .buffer
             .layout_runs()
@@ -142,25 +175,52 @@ impl CosmicTextContext {
             });
         let height = total_lines as f32 * self.buffer.metrics().line_height;
 
-        taffy::Size { width, height }
-    }
-}
-
-pub(crate) fn measure_function(
-    known_dimensions: taffy::Size<Option<f32>>,
-    available_space: taffy::Size<taffy::AvailableSpace>,
-    text_context: Option<&mut CosmicTextContext>,
-    font_system: &mut FontSystem,
-) -> Size<f32> {
-    if let Size {
-        width: Some(width),
-        height: Some(height),
-    } = known_dimensions
-    {
-        return Size { width, height };
+        Size { width, height }
     }
 
-    text_context.map_or(Size::ZERO, |ctx| {
-        ctx.measure(known_dimensions, available_space, font_system)
-    })
+    fn init_buffer(&mut self, fonts: &mut FontRegistry) {
+        let tp = &self.typography;
+        let metrics = Metrics {
+            font_size: tp.size.unwrap_or(BASE_FONT_SIZE),
+            line_height: tp.line_height.unwrap_or(BASE_LINE_HEIGHT),
+        };
+
+        let alias = tp.family.clone().unwrap_or(fonts.get_default_family());
+        let resolved = fonts
+            .resolve_family_name(alias.as_str())
+            .unwrap_or(DEFAULT_FONT_FAMILY.to_string());
+
+        let family = match resolved.as_str() {
+            "sans-serif" => Family::SansSerif,
+            "serif" => Family::Serif,
+            "mono" | "monospace" => Family::Monospace,
+            name => Family::Name(name),
+        };
+
+        let mut attrs = Attrs::new()
+            .family(family)
+            .metrics(metrics)
+            .style(tp.style.unwrap_or(FontStyle::Normal).to_cosmic_style())
+            .weight(tp.weight.unwrap_or(FontWeight::Normal).to_cosmic_weight());
+
+        if let Some(letter_spacing) = tp.letter_spacing {
+            attrs = attrs.letter_spacing(letter_spacing);
+        }
+
+        let mut buf = Buffer::new_empty(metrics);
+        let mut brw = buf.borrow_with(&mut fonts.system);
+
+        if let Some(wrap) = tp.wrap {
+            brw.set_wrap(wrap.to_cosmic_wrap());
+        }
+
+        brw.set_rich_text(
+            [(self.content.as_str(), attrs.clone())],
+            &attrs,
+            Shaping::Advanced,
+            tp.align.map(|x| x.to_cosmic_align()),
+        );
+
+        self.buffer = brw.to_owned();
+    }
 }
