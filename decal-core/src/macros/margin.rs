@@ -1,18 +1,12 @@
 macro_rules! impl_margin_methods {
     ($node_name:ident) => {
-        use crate::attributes::IntoMargin;
-
         macro_rules! impl_side {
             ($method:ident, $field:ident) => {
                 pub fn $method<T>(&mut self, value: T) -> &mut Self
                 where
                     T: Into<Option<crate::primitives::Length>>,
                 {
-                    self.style.margin.$field = value
-                        .into()
-                        .map_or(taffy::LengthPercentageAuto::ZERO, |inner| {
-                            inner.to_length_percentage_auto()
-                        });
+                    self.layout.margin.$field = value.into().unwrap_or_default().into();
                     self
                 }
             };
@@ -21,11 +15,9 @@ macro_rules! impl_margin_methods {
         impl $node_name {
             pub fn margin<T>(&mut self, value: T) -> &mut Self
             where
-                T: IntoMargin,
+                T: crate::attributes::IntoMargin,
             {
-                self.style.margin = value
-                    .into_margin()
-                    .map_or(taffy::Rect::zero(), |inner| inner.to_style());
+                self.layout.margin = value.into_margin().unwrap_or_default().into();
                 self
             }
 

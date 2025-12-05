@@ -1,17 +1,12 @@
 macro_rules! impl_padding_methods {
     ($node_name:ident) => {
-        use crate::attributes::IntoPadding;
-
         macro_rules! impl_side {
             ($method:ident, $field:ident) => {
                 pub fn $method<T>(&mut self, value: T) -> &mut Self
                 where
                     T: Into<Option<crate::primitives::Length>>,
                 {
-                    self.style.padding.$field =
-                        value.into().map_or(taffy::LengthPercentage::ZERO, |inner| {
-                            inner.to_length_percentage()
-                        });
+                    self.layout.padding.$field = value.into().unwrap_or_default().into();
                     self
                 }
             };
@@ -20,11 +15,9 @@ macro_rules! impl_padding_methods {
         impl $node_name {
             pub fn padding<T>(&mut self, value: T) -> &mut Self
             where
-                T: IntoPadding,
+                T: crate::attributes::IntoPadding,
             {
-                self.style.padding = value
-                    .into_padding()
-                    .map_or(taffy::Rect::zero(), |inner| inner.to_style());
+                self.layout.padding = value.into_padding().unwrap_or_default().into();
                 self
             }
 
