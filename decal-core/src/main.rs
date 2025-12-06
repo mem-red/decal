@@ -15,12 +15,19 @@ fn heading(owner: &str, repo: &str) -> Decal {
     }
 }
 
-fn stat(value: usize, label: &str) -> Decal {
+fn stat(value: usize, label: &str, icon: &str) -> Decal {
     fragment! {
-        Column {
-            Text(value.to_string())
-            Text(label)
-        }
+        Row {
+            Text(icon)
+            Column {
+                Text(value.to_string())
+                    .color([0, 0, 0])
+                Text(label)
+                    .color([111, 119, 129])
+                    .font_size(28)
+                    .line_height(32)
+            }
+        }.gap(16.pix())
     }
 }
 
@@ -34,34 +41,49 @@ fn main() {
                             Text("F' - A flight software and embedded systems framework")
                                 .color([110, 118, 129])
                         }
-                        Text("RepoImg")
+                            .width(70.pct())
+                        Block {}
+                            .size(196.pix())
+                            .background([0, 0, 0])
                     }
+                        .gap(64.pix())
+                        .flex_grow(1.0)
 
                     // Stats
                     Row {
-                        Fragment(stat(82, "Contributors"))
+                        Fragment(stat(82, "Contributors", "C"))
+                        Fragment(stat(53, "Issues", "I"))
+                        Fragment(stat(6, "Discussions", "D"))
+                        Fragment(stat(800, "Stars", "S"))
+                        Fragment(stat(95, "Forks", "F"))
                     }
+                        .justify_content(JustifyContent::SpaceBetween)
 
                     Row {
-                        Block {}.background([243, 75, 125]).width(Length::percent(61.2))
-                        Block {}.background([227, 76, 37]).width(Length::percent(17.5))
-                        Block {}.background([53, 114, 165]).width(Length::percent(8.9))
-                        Block {}.background([61, 97, 24]).width(Length::percent(5.1))
-                        Block {}.background([176, 114, 25]).width(Length::percent(3.2))
-                        Block {}.background([236, 222, 190]).width(Length::percent(2.1))
-                        Block {}.background([85, 85, 85]).width(Length::percent(1.3))
-                        Block {}.background([240, 224, 90]).width(Length::percent(0.7))
+                        Block {}.background([243, 75, 125]).width(61.2.pct())
+                        Block {}.background([227, 76, 37]).width(17.5.pct())
+                        Block {}.background([53, 114, 165]).width(8.9.pct())
+                        Block {}.background([61, 97, 24]).width(5.1.pct())
+                        Block {}.background([176, 114, 25]).width(3.2.pct())
+                        Block {}.background([236, 222, 190]).width(2.1.pct())
+                        Block {}.background([85, 85, 85]).width(1.3.pct())
+                        Block {}.background([240, 224, 90]).width(0.7.pct())
                     }
-                        .size([Length::percent(100), Length::pixels(32)])
-                        .margin_top(Length::auto())
+                        .height(28.pix())
+                        .margin_x((-76).pix())
+                        .margin_bottom((-76).pix())
                 }
+                    .padding(76.pix())
+                    .align_items(AlignItems::Stretch)
+                    .gap(48.pix())
                     .background([255, 255, 255])
-                    .size([Length::percent(100), Length::percent(100)])
+                    .size(100.pct())
             }
                 .font_size(32)
                 .line_height(46)
                 .color([48, 54, 62])
                 .font_family("MonaSans")
+                .text_wrap(TextWrap::Word)
     };
 
     let mut engine = Engine::new(EngineOptions {
