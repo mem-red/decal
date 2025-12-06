@@ -30,23 +30,17 @@ macro_rules! impl_self_align_methods {
 
             pub fn flex_grow<T>(&mut self, value: T) -> &mut Self
             where
-                T: Into<Option<f64>>,
+                T: Into<Option<f32>>,
             {
-                self.layout.flex_grow = value
-                    .into()
-                    .map(|x| x as f32)
-                    .unwrap_or(taffy::Style::DEFAULT.flex_grow);
+                self.layout.flex_grow = value.into().unwrap_or(taffy::Style::DEFAULT.flex_grow);
                 self
             }
 
             pub fn flex_shrink<T>(&mut self, value: T) -> &mut Self
             where
-                T: Into<Option<f64>>,
+                T: Into<Option<f32>>,
             {
-                self.layout.flex_shrink = value
-                    .into()
-                    .map(|x| x as f32)
-                    .unwrap_or(taffy::Style::DEFAULT.flex_shrink);
+                self.layout.flex_shrink = value.into().unwrap_or(taffy::Style::DEFAULT.flex_shrink);
                 self
             }
         }

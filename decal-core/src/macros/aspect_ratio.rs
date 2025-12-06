@@ -3,9 +3,9 @@ macro_rules! impl_aspect_ratio_methods {
         impl $node_name {
             pub fn aspect_ratio<T>(&mut self, value: T) -> &mut Self
             where
-                T: Into<Option<f64>>,
+                T: Into<Option<f32>>,
             {
-                self.layout.aspect_ratio = value.into().map(|x| x as f32);
+                self.layout.aspect_ratio = value.into();
                 self
             }
         }
