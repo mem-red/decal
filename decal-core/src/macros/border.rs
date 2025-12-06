@@ -21,6 +21,26 @@ macro_rules! impl_border_methods {
                 self
             }
 
+            pub fn border_x<T>(&mut self, value: T) -> &mut Self
+            where
+                T: crate::attributes::IntoBorderPair,
+            {
+                let (left, right) = value.into_border_pair().unwrap_or_default();
+                self.layout.border.left = left.into();
+                self.layout.border.right = right.into();
+                self
+            }
+
+            pub fn border_y<T>(&mut self, value: T) -> &mut Self
+            where
+                T: crate::attributes::IntoBorderPair,
+            {
+                let (top, bottom) = value.into_border_pair().unwrap_or_default();
+                self.layout.border.top = top.into();
+                self.layout.border.bottom = bottom.into();
+                self
+            }
+
             impl_side!(border_top, top);
             impl_side!(border_right, right);
             impl_side!(border_bottom, bottom);

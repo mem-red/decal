@@ -97,3 +97,25 @@ impl IntoMargin for [Length; 4] {
         }))
     }
 }
+
+pub trait IntoMarginPair {
+    fn into_margin_pair(self) -> Option<(Length, Length)>;
+}
+
+impl IntoMarginPair for Length {
+    fn into_margin_pair(self) -> Option<(Length, Length)> {
+        Some((self, self))
+    }
+}
+
+impl IntoMarginPair for [Length; 1] {
+    fn into_margin_pair(self) -> Option<(Length, Length)> {
+        Some((self[0], self[0]))
+    }
+}
+
+impl IntoMarginPair for [Length; 2] {
+    fn into_margin_pair(self) -> Option<(Length, Length)> {
+        Some((self[0], self[1]))
+    }
+}

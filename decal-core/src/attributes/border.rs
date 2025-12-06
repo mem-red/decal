@@ -97,3 +97,25 @@ impl IntoBorder for [Length; 4] {
         }))
     }
 }
+
+pub trait IntoBorderPair {
+    fn into_border_pair(self) -> Option<(Length, Length)>;
+}
+
+impl IntoBorderPair for Length {
+    fn into_border_pair(self) -> Option<(Length, Length)> {
+        Some((self, self))
+    }
+}
+
+impl IntoBorderPair for [Length; 1] {
+    fn into_border_pair(self) -> Option<(Length, Length)> {
+        Some((self[0], self[0]))
+    }
+}
+
+impl IntoBorderPair for [Length; 2] {
+    fn into_border_pair(self) -> Option<(Length, Length)> {
+        Some((self[0], self[1]))
+    }
+}

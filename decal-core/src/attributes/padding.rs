@@ -97,3 +97,25 @@ impl IntoPadding for [Length; 4] {
         }))
     }
 }
+
+pub trait IntoPaddingPair {
+    fn into_padding_pair(self) -> Option<(Length, Length)>;
+}
+
+impl IntoPaddingPair for Length {
+    fn into_padding_pair(self) -> Option<(Length, Length)> {
+        Some((self, self))
+    }
+}
+
+impl IntoPaddingPair for [Length; 1] {
+    fn into_padding_pair(self) -> Option<(Length, Length)> {
+        Some((self[0], self[0]))
+    }
+}
+
+impl IntoPaddingPair for [Length; 2] {
+    fn into_padding_pair(self) -> Option<(Length, Length)> {
+        Some((self[0], self[1]))
+    }
+}

@@ -21,6 +21,26 @@ macro_rules! impl_margin_methods {
                 self
             }
 
+            pub fn margin_x<T>(&mut self, value: T) -> &mut Self
+            where
+                T: crate::attributes::IntoMarginPair,
+            {
+                let (left, right) = value.into_margin_pair().unwrap_or_default();
+                self.layout.margin.left = left.into();
+                self.layout.margin.right = right.into();
+                self
+            }
+
+            pub fn margin_y<T>(&mut self, value: T) -> &mut Self
+            where
+                T: crate::attributes::IntoMarginPair,
+            {
+                let (top, bottom) = value.into_margin_pair().unwrap_or_default();
+                self.layout.margin.top = top.into();
+                self.layout.margin.bottom = bottom.into();
+                self
+            }
+
             impl_side!(margin_top, top);
             impl_side!(margin_right, right);
             impl_side!(margin_bottom, bottom);
