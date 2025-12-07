@@ -14,6 +14,8 @@ pub struct Typography {
     pub wrap: Option<TextWrap>,
     // TODO pub word_spacing: Option<f32>,
     // TODO pub decoration: Option<TextDecoration>,
+    // computed
+    pub(crate) resolved_family: String,
 }
 
 impl Typography {
