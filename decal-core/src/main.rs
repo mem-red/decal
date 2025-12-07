@@ -1,14 +1,15 @@
 use decal::prelude::*;
-use decal_macros::{decal, fragment};
+use decal_macros::{decal, fragment, text};
 use std::time::Instant;
 
 fn heading(owner: &str, repo: &str) -> Decal {
     fragment! {
         Row {
-            Text(owner)
-            Text("/")
-            Text(repo)
-                .font_weight(FontWeight::Black)
+            Text(text! {
+                owner,
+                "/",
+                (repo, { weight: FontWeight::Bold })
+             })
         }
             .font_size(64)
             .line_height(96)
