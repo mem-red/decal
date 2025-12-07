@@ -1,3 +1,4 @@
+use crate::builders::TextSpan;
 use crate::layout::{DEFAULT_FONT_FAMILY, Typography};
 use crate::prelude::{BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry};
 use crate::text::{FontStyle, FontWeight};
@@ -24,15 +25,15 @@ pub enum TextVectorizationError {
 
 #[derive(Debug, Clone)]
 pub(crate) struct TextMeta {
-    pub(crate) content: String,
+    pub(crate) spans: Vec<TextSpan>,
     pub(crate) buffer: Buffer,
     pub(crate) typography: Typography,
 }
 
 impl TextMeta {
-    pub(crate) fn new(content: String) -> Self {
+    pub(crate) fn new(spans: Vec<TextSpan>) -> Self {
         Self {
-            content,
+            spans,
             buffer: Buffer::new_empty(Metrics::new(BASE_FONT_SIZE, BASE_LINE_HEIGHT)),
             typography: Typography::default(),
         }
@@ -83,15 +84,14 @@ impl TextMeta {
                         continue;
                     }
 
-                    write!(out, r#"<path fill=""#)?;
-                    write!(
-                        out,
-                        "{}",
-                        self.typography
-                            .color
-                            .map_or(DEFAULT_COLOR.to_string(), |c| c.to_string())
-                    )?;
-                    write!(out, r#"" d=""#,)?;
+                    let span_fill = if let Some(span) = self.spans.get(glyph.metadata) {
+                        span.typography.color
+                    } else {
+                        self.typography.color
+                    }
+                    .map_or(DEFAULT_COLOR.to_string(), |c| c.to_string());
+
+                    write!(out, r#"<path fill="{span_fill}" d=""#)?;
 
                     let mut d = PathBuilder::new(out);
 
@@ -179,48 +179,67 @@ impl TextMeta {
     }
 
     fn init_buffer(&mut self, fonts: &mut FontRegistry) {
-        let tp = &self.typography;
-        let metrics = Metrics {
-            font_size: tp.size.unwrap_or(BASE_FONT_SIZE),
-            line_height: tp.line_height.unwrap_or(BASE_LINE_HEIGHT),
-        };
+        let mut spans = Vec::with_capacity(self.spans.len());
 
-        let alias = tp.family.clone().unwrap_or(fonts.get_default_family());
-        let resolved = fonts
-            .resolve_family_name(alias.as_str())
-            .unwrap_or(DEFAULT_FONT_FAMILY.to_string());
+        for (idx, span) in self.spans.iter_mut().enumerate() {
+            if span.hidden {
+                continue;
+            }
 
-        let family = match resolved.as_str() {
-            "sans-serif" => Family::SansSerif,
-            "serif" => Family::Serif,
-            "mono" | "monospace" => Family::Monospace,
-            name => Family::Name(name),
-        };
-
-        let mut attrs = Attrs::new()
-            .family(family)
-            .metrics(metrics)
-            .style(tp.style.unwrap_or(FontStyle::Normal).to_cosmic_style())
-            .weight(tp.weight.unwrap_or(FontWeight::Normal).to_cosmic_weight());
-
-        if let Some(letter_spacing) = tp.letter_spacing {
-            attrs = attrs.letter_spacing(letter_spacing);
+            span.typography.cascade_from(&self.typography);
+            let (attrs, _) = typography_to_attrs(&mut span.typography, fonts);
+            spans.push((span.content.as_str(), attrs.metadata(idx)));
         }
 
-        let mut buf = Buffer::new_empty(metrics);
+        let mut root_tp = self.typography.clone();
+        let (root_attrs, root_metrics) = typography_to_attrs(&mut root_tp, fonts);
+        let mut buf = Buffer::new_empty(root_metrics);
         let mut brw = buf.borrow_with(&mut fonts.system);
 
-        if let Some(wrap) = tp.wrap {
+        if let Some(wrap) = self.typography.wrap {
             brw.set_wrap(wrap.to_cosmic_wrap());
         }
 
         brw.set_rich_text(
-            [(self.content.as_str(), attrs.clone())],
-            &attrs,
+            spans,
+            &root_attrs,
             Shaping::Advanced,
-            tp.align.map(|x| x.to_cosmic_align()),
+            self.typography.align.map(|x| x.to_cosmic_align()),
         );
 
         self.buffer = brw.to_owned();
     }
+}
+
+fn typography_to_attrs<'a>(
+    tp: &'a mut Typography,
+    fonts: &mut FontRegistry,
+) -> (Attrs<'a>, Metrics) {
+    let metrics = Metrics {
+        font_size: tp.size.unwrap_or(BASE_FONT_SIZE),
+        line_height: tp.line_height.unwrap_or(BASE_LINE_HEIGHT),
+    };
+    let alias = tp.family.clone().unwrap_or(fonts.get_default_family());
+    tp.resolved_family = fonts
+        .resolve_family_name(alias.as_str())
+        .unwrap_or(DEFAULT_FONT_FAMILY.to_string());
+
+    let family = match tp.resolved_family.as_str() {
+        "sans-serif" => Family::SansSerif,
+        "serif" => Family::Serif,
+        "mono" | "monospace" => Family::Monospace,
+        name => Family::Name(name),
+    };
+
+    let mut attrs = Attrs::new()
+        .family(family)
+        .metrics(metrics)
+        .style(tp.style.unwrap_or(FontStyle::Normal).to_cosmic_style())
+        .weight(tp.weight.unwrap_or(FontWeight::Normal).to_cosmic_weight());
+
+    if let Some(letter_spacing) = tp.letter_spacing {
+        attrs = attrs.letter_spacing(letter_spacing);
+    }
+
+    (attrs, metrics)
 }
