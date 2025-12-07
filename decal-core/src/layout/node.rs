@@ -47,7 +47,14 @@ impl Display for NodeKind {
                 NodeKind::Column => "Column".into(),
                 NodeKind::Row => "Row".into(),
                 NodeKind::Grid => "Grid".into(),
-                NodeKind::Text(TextMeta { content, .. }) => format!("Text: {content}"),
+                NodeKind::Text(TextMeta { spans, .. }) => format!(
+                    "Text: {}",
+                    spans
+                        .iter()
+                        .map(|x| x.content.clone())
+                        .collect::<Vec<_>>()
+                        .join("")
+                ),
                 NodeKind::Image(meta) => format!("Image: {meta:?}"),
             }
         )
