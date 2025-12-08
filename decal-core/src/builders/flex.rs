@@ -1,33 +1,15 @@
+use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_methods;
 use crate::paint::Appearance;
-use crate::prelude::Typography;
-use taffy::prelude::*;
-
-#[derive(Debug, Clone, Copy)]
-pub enum FlexDirection {
-    Row,
-    RowReverse,
-    Column,
-    ColumnReverse,
-}
+use crate::primitives::FlexDirection;
+use taffy::{Display, Style};
 
 #[derive(Debug, Default)]
 pub struct Flex {
     layout: Style,
     visual: Appearance,
     typography: Typography,
-}
-
-impl Into<taffy::FlexDirection> for FlexDirection {
-    fn into(self) -> taffy::FlexDirection {
-        match self {
-            Self::Row => taffy::FlexDirection::Row,
-            Self::RowReverse => taffy::FlexDirection::RowReverse,
-            Self::Column => taffy::FlexDirection::Column,
-            Self::ColumnReverse => taffy::FlexDirection::ColumnReverse,
-        }
-    }
 }
 
 impl Flex {

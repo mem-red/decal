@@ -23,17 +23,17 @@ impl Row {
         }
     }
 
-    pub fn hidden(&mut self, value: bool) -> &mut Self {
-        self.layout.display = if value { Display::None } else { Display::Flex };
-        self
-    }
-
     pub fn reverse(&mut self, reverse: bool) -> &mut Self {
         self.layout.flex_direction = if reverse {
             FlexDirection::RowReverse
         } else {
             FlexDirection::Row
         };
+        self
+    }
+
+    pub fn hidden(&mut self, value: bool) -> &mut Self {
+        self.layout.display = if value { Display::None } else { Display::Flex };
         self
     }
 
