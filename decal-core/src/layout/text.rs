@@ -27,7 +27,7 @@ pub enum TextVectorizationError {
 #[derive(Debug, Clone)]
 pub(crate) struct TextMeta {
     pub(crate) spans: Vec<TextSpan>,
-    pub(crate) buffer: Buffer,
+    pub(crate) buffer: Option<Buffer>,
     pub(crate) typography: Typography,
     pub(crate) width: f32,
     pub(crate) height: f32,
@@ -37,7 +37,7 @@ impl TextMeta {
     pub(crate) fn new(spans: Vec<TextSpan>) -> Self {
         Self {
             spans,
-            buffer: Buffer::new_empty(Metrics::new(BASE_FONT_SIZE, BASE_LINE_HEIGHT)),
+            buffer: None,
             typography: Typography::default(),
             width: 0.0,
             height: 0.0,
@@ -53,18 +53,21 @@ impl TextMeta {
         out: &mut T,
         offset: (f32, f32),
         transform: &Transform,
+        cache: &mut SwashCache,
         font_system: &mut FontSystem,
     ) -> Result<(), TextVectorizationError>
     where
         T: std::fmt::Write,
     {
-        let mut cache = SwashCache::new();
+        let Some(ref buffer) = self.buffer else {
+            return Ok(());
+        };
 
         write!(out, r#"<g"#)?;
         transform.write_transform_matrix(out, offset, (0.0, 0.0), (self.width, self.height))?;
         write!(out, r#" >"#)?;
 
-        for run in self.buffer.layout_runs() {
+        for run in buffer.layout_runs() {
             let line_y = run.line_y;
 
             for glyph in run.glyphs.iter() {
@@ -72,24 +75,6 @@ impl TextMeta {
                 let glyph_x = physical.x as f32;
                 let glyph_y = physical.y as f32;
                 let cache_key = physical.cache_key;
-
-                if let Some(image) = cache.get_image_uncached(font_system, cache_key) {
-                    // handle emoji/color glyphs
-                    if image.content == Content::Color {
-                        let x = glyph_x + image.placement.left as f32;
-                        let y = line_y + glyph_y - image.placement.top as f32;
-                        let w = image.placement.width as f32;
-                        let h = image.placement.height as f32;
-
-                        write!(
-                            out,
-                            r#"<image href="data:image/png;base64,{}" x="{x}" y="{y}" width="{w}" height="{h}" />"#,
-                            BASE64.encode(encode_image(&image)?),
-                        )?;
-
-                        continue;
-                    }
-                }
 
                 if let Some(outline_commands) = cache.get_outline_commands(font_system, cache_key) {
                     if outline_commands.len() == 0 {
@@ -142,6 +127,22 @@ impl TextMeta {
                     }
 
                     write!(out, r#"" />"#)?;
+                } else if let Some(image) = cache.get_image(font_system, cache_key) {
+                    // handle emoji/color glyphs
+                    if image.content == Content::Color {
+                        let x = glyph_x + image.placement.left as f32;
+                        let y = line_y + glyph_y - image.placement.top as f32;
+                        let w = image.placement.width as f32;
+                        let h = image.placement.height as f32;
+
+                        write!(
+                            out,
+                            r#"<image href="data:image/png;base64,{}" x="{x}" y="{y}" width="{w}" height="{h}" />"#,
+                            BASE64.encode(encode_image(&image)?),
+                        )?;
+
+                        continue;
+                    }
                 }
             }
         }
@@ -157,12 +158,6 @@ impl TextMeta {
         available_space: Size<AvailableSpace>,
         fonts: Arc<Mutex<FontRegistry>>,
     ) -> Size<f32> {
-        let Ok(mut fonts) = fonts.lock() else {
-            return Size::zero();
-        };
-
-        self.init_buffer(&mut fonts);
-
         if let Size {
             width: Some(width),
             height: Some(height),
@@ -171,23 +166,31 @@ impl TextMeta {
             return Size { width, height };
         }
 
+        let Ok(mut fonts) = fonts.lock() else {
+            return Size::zero();
+        };
+
+        self.init_buffer(&mut fonts);
+
+        let Some(ref mut buffer) = self.buffer else {
+            return Size::zero();
+        };
+
         let width_constraint = known_dimensions.width.or(match available_space.width {
             AvailableSpace::MinContent => Some(0.0),
             AvailableSpace::MaxContent => None,
             AvailableSpace::Definite(width) => Some(width),
         });
 
-        self.buffer
-            .set_size(&mut fonts.system, width_constraint, None);
-        self.buffer.shape_until_scroll(&mut fonts.system, false);
+        buffer.set_size(&mut fonts.system, width_constraint, None);
+        buffer.shape_until_scroll(&mut fonts.system, false);
 
-        let (width, total_lines) = self
-            .buffer
+        let (width, total_lines) = buffer
             .layout_runs()
             .fold((0.0, 0usize), |(width, total_lines), run| {
                 (run.line_w.max(width), total_lines + 1)
             });
-        let height = total_lines as f32 * self.buffer.metrics().line_height;
+        let height = total_lines as f32 * buffer.metrics().line_height;
 
         self.width = width;
         self.height = height;
@@ -196,6 +199,10 @@ impl TextMeta {
     }
 
     fn init_buffer(&mut self, fonts: &mut FontRegistry) {
+        if self.buffer.is_some() {
+            return;
+        }
+
         let mut spans = Vec::with_capacity(self.spans.len());
 
         for (idx, span) in self.spans.iter_mut().enumerate() {
@@ -224,7 +231,7 @@ impl TextMeta {
             self.typography.align.map(|x| x.to_cosmic_align()),
         );
 
-        self.buffer = brw.to_owned();
+        self.buffer = Some(brw.to_owned());
     }
 }
 
@@ -236,6 +243,7 @@ fn typography_to_attrs<'a>(
         font_size: tp.size.unwrap_or(BASE_FONT_SIZE),
         line_height: tp.line_height.unwrap_or(BASE_LINE_HEIGHT),
     };
+
     let alias = tp.family.clone().unwrap_or(fonts.get_default_family());
     tp.resolved_family = fonts
         .resolve_family_name(alias.as_str())
