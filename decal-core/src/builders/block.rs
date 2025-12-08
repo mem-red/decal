@@ -1,38 +1,43 @@
+use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_methods;
 use crate::paint::Appearance;
-use crate::prelude::Typography;
-use taffy::prelude::*;
+use crate::primitives::{Display, FlexDirection};
+use taffy::Style;
 
 #[derive(Debug, Default)]
 pub struct Block {
     layout: Style,
     visual: Appearance,
     typography: Typography,
-    prev_display: Display,
+    prev_display: taffy::Display,
 }
 
 impl Block {
     pub fn new() -> Self {
         Self {
             layout: Style {
-                display: Display::Block,
+                display: taffy::Display::Block,
                 ..Default::default()
             },
             ..Default::default()
         }
     }
 
-    // TODO: add private Display & flex direction props
     pub fn display(&mut self, display: Display) -> &mut Self {
-        self.layout.display = display;
+        self.layout.display = display.into();
+        self
+    }
+
+    pub fn flex_direction(&mut self, direction: FlexDirection) -> &mut Self {
+        self.layout.flex_direction = direction.into();
         self
     }
 
     pub fn hidden(&mut self, value: bool) -> &mut Self {
         self.layout.display = if value {
             self.prev_display = self.layout.display;
-            Display::None
+            taffy::Display::None
         } else {
             self.prev_display
         };
