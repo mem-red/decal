@@ -1,4 +1,6 @@
 mod corner;
+mod display;
+mod flex_direction;
 mod length;
 mod overflow;
 mod point;
@@ -7,6 +9,8 @@ mod size;
 mod transform;
 
 pub use corner::*;
+pub use display::*;
+pub use flex_direction::*;
 pub use length::*;
 pub use overflow::*;
 pub use point::*;
