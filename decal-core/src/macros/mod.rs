@@ -17,6 +17,7 @@ mod padding;
 mod position;
 mod self_align;
 mod text;
+mod transform;
 
 pub(crate) use aspect_ratio::*;
 pub(crate) use background::*;
@@ -35,3 +36,4 @@ pub(crate) use padding::*;
 pub(crate) use position::*;
 pub(crate) use self_align::*;
 pub(crate) use text::*;
+pub(crate) use transform::*;
