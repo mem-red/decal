@@ -23,6 +23,7 @@ impl Block {
         }
     }
 
+    // TODO: add private Display & flex direction props
     pub fn display(&mut self, display: Display) -> &mut Self {
         self.layout.display = display;
         self
@@ -67,6 +68,7 @@ impl_node_methods!(
         padding,
         position,
         self_align,
-        text
+        text,
+        transform
     ]
 );

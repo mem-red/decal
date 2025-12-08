@@ -48,6 +48,7 @@ impl_node_methods!(
         dimensions,
         margin,
         position,
-        self_align
+        self_align,
+        transform
     ]
 );

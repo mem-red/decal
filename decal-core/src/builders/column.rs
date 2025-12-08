@@ -64,6 +64,7 @@ impl_node_methods!(
         padding,
         position,
         self_align,
-        text
+        text,
+        transform
     ]
 );

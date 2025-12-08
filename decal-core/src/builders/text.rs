@@ -45,7 +45,7 @@ impl Text {
     }
 }
 
-impl_node_methods!(Text, [dimensions, position, self_align, text]);
+impl_node_methods!(Text, [dimensions, position, self_align, text, transform]);
 
 #[derive(Debug, Clone)]
 pub struct TextSpan {
