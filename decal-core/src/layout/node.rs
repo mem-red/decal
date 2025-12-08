@@ -187,11 +187,18 @@ impl Node {
             //
             NodeKind::Text(meta) => {
                 let mut fonts = fonts.lock().map_err(|_| VectorizationError::Other)?;
+                let FontRegistry {
+                    swash_cache,
+                    system,
+                    ..
+                } = &mut *fonts;
+
                 meta.write_vectorized_text(
                     out,
                     (self.final_layout.location.x, self.final_layout.location.y),
                     &self.visual.transform,
-                    &mut fonts.system,
+                    swash_cache,
+                    system,
                 )?;
             }
             //
