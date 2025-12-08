@@ -1,6 +1,5 @@
 use decal::prelude::*;
 use decal_macros::{decal, fragment, text};
-use std::time::Instant;
 
 fn heading(owner: &str, repo: &str) -> Decal {
     fragment! {
@@ -90,7 +89,7 @@ fn main() {
     let mut engine = Engine::new(EngineOptions {
         fonts: FontRegistry::new().load_font("MonaSans", include_bytes!("../MonaSans.ttf")),
     });
-    let start = Instant::now();
+    let start = std::time::Instant::now();
     let pixmap = engine.rasterize(&mut dcl, None, None).unwrap();
     println!("rasterize: {:.3} ms", start.elapsed().as_millis());
     pixmap.save_png("./output.png").unwrap();
