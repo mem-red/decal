@@ -1,6 +1,7 @@
 use crate::builders::TextSpan;
 use crate::layout::{DEFAULT_FONT_FAMILY, Typography};
 use crate::prelude::{BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry};
+use crate::primitives::Transform;
 use crate::text::{FontStyle, FontWeight};
 use crate::utils::{PathBuilder, encode_image};
 use base64::Engine;
@@ -28,6 +29,8 @@ pub(crate) struct TextMeta {
     pub(crate) spans: Vec<TextSpan>,
     pub(crate) buffer: Buffer,
     pub(crate) typography: Typography,
+    pub(crate) width: f32,
+    pub(crate) height: f32,
 }
 
 impl TextMeta {
@@ -36,6 +39,8 @@ impl TextMeta {
             spans,
             buffer: Buffer::new_empty(Metrics::new(BASE_FONT_SIZE, BASE_LINE_HEIGHT)),
             typography: Typography::default(),
+            width: 0.0,
+            height: 0.0,
         }
     }
 
@@ -47,6 +52,7 @@ impl TextMeta {
         &self,
         out: &mut T,
         offset: (f32, f32),
+        transform: &Transform,
         font_system: &mut FontSystem,
     ) -> Result<(), TextVectorizationError>
     where
@@ -54,25 +60,31 @@ impl TextMeta {
     {
         let mut cache = SwashCache::new();
 
+        write!(out, r#"<g"#)?;
+        transform.write_transform_matrix(out, offset, (0.0, 0.0), (self.width, self.height))?;
+        write!(out, r#" >"#)?;
+
         for run in self.buffer.layout_runs() {
+            let line_y = run.line_y;
+
             for glyph in run.glyphs.iter() {
                 let physical = glyph.physical(offset, 1.0);
                 let glyph_x = physical.x as f32;
                 let glyph_y = physical.y as f32;
-                let line_y = run.line_y;
                 let cache_key = physical.cache_key;
 
                 if let Some(image) = cache.get_image_uncached(font_system, cache_key) {
                     // handle emoji/color glyphs
                     if image.content == Content::Color {
+                        let x = glyph_x + image.placement.left as f32;
+                        let y = line_y + glyph_y - image.placement.top as f32;
+                        let w = image.placement.width as f32;
+                        let h = image.placement.height as f32;
+
                         write!(
                             out,
-                            r#"<image href="data:image/png;base64,{}" x="{}" y="{}" width="{}" height="{}"/>"#,
+                            r#"<image href="data:image/png;base64,{}" x="{x}" y="{y}" width="{w}" height="{h}" />"#,
                             BASE64.encode(encode_image(&image)?),
-                            glyph_x + image.placement.left as f32,
-                            line_y + glyph_y - image.placement.top as f32,
-                            image.placement.width,
-                            image.placement.height
                         )?;
 
                         continue;
@@ -134,6 +146,8 @@ impl TextMeta {
             }
         }
 
+        write!(out, r#"</g>"#)?;
+
         Ok(())
     }
 
@@ -174,6 +188,9 @@ impl TextMeta {
                 (run.line_w.max(width), total_lines + 1)
             });
         let height = total_lines as f32 * self.buffer.metrics().line_height;
+
+        self.width = width;
+        self.height = height;
 
         Size { width, height }
     }
