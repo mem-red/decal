@@ -24,7 +24,7 @@ macro_rules! impl_self_align_methods {
                 self.layout.flex_basis = value
                     .into()
                     .map(|x| x.into())
-                    .unwrap_or(taffy::Style::DEFAULT.flex_basis);
+                    .unwrap_or(taffy::Dimension::auto());
                 self
             }
 
@@ -32,7 +32,7 @@ macro_rules! impl_self_align_methods {
             where
                 T: Into<Option<f32>>,
             {
-                self.layout.flex_grow = value.into().unwrap_or(taffy::Style::DEFAULT.flex_grow);
+                self.layout.flex_grow = value.into().unwrap_or(0.0);
                 self
             }
 
@@ -40,7 +40,7 @@ macro_rules! impl_self_align_methods {
             where
                 T: Into<Option<f32>>,
             {
-                self.layout.flex_shrink = value.into().unwrap_or(taffy::Style::DEFAULT.flex_shrink);
+                self.layout.flex_shrink = value.into().unwrap_or(1.0);
                 self
             }
         }

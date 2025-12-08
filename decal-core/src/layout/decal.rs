@@ -255,6 +255,8 @@ impl LayoutPartialTree for Decal {
     where
         Self: 'a;
 
+    type CustomIdent = String;
+
     fn get_core_container_style(&self, node_id: taffy::NodeId) -> Self::CoreContainerStyle<'_> {
         &self.node_from_id(node_id).layout
     }
@@ -397,8 +399,8 @@ impl taffy::LayoutGridContainer for Decal {
 }
 
 impl RoundTree for Decal {
-    fn get_unrounded_layout(&self, node_id: taffy::NodeId) -> &taffy::Layout {
-        &self.node_from_id(node_id).unrounded_layout
+    fn get_unrounded_layout(&self, node_id: taffy::NodeId) -> taffy::Layout {
+        self.node_from_id(node_id).unrounded_layout
     }
 
     fn set_final_layout(&mut self, node_id: taffy::NodeId, layout: &taffy::Layout) {
@@ -422,7 +424,7 @@ impl PrintTree for Decal {
         }
     }
 
-    fn get_final_layout(&self, node_id: taffy::NodeId) -> &taffy::Layout {
-        &self.node_from_id(node_id).final_layout
+    fn get_final_layout(&self, node_id: taffy::NodeId) -> taffy::Layout {
+        self.node_from_id(node_id).final_layout
     }
 }
