@@ -5,6 +5,7 @@ pub(crate) struct Appearance {
     pub background: Fill,
     pub border_color: Fill,
     pub corner_radius: CornerRadius,
+    pub transform: Transform,
     pub visible: bool,
 }
 
@@ -14,6 +15,7 @@ impl Default for Appearance {
             background: Default::default(),
             border_color: Default::default(),
             corner_radius: Default::default(),
+            transform: Default::default(),
             visible: true,
         }
     }
