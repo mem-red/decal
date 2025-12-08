@@ -144,11 +144,14 @@ impl Node {
                 let clip_y = self.layout.overflow.y == taffy::Overflow::Hidden;
                 let use_clip = clip_x || clip_y;
 
-                write!(
+                write!(out, r#"<g"#)?;
+                self.visual.transform.write_transform_matrix(
                     out,
-                    r#"<g transform="translate({},{})">"#,
-                    self.final_layout.location.x, self.final_layout.location.y
+                    (0.0, 0.0),
+                    (self.final_layout.location.x, self.final_layout.location.y),
+                    (w, h),
                 )?;
+                write!(out, r#">"#)?;
 
                 // background
                 write!(out, r#"<path d=""#)?;
@@ -187,12 +190,13 @@ impl Node {
                 meta.write_vectorized_text(
                     out,
                     (self.final_layout.location.x, self.final_layout.location.y),
+                    &self.visual.transform,
                     &mut fonts.system,
                 )?;
             }
             //
             NodeKind::Image(meta) => {
-                // TODO
+                // TODO fix and write transform
                 write!(
                     out,
                     r#"<image href="{}" x="{}" y="{}" width="{}" height="{}"/>"#,
