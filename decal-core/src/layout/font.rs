@@ -1,5 +1,5 @@
-use cosmic_text::FontSystem;
 use cosmic_text::fontdb::{ID, Source};
+use cosmic_text::{FontSystem, SwashCache};
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -11,6 +11,8 @@ pub(crate) const BASE_LINE_HEIGHT: f32 = 22.0;
 pub struct FontRegistry {
     pub(crate) system: FontSystem,
     pub(crate) aliases: HashMap<String, Vec<ID>>,
+    pub(crate) alias_cache: HashMap<String, String>,
+    pub(crate) swash_cache: SwashCache,
     pub(crate) default_family: &'static str,
 }
 
@@ -19,6 +21,8 @@ impl FontRegistry {
         Self {
             system: FontSystem::new(),
             aliases: HashMap::new(),
+            alias_cache: HashMap::new(),
+            swash_cache: SwashCache::new(),
             default_family: DEFAULT_FONT_FAMILY,
         }
     }
@@ -50,24 +54,31 @@ impl FontRegistry {
         self.aliases.insert(alias.to_string(), ids.to_vec());
     }
 
-    pub(crate) fn get_default_family(&self) -> String {
+    pub(crate) fn get_default_family(&mut self) -> String {
         self.resolve_family_name(self.default_family)
             .unwrap_or(DEFAULT_FONT_FAMILY.to_string())
     }
 
-    pub(crate) fn resolve_family_name(&self, alias: &str) -> Option<String> {
-        let trimmed = alias.trim().to_ascii_lowercase();
+    pub(crate) fn resolve_family_name(&mut self, alias: &str) -> Option<String> {
+        let alias = alias.trim();
+        let lower = alias.to_ascii_lowercase();
 
         if matches!(
-            trimmed.as_str(),
+            lower.as_str(),
             "sans-serif" | "serif" | "mono" | "monospace"
         ) {
-            return Some(trimmed);
+            return Some(lower);
+        }
+
+        if let Some(name) = self.alias_cache.get(alias) {
+            return Some(name.clone());
         }
 
         let id = self.aliases.get(alias)?.first()?;
         let face = self.system.db().face(*id)?;
         let (name, _) = face.families.first()?;
+        self.alias_cache.insert(alias.to_string(), name.clone());
+
         Some(name.to_owned())
     }
 }
