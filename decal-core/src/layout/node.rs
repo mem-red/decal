@@ -1,5 +1,5 @@
 use crate::layout::text::TextMeta;
-use crate::layout::{FontRegistry, TextVectorizationError};
+use crate::layout::{FontRegistry, ImageSource, TextVectorizationError};
 use crate::paint::{Appearance, compute_scaled_radii};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
 use crate::prelude::Typography;
@@ -205,17 +205,37 @@ impl Node {
                     height: h,
                 } = self.final_layout.size;
 
-                write!(
-                    out,
-                    r#"<image href="{}" x="{x}" y="{y}" width="{w}" height="{h}""#,
-                    meta.source,
-                )?;
+                match &meta.source {
+                    ImageSource::Url(_) | ImageSource::DataUri(_) => {
+                        write!(
+                            out,
+                            r#"<image href="{}" x="{x}" y="{y}" width="{w}" height="{h}""#,
+                            meta.source,
+                        )?;
 
-                self.visual
-                    .transform
-                    .write_transform_matrix(out, (x, y), (0.0, 0.0), (w, h))?;
+                        self.visual.transform.write_transform_matrix(
+                            out,
+                            (x, y),
+                            (0.0, 0.0),
+                            (w, h),
+                        )?;
 
-                write!(out, r#"/>"#)?;
+                        write!(out, r#"/>"#)?;
+                    }
+
+                    ImageSource::Svg(svg) => {
+                        write!(out, r#"<g"#)?;
+                        self.visual.transform.write_transform_matrix(
+                            out,
+                            (0.0, 0.0),
+                            (x, y),
+                            (w, h),
+                        )?;
+                        write!(out, r#">"#)?;
+                        out.write_str(svg.as_str())?;
+                        write!(out, r#"</g>"#)?;
+                    }
+                };
             }
         };
 
