@@ -10,10 +10,6 @@ pub struct Image {
     visual: Appearance,
 }
 
-pub trait IntoImage {
-    fn into_image(self) -> ImageMeta;
-}
-
 impl Image {
     pub fn new<S, T>(source: S, width: T, height: T) -> Self
     where
