@@ -55,6 +55,18 @@ impl IntoFill for f64 {
     }
 }
 
+impl IntoFill for &str {
+    fn into_fill(self) -> Option<Fill> {
+        Some(Fill::Color(Color::parse(self)))
+    }
+}
+
+impl IntoFill for String {
+    fn into_fill(self) -> Option<Fill> {
+        Some(Fill::Color(Color::parse(self.as_str())))
+    }
+}
+
 impl<T> IntoFill for [T; 1]
 where
     T: Into<f64> + Copy,
