@@ -76,11 +76,10 @@ impl TextMeta {
                 let glyph_y = physical.y as f32;
                 let cache_key = physical.cache_key;
 
-                if let Some(outline_commands) = cache.get_outline_commands(font_system, cache_key) {
-                    if outline_commands.len() == 0 {
-                        continue;
-                    }
-
+                if let Some(outline_commands) = cache
+                    .get_outline_commands(font_system, cache_key)
+                    .filter(|x| is_drawable(*x))
+                {
                     let span_fill = if let Some(span) = self.spans.get(glyph.metadata) {
                         span.typography.color
                     } else {
@@ -140,8 +139,6 @@ impl TextMeta {
                             r#"<image href="data:image/png;base64,{}" x="{x}" y="{y}" width="{w}" height="{h}" />"#,
                             BASE64.encode(encode_image(&image)?),
                         )?;
-
-                        continue;
                     }
                 }
             }
@@ -233,6 +230,17 @@ impl TextMeta {
 
         self.buffer = Some(brw.to_owned());
     }
+}
+
+fn is_drawable(cmds: &[Command]) -> bool {
+    for cmd in cmds {
+        match cmd {
+            Command::LineTo(_) | Command::QuadTo(_, _) | Command::CurveTo(_, _, _) => return true,
+            _ => {}
+        }
+    }
+
+    false
 }
 
 fn typography_to_attrs<'a>(
