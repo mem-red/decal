@@ -9,6 +9,7 @@ repository = "https://github.com/mem-red/decal"
 
 [dependencies]
 base64 = "0.22.1"
+color = "0.3.2"
 cosmic-text = { version = "0.15.0", features = ["shape-run-cache", "hashbrown"] }
 decal-macros = { path = "../decal-macros" }
 hashbrown = "0.16.1"
