@@ -8,12 +8,6 @@ pub enum ImageSource {
     Svg(String),
 }
 
-impl Default for ImageSource {
-    fn default() -> Self {
-        ImageSource::Url("".to_string())
-    }
-}
-
 #[derive(Debug, Clone, Default)]
 pub(crate) struct ImageMeta {
     pub(crate) source: ImageSource,
@@ -53,6 +47,35 @@ impl ImageMeta {
     }
 }
 
+impl ImageSource {
+    pub fn url<S>(url: S) -> Self
+    where
+        S: Into<String>,
+    {
+        ImageSource::Url(url.into())
+    }
+
+    pub fn data_uri<S>(data_uri: S) -> Self
+    where
+        S: Into<String>,
+    {
+        ImageSource::DataUri(data_uri.into())
+    }
+
+    pub fn svg<S>(svg: S) -> Self
+    where
+        S: Into<String>,
+    {
+        ImageSource::Svg(svg.into())
+    }
+}
+
+impl Default for ImageSource {
+    fn default() -> Self {
+        ImageSource::Url("".to_string())
+    }
+}
+
 impl From<String> for ImageSource {
     fn from(value: String) -> Self {
         ImageSource::Url(value)
@@ -71,6 +94,7 @@ impl Display for ImageSource {
             ImageSource::Url(url) => url,
             ImageSource::DataUri(uri) => uri,
             ImageSource::Svg(svg) => svg,
+            // ImageSource::Svg(svg) => &format!("data:image/svg+xml;base64,{}", BASE64.encode(svg)),
         };
 
         write!(f, "{}", value)
