@@ -1,9 +1,10 @@
-use crate::layout::{FontRegistry, Node, NodeKind};
+use crate::layout::{FontRegistry, ImageCache, Node, NodeKind};
 use crate::layout::{NodeId, VectorizationError};
 use crate::prelude::Typography;
 use resvg::render;
 use smallvec::SmallVec;
 use std::fmt::Write;
+use std::io::Read;
 use std::sync::{Arc, Mutex};
 use taffy::prelude::TaffyMaxContent;
 use taffy::{
@@ -13,7 +14,7 @@ use taffy::{
 };
 use thiserror::Error;
 use tiny_skia::{Pixmap, Transform};
-use usvg::{Options, Tree};
+use usvg::{ImageHrefResolver, ImageKind, Options, Tree};
 
 const ROOT_ID: usize = 0;
 const INLINE_FRAG_CASCADE: usize = 16;
@@ -76,7 +77,7 @@ impl Decal {
         self.assert_non_atomic(parent_id);
 
         let parent_typography = &self.nodes[parent_id].typography;
-        Self::cascade_typography_subtree(&mut fragment.nodes, parent_typography);
+        cascade_typography_subtree(&mut fragment.nodes, parent_typography);
 
         let root_id = self.nodes.len(); // fragment root node
         self.nodes.reserve(fragment.nodes.len()); // pre-allocation
@@ -99,14 +100,61 @@ impl Decal {
 
     pub(crate) fn rasterize(
         &self,
+        image_cache: &ImageCache,
         options: Option<Options>,
         transform: Option<Transform>,
+        debug: bool,
     ) -> Result<Pixmap, RasterizationError> {
-        let tree = Tree::from_str(&self.vectorize()?, &(options.unwrap_or_default()))
-            .map_err(RasterizationError::SvgParse)?;
-        let mut pixmap = Pixmap::new(tree.size().width() as u32, tree.size().height() as u32)
+        let tf = transform.unwrap_or_default();
+        let mut options = options.unwrap_or_default();
+
+        options.image_href_resolver = ImageHrefResolver {
+            resolve_string: Box::new(move |href: &str, _opts: &Options| {
+                let bytes = fetch_image_cached(image_cache, href)?;
+                let kind = infer::get(&bytes)?;
+
+                Some(match kind.mime_type() {
+                    "image/png" => ImageKind::PNG(bytes.clone()),
+                    "image/jpeg" => ImageKind::JPEG(bytes.clone()),
+                    "image/webp" => ImageKind::WEBP(bytes.clone()),
+                    "image/gif" => ImageKind::GIF(bytes.clone()),
+                    _ => return None,
+                })
+            }),
+            ..Default::default()
+        };
+
+        let tree =
+            Tree::from_str(&self.vectorize()?, &options).map_err(RasterizationError::SvgParse)?;
+        let size = tree.size();
+        let mut pixmap = Pixmap::new(size.width() as u32, size.height() as u32)
             .ok_or(RasterizationError::PixmapAlloc)?;
-        render(&tree, transform.unwrap_or_default(), &mut pixmap.as_mut());
+
+        render(&tree, tf, &mut pixmap.as_mut());
+
+        if debug {
+            let mut bboxes = Vec::new();
+            let mut stroke_bboxes = Vec::new();
+
+            collect_bboxes(tree.root(), &mut bboxes, &mut stroke_bboxes);
+
+            let stroke = tiny_skia::Stroke::default();
+            let mut paint = tiny_skia::Paint::default();
+            paint.set_color_rgba8(224, 16, 0, 195);
+
+            for bbox in bboxes {
+                let path = tiny_skia::PathBuilder::from_rect(bbox);
+                pixmap.stroke_path(&path, &paint, &stroke, tf, None);
+            }
+
+            paint.set_color_rgba8(0, 45, 255, 127);
+
+            for bbox in stroke_bboxes {
+                let path = tiny_skia::PathBuilder::from_rect(bbox);
+                pixmap.stroke_path(&path, &paint, &stroke, tf, None);
+            }
+        }
+
         Ok(pixmap)
     }
 
@@ -136,28 +184,6 @@ impl Decal {
     pub(crate) fn compute_layout(&mut self) {
         compute_root_layout(self, taffy::NodeId::from(ROOT_ID), taffy::Size::MAX_CONTENT);
         round_layout(self, taffy::NodeId::from(ROOT_ID));
-    }
-
-    fn cascade_typography_subtree(nodes: &mut [Node], parent_typography: &Typography) {
-        let mut stack: SmallVec<[(usize, Typography); INLINE_FRAG_CASCADE]> = SmallVec::new();
-        stack.push((ROOT_ID, parent_typography.clone()));
-
-        while let Some((idx, mut parent)) = stack.pop() {
-            let node = &mut nodes[idx];
-            node.typography.cascade_from(&parent);
-
-            if let NodeKind::Text(ref mut meta) = node.kind {
-                meta.set_typography(node.typography.clone());
-            }
-
-            if !node.children.is_empty() {
-                parent = node.typography.clone();
-            }
-
-            for &child in &node.children {
-                stack.push((child, parent.clone()));
-            }
-        }
     }
 
     /// Panics if the node with the given `id` is atomic (cannot have children).
@@ -206,6 +232,79 @@ impl Decal {
         }
 
         Ok(())
+    }
+}
+
+//noinspection HttpUrlsUsage
+fn fetch_image_cached(image_cache: &ImageCache, href: &str) -> Option<Arc<Vec<u8>>> {
+    if let Ok(cache) = image_cache.lock() {
+        if let Some(bytes) = cache.get(href).map(|x| x.clone()) {
+            return Some(bytes);
+        }
+    }
+
+    if let Ok(response) = ureq::get(href).call() {
+        if response.status().is_success() {
+            let mut buf = Vec::new();
+            if response
+                .into_body()
+                .into_reader()
+                .read_to_end(&mut buf)
+                .is_ok()
+            {
+                let data = Arc::new(buf);
+
+                if let Ok(mut cache) = image_cache.lock() {
+                    cache.insert(href.to_owned(), data.clone());
+                }
+
+                return Some(data);
+            }
+        }
+    }
+
+    None
+}
+
+fn cascade_typography_subtree(nodes: &mut [Node], parent_typography: &Typography) {
+    let mut stack: SmallVec<[(usize, Typography); INLINE_FRAG_CASCADE]> = SmallVec::new();
+    stack.push((ROOT_ID, parent_typography.clone()));
+
+    while let Some((idx, mut parent)) = stack.pop() {
+        let node = &mut nodes[idx];
+        node.typography.cascade_from(&parent);
+
+        if let NodeKind::Text(ref mut meta) = node.kind {
+            meta.set_typography(node.typography.clone());
+        }
+
+        if !node.children.is_empty() {
+            parent = node.typography.clone();
+        }
+
+        for &child in &node.children {
+            stack.push((child, parent.clone()));
+        }
+    }
+}
+
+fn collect_bboxes(
+    parent: &usvg::Group,
+    bboxes: &mut Vec<usvg::Rect>,
+    stroke_bboxes: &mut Vec<usvg::Rect>,
+) {
+    for node in parent.children() {
+        if let usvg::Node::Group(ref group) = node {
+            collect_bboxes(group, bboxes, stroke_bboxes);
+        }
+
+        let bbox = node.abs_bounding_box();
+        bboxes.push(bbox);
+
+        let stroke_bbox = node.abs_stroke_bounding_box();
+        if bbox != stroke_bbox {
+            stroke_bboxes.push(stroke_bbox);
+        }
     }
 }
 
