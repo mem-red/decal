@@ -10,7 +10,7 @@ mod typography;
 pub use decal::*;
 pub use engine::*;
 pub use font::*;
-pub(crate) use image::*;
+pub use image::*;
 pub use node::*;
 pub use node_id::*;
 pub use text::*;
