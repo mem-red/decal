@@ -1,5 +1,8 @@
+use ryu::Buffer;
 use std::fmt::Write;
 use usvg::tiny_skia_path;
+
+const SCALE: f32 = 10_000.0;
 
 #[derive(Debug, Clone)]
 enum RotationAnchor {
@@ -191,11 +194,29 @@ impl Transform {
             ty,
         } = tf;
 
-        write!(
-            out,
-            r#" transform="matrix({sx} {ky} {kx} {sy} {tx} {ty})" "#
-        )
+        out.write_str(r#" transform="matrix("#)?;
+        write_float(out, sx)?;
+        out.write_str(" ")?;
+        write_float(out, ky)?;
+        out.write_str(" ")?;
+        write_float(out, kx)?;
+        out.write_str(" ")?;
+        write_float(out, sy)?;
+        out.write_str(" ")?;
+        write_float(out, tx)?;
+        out.write_str(" ")?;
+        write_float(out, ty)?;
+        out.write_str(r#")" "#)
     }
+}
+
+fn write_float<T>(out: &mut T, mut value: f32) -> std::fmt::Result
+where
+    T: Write,
+{
+    value = (value * SCALE).round() / SCALE;
+    let mut buf = Buffer::new();
+    out.write_str(buf.format_finite(value))
 }
 
 pub trait IntoFloatPair {
