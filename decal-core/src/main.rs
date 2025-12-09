@@ -10,8 +10,8 @@ fn heading(owner: &str, repo: &str) -> Decal {
                 (repo, { weight: FontWeight::Bold })
              })
         }
-            .font_size(64)
-            .line_height(96)
+            .font_size(68)
+            .line_height(82)
     }
 }
 
@@ -41,11 +41,11 @@ fn main() {
                             Text("F' - A flight software and embedded systems framework")
                                 .color([110, 118, 129])
                         }
+                            .gap(8.pix())
                             .width(70.pct())
-                        Block {}
-                            .size(196.pix())
-                            .background([0, 0, 0])
+                        Image("https://avatars.githubusercontent.com/u/848102?s=200", 200.0, 200.0)
                     }
+                        .justify_content(JustifyContent::SpaceBetween)
                         .gap(64.pix())
                         .flex_grow(1.0)
 
@@ -75,11 +75,11 @@ fn main() {
                 }
                     .padding(76.pix())
                     .align_items(AlignItems::Stretch)
-                    .gap(48.pix())
+                    .gap(86.pix())
                     .background([255, 255, 255])
                     .size(100.pct())
             }
-                .font_size(32)
+                .font_size(38)
                 .line_height(46)
                 .color([48, 54, 62])
                 .font_family("MonaSans")
@@ -90,7 +90,7 @@ fn main() {
         fonts: FontRegistry::new().load_font("MonaSans", include_bytes!("../MonaSans.ttf")),
     });
     let start = std::time::Instant::now();
-    let pixmap = engine.rasterize(&mut dcl, None, None).unwrap();
+    let pixmap = engine.rasterize(&mut dcl, None, None, false).unwrap();
     println!("rasterize: {:.3} ms", start.elapsed().as_millis());
     pixmap.save_png("./output.png").unwrap();
     println!("save to disk: {:.3} ms", start.elapsed().as_millis());
