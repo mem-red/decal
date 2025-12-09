@@ -1,6 +1,6 @@
 use cosmic_text::fontdb::{ID, Source};
 use cosmic_text::{FontSystem, SwashCache};
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::sync::Arc;
 
 pub(crate) const DEFAULT_FONT_FAMILY: &'static str = "sans-serif";

@@ -1,6 +1,6 @@
+use hashbrown::HashMap;
 use proc_macro2::{Ident, Span};
 use quote::format_ident;
-use std::collections::HashMap;
 
 #[derive(Debug)]
 pub(crate) struct IdentGen {
