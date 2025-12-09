@@ -6,7 +6,7 @@ use crate::prelude::Typography;
 use crate::{builders::RootMeta, prelude::ImageMeta};
 use std::fmt::{Display, Write};
 use std::sync::{Arc, Mutex};
-use taffy::{Cache, prelude::*};
+use taffy::{Cache, Point, Size, prelude::*};
 use thiserror::Error;
 
 #[derive(Debug, Clone)]
@@ -131,8 +131,10 @@ impl Node {
             | NodeKind::Column
             | NodeKind::Row
             | NodeKind::Grid => {
-                let w = self.final_layout.size.width;
-                let h = self.final_layout.size.height;
+                let Size {
+                    width: w,
+                    height: h,
+                } = self.final_layout.size;
                 let radius = self.scaled_radii;
                 let borders = (
                     self.final_layout.border.top,
@@ -161,13 +163,7 @@ impl Node {
                 // borders
                 if borders.0 + borders.1 + borders.2 + borders.3 > 0.0 {
                     write!(out, r#"<path d=""#)?;
-                    write_border_path(
-                        out,
-                        self.final_layout.size.width,
-                        self.final_layout.size.height,
-                        radius,
-                        borders,
-                    )?;
+                    write_border_path(out, w, h, radius, borders)?;
                     write!(
                         out,
                         r#"" fill="{}" fill-rule="evenodd" clip-rule="evenodd" />"#,
@@ -203,16 +199,23 @@ impl Node {
             }
             //
             NodeKind::Image(meta) => {
-                // TODO fix and write transform
+                let Point { x, y } = self.final_layout.location;
+                let Size {
+                    width: w,
+                    height: h,
+                } = self.final_layout.size;
+
                 write!(
                     out,
-                    r#"<image href="{}" x="{}" y="{}" width="{}" height="{}"/>"#,
+                    r#"<image href="{}" x="{x}" y="{y}" width="{w}" height="{h}""#,
                     meta.source,
-                    self.final_layout.location.x,
-                    self.final_layout.location.y,
-                    self.final_layout.size.width,
-                    self.final_layout.size.height,
                 )?;
+
+                self.visual
+                    .transform
+                    .write_transform_matrix(out, (x, y), (0.0, 0.0), (w, h))?;
+
+                write!(out, r#"/>"#)?;
             }
         };
 
