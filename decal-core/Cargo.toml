@@ -11,13 +11,17 @@ repository = "https://github.com/mem-red/decal"
 base64 = "0.22.1"
 cosmic-text = { version = "0.15.0", features = ["shape-run-cache", "hashbrown"] }
 decal-macros = { path = "../decal-macros" }
+hashbrown = "0.16.1"
+infer = "0.19.0"
 paste = "1.0.15"
 png = "0.18.0"
 resvg = "0.45.1"
+ryu = "1.0.20"
 smallvec = "1.15.1"
 swash = { version = "0.2.6", features = ["scale"] }
 taffy = "0.9.2"
 thiserror = "2.0.17"
 tiny-skia = "0.11.4"
+ureq = "3.1.4"
 usvg = "0.45.1"
 zeno = "0.3.3"
