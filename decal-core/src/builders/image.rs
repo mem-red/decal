@@ -1,4 +1,4 @@
-use crate::layout::{ImageMeta, Node, NodeKind};
+use crate::layout::{ImageMeta, ImageSource, Node, NodeKind};
 use crate::macros::impl_node_methods;
 use crate::paint::Appearance;
 use taffy::prelude::*;
@@ -10,14 +10,25 @@ pub struct Image {
     visual: Appearance,
 }
 
+pub trait IntoImage {
+    fn into_image(self) -> ImageMeta;
+}
+
 impl Image {
-    pub fn new<S>(source: S) -> Self
+    pub fn new<S, T>(source: S, width: T, height: T) -> Self
     where
-        S: Into<String>,
+        S: Into<ImageSource>,
+        T: Into<f32> + Clone,
     {
         Self {
-            meta: ImageMeta::new(source),
-            layout: Style::default(),
+            meta: ImageMeta::new(source, width.clone().into(), height.clone().into()),
+            layout: Style {
+                size: Size {
+                    width: Dimension::length(width.into()),
+                    height: Dimension::length(height.into()),
+                },
+                ..Default::default()
+            },
             ..Default::default()
         }
     }

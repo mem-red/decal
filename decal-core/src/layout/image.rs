@@ -1,33 +1,40 @@
+use std::fmt::Display;
 use taffy::Size;
+
+#[derive(Debug, Clone)]
+pub enum ImageSource {
+    Url(String),
+    DataUri(String),
+    Svg(String),
+}
+
+impl Default for ImageSource {
+    fn default() -> Self {
+        ImageSource::Url("".to_string())
+    }
+}
 
 #[derive(Debug, Clone, Default)]
 pub(crate) struct ImageMeta {
-    pub(crate) source: String,
+    pub(crate) source: ImageSource,
     pub(crate) width: f32,
     pub(crate) height: f32,
-    pub(crate) is_loaded: bool,
 }
 
 impl ImageMeta {
-    pub(crate) fn new<S>(source: S) -> Self
+    pub(crate) fn new<S>(source: S, width: f32, height: f32) -> Self
     where
-        S: Into<String>,
+        S: Into<ImageSource>,
     {
         Self {
             source: source.into(),
+            width,
+            height,
             ..Default::default()
         }
     }
 
-    pub(crate) fn load(&mut self) {
-        if !self.is_loaded {
-            self.is_loaded = true;
-            // TODO fetch image
-        }
-    }
-
     pub(crate) fn measure(&mut self, known_dimensions: Size<Option<f32>>) -> Size<f32> {
-        self.load();
         match (known_dimensions.width, known_dimensions.height) {
             (Some(width), Some(height)) => Size { width, height },
             (Some(width), None) => Size {
@@ -43,5 +50,29 @@ impl ImageMeta {
                 height: self.height,
             },
         }
+    }
+}
+
+impl From<String> for ImageSource {
+    fn from(value: String) -> Self {
+        ImageSource::Url(value)
+    }
+}
+
+impl From<&str> for ImageSource {
+    fn from(value: &str) -> Self {
+        ImageSource::Url(value.to_string())
+    }
+}
+
+impl Display for ImageSource {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let value = match self {
+            ImageSource::Url(url) => url,
+            ImageSource::DataUri(uri) => uri,
+            ImageSource::Svg(svg) => svg,
+        };
+
+        write!(f, "{}", value)
     }
 }
