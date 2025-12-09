@@ -99,7 +99,7 @@ fn main() {
     });
     let start = std::time::Instant::now();
     let pixmap = engine.rasterize(&mut dcl, None, None, false).unwrap();
-    println!("rasterize: {:.3} ms", start.elapsed().as_millis());
+    println!("{:.3} us :: rasterize", start.elapsed().as_micros());
     pixmap.save_png("./output.png").unwrap();
-    println!("save to disk: {:.3} ms", start.elapsed().as_millis());
+    println!("{:.3} us :: save to disk", start.elapsed().as_micros());
 }
