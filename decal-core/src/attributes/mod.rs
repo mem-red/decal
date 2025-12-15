@@ -1,6 +1,5 @@
 mod alignment;
 mod border;
-mod color;
 mod corner_radius;
 mod dimensions;
 mod fill;
@@ -13,7 +12,6 @@ mod position;
 
 pub use alignment::*;
 pub use border::*;
-pub use color::*;
 pub use corner_radius::*;
 pub use dimensions::*;
 pub use fill::*;
