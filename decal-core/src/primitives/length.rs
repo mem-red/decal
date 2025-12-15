@@ -100,7 +100,7 @@ impl Into<taffy::Dimension> for Length {
     }
 }
 
-pub(super) mod helpers {
+pub mod helpers {
     use super::Length;
 
     #[must_use]
