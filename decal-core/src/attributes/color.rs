@@ -11,6 +11,8 @@ pub struct Color {
 
 impl Color {
     pub const fn new(r: u8, g: u8, b: u8, a: f32) -> Self {
+        debug_assert!(a >= 0.0 && a <= 100.0);
+
         Self {
             r,
             g,
