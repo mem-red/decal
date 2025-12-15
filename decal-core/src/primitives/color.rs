@@ -10,7 +10,11 @@ pub struct Color {
 }
 
 impl Color {
-    pub const fn new(r: u8, g: u8, b: u8, a: f32) -> Self {
+    pub const fn rgb(r: u8, g: u8, b: u8) -> Self {
+        Self { r, g, b, a: 255 }
+    }
+
+    pub const fn rgba(r: u8, g: u8, b: u8, a: f32) -> Self {
         debug_assert!(a >= 0.0 && a <= 100.0);
 
         Self {
@@ -19,10 +23,6 @@ impl Color {
             b,
             a: ((a / 100.0).clamp(0.0, 1.0) * 255.0) as u8,
         }
-    }
-
-    pub const fn rgb(r: u8, g: u8, b: u8) -> Self {
-        Self { r, g, b, a: 255 }
     }
 
     pub fn parse(value: &str) -> Self {
@@ -72,5 +72,19 @@ impl From<color::DynamicColor> for Color {
     fn from(color: color::DynamicColor) -> Self {
         let srgb: AlphaColor<Srgb> = color.to_alpha_color();
         srgb.to_rgba8().into()
+    }
+}
+
+pub(super) mod helpers {
+    use super::Color;
+
+    pub const fn rgb(hex: u32) -> Color {
+        let [_, r, g, b] = hex.to_be_bytes();
+        Color::rgb(r, g, b)
+    }
+
+    pub const fn rgba(hex: u32) -> Color {
+        let [r, g, b, a] = hex.to_be_bytes();
+        Color::rgba(r, g, b, a as f32 / 255.0)
     }
 }
