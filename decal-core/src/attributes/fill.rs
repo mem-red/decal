@@ -1,4 +1,4 @@
-use crate::attributes::Color;
+use crate::primitives::Color;
 use std::fmt::Display;
 
 #[derive(Debug, Clone, Copy, Default)]
