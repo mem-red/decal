@@ -21,4 +21,5 @@ pub use size::*;
 pub use transform::*;
 
 // TODO: re-export under a feature
+pub use color::helpers::*;
 pub use length::helpers::*;
