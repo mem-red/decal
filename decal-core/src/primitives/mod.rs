@@ -1,3 +1,4 @@
+mod color;
 mod corner;
 mod display;
 mod flex_direction;
@@ -8,6 +9,7 @@ mod rect;
 mod size;
 mod transform;
 
+pub use color::*;
 pub use corner::*;
 pub use display::*;
 pub use flex_direction::*;
