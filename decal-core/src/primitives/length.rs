@@ -37,9 +37,9 @@ impl Length {
     where
         T: Into<f64>,
     {
-        Self(LengthInner::Percent(
-            (value.into() as f32 / 100.0).clamp(0.0, 1.0),
-        ))
+        let value = value.into() as f32;
+        debug_assert!(value >= 0.0 && value <= 100.0);
+        Self(LengthInner::Percent((value / 100.0).clamp(0.0, 1.0)))
     }
 
     pub(crate) fn is_zero(&self) -> bool {
@@ -114,7 +114,7 @@ pub(super) mod helpers {
     }
 
     #[must_use]
-    pub fn pix<T>(value: T) -> Length
+    pub fn px<T>(value: T) -> Length
     where
         T: Into<f64>,
     {
@@ -122,29 +122,29 @@ pub(super) mod helpers {
     }
 
     #[must_use]
-    pub fn pct<T>(value: T) -> Length
+    pub fn pc<T>(value: T) -> Length
     where
         T: Into<f64>,
     {
-        Length::percent((value.into() / 100.0).clamp(0.0, 1.0))
+        Length::percent(value)
     }
 
     pub trait LengthExtension: Sized {
         #[must_use]
-        fn pix(self) -> Length;
+        fn px(self) -> Length;
 
         #[must_use]
-        fn pct(self) -> Length;
+        fn pc(self) -> Length;
     }
 
     macro_rules! impl_length_ext {
         ($($dtype:ty),*) => {
             $(impl LengthExtension for $dtype {
-                fn pix(self) -> Length {
+                fn px(self) -> Length {
                     Length::pixels(self as f64)
                 }
 
-                fn pct(self) -> Length {
+                fn pc(self) -> Length {
                     Length::percent(self as f64)
                 }
             })*

@@ -25,14 +25,14 @@ fn stat(value: &str, label: &str, icon: &str) -> Decal {
                 .font_size(32)
                 .line_height(38)
                 .align_items(AlignItems::Center)
-                .gap(16.pix())
+                .gap(px(16))
             Text(label)
                 .color("#7c828b")
                 .font_size(28)
                 .line_height(32)
-                .margin_left(52.pix())
+                .margin_left(px(52))
         }
-            .gap(4.pix())
+            .gap(px(4))
     }
 }
 
@@ -46,12 +46,12 @@ fn main() {
                             Text("F' - A flight software and embedded systems framework")
                                 .color("#6e7681")
                         }
-                            .gap(16.pix())
-                            .width(70.pct())
+                            .gap(px(16))
+                            .width(pc(70))
                         Image("https://avatars.githubusercontent.com/u/848102?s=200", 200.0, 200.0)
                     }
                         .justify_content(JustifyContent::SpaceBetween)
-                        .gap(64.pix())
+                        .gap(px(64))
                         .flex_grow(1.0)
 
                     // Stats
@@ -62,30 +62,30 @@ fn main() {
                         Fragment(stat("8k", "Stars", r#"<path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path>"#))
                         Fragment(stat("95", "Forks", r#"<path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>"#))
                         Image(ImageSource::svg(r##"<svg viewBox="0 0 16 16" width="48" height="48" fill="#8492af"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg>"##), 48.0, 48.0)
-                            .margin_left(32.pix())
+                            .margin_left(px(32))
                 }
                         .align_items(AlignItems::Center)
                         .justify_content(JustifyContent::SpaceBetween)
 
                     Row {
-                        Block {}.background([243, 75, 125]).width(61.2.pct())
-                        Block {}.background([227, 76, 37]).width(17.5.pct())
-                        Block {}.background([53, 114, 165]).width(8.9.pct())
-                        Block {}.background([61, 97, 24]).width(5.1.pct())
-                        Block {}.background([176, 114, 25]).width(3.2.pct())
-                        Block {}.background([236, 222, 190]).width(2.1.pct())
-                        Block {}.background([85, 85, 85]).width(1.3.pct())
-                        Block {}.background([240, 224, 90]).width(0.7.pct())
+                        Block {}.background([243, 75, 125]).width(pc(61.2))
+                        Block {}.background([227, 76, 37]).width(pc(17.5))
+                        Block {}.background([53, 114, 165]).width(pc(8.9))
+                        Block {}.background([61, 97, 24]).width(pc(5.1))
+                        Block {}.background([176, 114, 25]).width(pc(3.2))
+                        Block {}.background([236, 222, 190]).width(pc(2.1))
+                        Block {}.background([85, 85, 85]).width(pc(1.3))
+                        Block {}.background([240, 224, 90]).width(pc(0.7))
                     }
-                        .height(28.pix())
-                        .margin_x((-76).pix())
-                        .margin_bottom((-76).pix())
+                        .height(px(28))
+                        .margin_x(px(-76))
+                        .margin_bottom(px(-76))
                 }
-                    .padding(76.pix())
+                    .padding(px(76))
                     .align_items(AlignItems::Stretch)
-                    .gap(86.pix())
+                    .gap(px(86))
                     .background([255, 255, 255])
-                    .size(100.pct())
+                    .size(pc(100))
             }
                 .font_size(38)
                 .line_height(46)
