@@ -44,7 +44,7 @@ fn main() {
                         Column {
                             Fragment(heading("nasa", "fprime"))
                             Text("F' - A flight software and embedded systems framework")
-                                .color("#6e7681")
+                                .color(rgb(0x6e7681))
                         }
                             .gap(px(16))
                             .width(pc(70))
