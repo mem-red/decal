@@ -20,14 +20,14 @@ fn stat(value: &str, label: &str, icon: &str) -> Decal {
         Column {
             Row {
                 Image(ImageSource::svg(format!(r##"<svg width="36" height="36" viewBox="0 0 16 16" fill="#6e7681">{icon}</svg>"##)), 36.0, 36.0)
-                Text(value).color("#000")
+                Text(value).color(rgb(0x0))
             }
                 .font_size(32)
                 .line_height(38)
                 .align_items(AlignItems::Center)
                 .gap(px(16))
             Text(label)
-                .color("#7c828b")
+                .color(rgb(0x7c828b))
                 .font_size(28)
                 .line_height(32)
                 .margin_left(px(52))
