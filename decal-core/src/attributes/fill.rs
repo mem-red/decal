@@ -43,6 +43,12 @@ impl IntoFill for Fill {
     }
 }
 
+impl IntoFill for Color {
+    fn into_fill(self) -> Option<Fill> {
+        Some(Fill::Color(self))
+    }
+}
+
 impl IntoFill for f32 {
     fn into_fill(self) -> Option<Fill> {
         Some(Fill::Color(Color::rgba(0, 0, 0, self)))
