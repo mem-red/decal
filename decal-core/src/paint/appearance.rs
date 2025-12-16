@@ -7,6 +7,7 @@ pub(crate) struct Appearance {
     pub corner_radius: CornerRadius,
     pub transform: Transform,
     pub visible: bool,
+    pub opacity: f32,
 }
 
 impl Default for Appearance {
@@ -17,6 +18,7 @@ impl Default for Appearance {
             corner_radius: Default::default(),
             transform: Default::default(),
             visible: true,
+            opacity: 1.0,
         }
     }
 }

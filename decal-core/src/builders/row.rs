@@ -60,11 +60,13 @@ impl_node_methods!(
         flex_wrap,
         gap,
         margin,
+        opacity,
         overflow,
         padding,
         position,
         self_align,
         text,
-        transform
+        transform,
+        visibility
     ]
 );

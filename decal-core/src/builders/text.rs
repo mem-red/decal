@@ -47,7 +47,9 @@ impl Text {
 
 impl_node_methods!(
     Text,
-    [dimensions, margin, position, self_align, text, transform]
+    [
+        dimensions, margin, opacity, position, self_align, text, transform, visibility
+    ]
 );
 
 #[derive(Debug, Clone)]

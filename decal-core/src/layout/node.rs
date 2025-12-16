@@ -147,6 +147,11 @@ impl Node {
                 let use_clip = clip_x || clip_y;
 
                 write!(out, r#"<g"#)?;
+
+                if self.visual.opacity != 1.0 {
+                    write!(out, r#" opacity="{}" "#, self.visual.opacity)?;
+                }
+
                 self.visual.transform.write_transform_matrix(
                     out,
                     (0.0, 0.0),
@@ -192,7 +197,7 @@ impl Node {
                 meta.write_vectorized_text(
                     out,
                     (self.final_layout.location.x, self.final_layout.location.y),
-                    &self.visual.transform,
+                    &self.visual,
                     swash_cache,
                     system,
                 )?;
@@ -213,6 +218,10 @@ impl Node {
                             meta.source,
                         )?;
 
+                        if self.visual.opacity != 1.0 {
+                            write!(out, r#" opacity="{}" "#, self.visual.opacity)?;
+                        }
+
                         self.visual.transform.write_transform_matrix(
                             out,
                             (x, y),
@@ -225,6 +234,11 @@ impl Node {
 
                     ImageSource::Svg(svg) => {
                         write!(out, r#"<g"#)?;
+
+                        if self.visual.opacity != 1.0 {
+                            write!(out, r#" opacity="{}" "#, self.visual.opacity)?;
+                        }
+
                         self.visual.transform.write_transform_matrix(
                             out,
                             (0.0, 0.0),

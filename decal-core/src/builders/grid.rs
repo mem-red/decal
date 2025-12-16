@@ -52,11 +52,13 @@ impl_node_methods!(
         gap,
         grid_align,
         margin,
+        opacity,
         overflow,
         padding,
         position,
         self_align,
         text,
-        transform
+        transform,
+        visibility
     ]
 );

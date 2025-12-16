@@ -54,8 +54,10 @@ impl_node_methods!(
         corner_radius,
         dimensions,
         margin,
+        opacity,
         position,
         self_align,
-        transform
+        transform,
+        visibility
     ]
 );
