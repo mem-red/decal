@@ -1,3 +1,4 @@
+use quick_xml::escape::escape;
 use std::fmt::Display;
 use taffy::Size;
 
@@ -52,7 +53,7 @@ impl ImageSource {
     where
         S: Into<String>,
     {
-        ImageSource::Url(url.into())
+        ImageSource::Url(escape(url.into()).to_string())
     }
 
     pub fn data_uri<S>(data_uri: S) -> Self
@@ -78,13 +79,13 @@ impl Default for ImageSource {
 
 impl From<String> for ImageSource {
     fn from(value: String) -> Self {
-        ImageSource::Url(value)
+        ImageSource::Url(escape(value).to_string())
     }
 }
 
 impl From<&str> for ImageSource {
     fn from(value: &str) -> Self {
-        ImageSource::Url(value.to_string())
+        ImageSource::Url(escape(value).to_string())
     }
 }
 
@@ -94,7 +95,6 @@ impl Display for ImageSource {
             ImageSource::Url(url) => url,
             ImageSource::DataUri(uri) => uri,
             ImageSource::Svg(svg) => svg,
-            // ImageSource::Svg(svg) => &format!("data:image/svg+xml;base64,{}", BASE64.encode(svg)),
         };
 
         write!(f, "{}", value)
