@@ -45,13 +45,13 @@ impl IntoFill for Fill {
 
 impl IntoFill for f32 {
     fn into_fill(self) -> Option<Fill> {
-        Some(Fill::Color(Color::new(0, 0, 0, self)))
+        Some(Fill::Color(Color::rgba(0, 0, 0, self)))
     }
 }
 
 impl IntoFill for f64 {
     fn into_fill(self) -> Option<Fill> {
-        Some(Fill::Color(Color::new(0, 0, 0, self as f32)))
+        Some(Fill::Color(Color::rgba(0, 0, 0, self as f32)))
     }
 }
 
@@ -72,7 +72,7 @@ where
     T: Into<f64> + Copy,
 {
     fn into_fill(self) -> Option<Fill> {
-        Some(Fill::Color(Color::new(0, 0, 0, self[0].into() as f32)))
+        Some(Fill::Color(Color::rgba(0, 0, 0, self[0].into() as f32)))
     }
 }
 
@@ -94,7 +94,7 @@ where
     T: Into<f64> + Copy,
 {
     fn into_fill(self) -> Option<Fill> {
-        Some(Fill::Color(Color::new(
+        Some(Fill::Color(Color::rgba(
             self[0].into().clamp(0.0, 255.0) as u8,
             self[1].into().clamp(0.0, 255.0) as u8,
             self[2].into().clamp(0.0, 255.0) as u8,
