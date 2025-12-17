@@ -1,9 +1,8 @@
-use crate::prelude::{Overflow, Point};
+use crate::primitives::{Overflow, Point};
 
-#[derive(Debug, Clone, Copy, Default)]
-pub struct OverflowWrapper(pub Point<Overflow>);
+type OverflowXY = Point<Overflow>;
 
-impl Into<taffy::Point<taffy::Overflow>> for OverflowWrapper {
+impl Into<taffy::Point<taffy::Overflow>> for OverflowXY {
     #[inline]
     fn into(self) -> taffy::Point<taffy::Overflow> {
         taffy::Point {
@@ -13,63 +12,47 @@ impl Into<taffy::Point<taffy::Overflow>> for OverflowWrapper {
     }
 }
 
-impl std::ops::Deref for OverflowWrapper {
-    type Target = Point<Overflow>;
-
-    #[inline]
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl std::ops::DerefMut for OverflowWrapper {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
 pub trait IntoOverflow {
-    fn into_overflow(self) -> Option<OverflowWrapper>;
+    fn into_overflow(self) -> Option<OverflowXY>;
 }
 
-impl IntoOverflow for Option<OverflowWrapper> {
+impl IntoOverflow for Option<OverflowXY> {
     #[inline]
-    fn into_overflow(self) -> Option<OverflowWrapper> {
+    fn into_overflow(self) -> Option<OverflowXY> {
         self
     }
 }
 
-impl IntoOverflow for OverflowWrapper {
+impl IntoOverflow for OverflowXY {
     #[inline]
-    fn into_overflow(self) -> Option<OverflowWrapper> {
+    fn into_overflow(self) -> Option<OverflowXY> {
         Some(self)
     }
 }
 
 impl IntoOverflow for Overflow {
     #[inline]
-    fn into_overflow(self) -> Option<OverflowWrapper> {
-        Some(OverflowWrapper(Point { x: self, y: self }))
+    fn into_overflow(self) -> Option<OverflowXY> {
+        Some(Point { x: self, y: self })
     }
 }
 
 impl IntoOverflow for [Overflow; 1] {
     #[inline]
-    fn into_overflow(self) -> Option<OverflowWrapper> {
-        Some(OverflowWrapper(Point {
+    fn into_overflow(self) -> Option<OverflowXY> {
+        Some(Point {
             x: self[0],
             y: self[0],
-        }))
+        })
     }
 }
 
 impl IntoOverflow for [Overflow; 2] {
     #[inline]
-    fn into_overflow(self) -> Option<OverflowWrapper> {
-        Some(OverflowWrapper(Point {
+    fn into_overflow(self) -> Option<OverflowXY> {
+        Some(Point {
             x: self[0],
             y: self[1],
-        }))
+        })
     }
 }
