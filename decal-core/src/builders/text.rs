@@ -1,9 +1,11 @@
-use crate::attributes::Fill;
+use crate::capabilities::*;
 use crate::layout::TextMeta;
+use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
-use crate::macros::impl_node_methods;
+use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
-use crate::prelude::{FontStyle, FontWeight, Typography};
+use crate::primitives::Fill;
+use crate::text::{FontStyle, FontWeight};
 use taffy::prelude::*;
 
 #[derive(Debug)]
@@ -13,6 +15,21 @@ pub struct Text {
     visual: Appearance,
     typography: Typography,
 }
+
+impl_node_builder!(
+    Text,
+    build(this) {
+        let mut meta = this.meta.to_owned();
+        meta.set_typography(this.typography.to_owned());
+
+        Node::new(
+            NodeKind::Text(meta),
+            this.layout.to_owned(),
+            this.visual.to_owned(),
+            Some(this.typography.to_owned()),
+        )
+    }
+);
 
 impl Text {
     pub fn new<S>(content: S) -> Self
@@ -26,31 +43,23 @@ impl Text {
             typography: Default::default(),
         }
     }
+}
 
-    pub fn hidden(&mut self, value: bool) -> &mut Self {
+impl Hideable for Text {
+    fn hidden(&mut self, value: bool) -> &mut Self {
         self.layout.display = if value { Display::None } else { Display::Block };
         self
     }
-
-    pub fn build(&self) -> Node {
-        let mut meta = self.meta.to_owned();
-        meta.set_typography(self.typography.to_owned());
-
-        Node::new(
-            NodeKind::Text(meta),
-            self.layout.to_owned(),
-            self.visual.to_owned(),
-            Some(self.typography.to_owned()),
-        )
-    }
 }
 
-impl_node_methods!(
-    Text,
-    [
-        dimensions, margin, opacity, position, self_align, text, transform, visibility
-    ]
-);
+impl Dimensions for Text {}
+impl Margin for Text {}
+impl Opacity for Text {}
+impl Positioned for Text {}
+impl Transformation for Text {}
+impl Textual for Text {}
+impl SelfAlignment for Text {}
+impl Visibility for Text {}
 
 #[derive(Debug, Clone)]
 pub struct TextSpan {

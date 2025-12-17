@@ -1,7 +1,9 @@
+use crate::builders::Block;
+use crate::capabilities::*;
+use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
-use crate::macros::impl_node_methods;
+use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
-use crate::prelude::Typography;
 use taffy::prelude::*;
 
 #[derive(Debug, Default)]
@@ -10,6 +12,18 @@ pub struct Row {
     visual: Appearance,
     typography: Typography,
 }
+
+impl_node_builder!(
+    Row,
+    build(this) {
+        Node::new(
+            NodeKind::Row,
+            this.layout.to_owned(),
+            this.visual.to_owned(),
+            Some(this.typography.to_owned()),
+        )
+    }
+);
 
 impl Row {
     pub fn new() -> Self {
@@ -22,51 +36,40 @@ impl Row {
             ..Default::default()
         }
     }
+}
 
-    pub fn reverse(&mut self, reverse: bool) -> &mut Self {
+impl Hideable for Row {
+    fn hidden(&mut self, value: bool) -> &mut Self {
+        self.layout.display = if value { Display::None } else { Display::Flex };
+        self
+    }
+}
+
+impl FlexContainer for Row {
+    fn reversed(&mut self, reverse: bool) -> &mut Self {
         self.layout.flex_direction = if reverse {
             FlexDirection::RowReverse
         } else {
             FlexDirection::Row
         };
-        self
-    }
 
-    pub fn hidden(&mut self, value: bool) -> &mut Self {
-        self.layout.display = if value { Display::None } else { Display::Flex };
         self
-    }
-
-    pub fn build(&self) -> Node {
-        Node::new(
-            NodeKind::Row,
-            self.layout.to_owned(),
-            self.visual.to_owned(),
-            Some(self.typography.to_owned()),
-        )
     }
 }
 
-impl_node_methods!(
-    Row,
-    [
-        aspect_ratio,
-        background,
-        border,
-        border_color,
-        container_align,
-        corner_radius,
-        dimensions,
-        flex_wrap,
-        gap,
-        margin,
-        opacity,
-        overflow,
-        padding,
-        position,
-        self_align,
-        text,
-        transform,
-        visibility
-    ]
-);
+impl AspectRatio for Row {}
+impl Background for Row {}
+impl Border for Row {}
+impl RoundedCorners for Row {}
+impl Dimensions for Row {}
+impl Gap for Row {}
+impl ContainerAlignment for Row {}
+impl Margin for Row {}
+impl Padding for Row {}
+impl Clippable for Row {}
+impl Opacity for Row {}
+impl Positioned for Row {}
+impl Transformation for Row {}
+impl Textual for Row {}
+impl SelfAlignment for Row {}
+impl Visibility for Row {}

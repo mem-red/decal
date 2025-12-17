@@ -1,7 +1,8 @@
+use crate::capabilities::Textual;
+use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
-use crate::macros::impl_node_methods;
+use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
-use crate::prelude::Typography;
 use taffy::prelude::*;
 
 #[derive(Debug, Default)]
@@ -17,6 +18,18 @@ pub(crate) struct RootMeta {
     pub(crate) width: f32,
     pub(crate) height: f32,
 }
+
+impl_node_builder!(
+    Root,
+    build(this) {
+        Node::new(
+            NodeKind::Root(this.meta.to_owned()),
+            this.layout.to_owned(),
+            this.visual.to_owned(),
+            Some(this.typography.to_owned()),
+        )
+    }
+);
 
 impl Root {
     pub fn new<W, H>(width: W, height: H) -> Self
@@ -39,15 +52,6 @@ impl Root {
             ..Default::default()
         }
     }
-
-    pub fn build(&self) -> Node {
-        Node::new(
-            NodeKind::Root(self.meta.to_owned()),
-            self.layout.to_owned(),
-            self.visual.to_owned(),
-            Some(self.typography.to_owned()),
-        )
-    }
 }
 
-impl_node_methods!(Root, [text]);
+impl Textual for Root {}

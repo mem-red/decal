@@ -1,5 +1,6 @@
-use crate::layout::{ImageMeta, ImageSource, Node, NodeKind};
-use crate::macros::impl_node_methods;
+use crate::capabilities::*;
+use crate::layout::{ImageMeta, ImageSource, Node, NodeKind, Typography};
+use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
 use taffy::prelude::*;
 
@@ -8,56 +9,60 @@ pub struct Image {
     meta: ImageMeta,
     layout: Style,
     visual: Appearance,
+    // unused, only for satisfying the Sealed trait
+    typography: Typography,
+}
+
+impl_node_builder! {
+    Image,
+    build(this) {
+        Node::new(
+            NodeKind::Image(this.meta.to_owned()),
+            this.layout.to_owned(),
+            this.visual.to_owned(),
+            None
+        )
+    }
 }
 
 impl Image {
     pub fn new<S, T>(source: S, width: T, height: T) -> Self
     where
         S: Into<ImageSource>,
-        T: Into<f32> + Clone,
+        T: Into<f32> + Copy,
     {
+        let width = width.into();
+        let height = height.into();
+
         Self {
-            meta: ImageMeta::new(source, width.clone().into(), height.clone().into()),
+            meta: ImageMeta::new(source, width, height),
             layout: Style {
                 size: Size {
-                    width: Dimension::length(width.into()),
-                    height: Dimension::length(height.into()),
+                    width: Dimension::length(width),
+                    height: Dimension::length(height),
                 },
                 ..Default::default()
             },
             ..Default::default()
         }
     }
+}
 
-    pub fn hidden(&mut self, value: bool) -> &mut Self {
+impl Hideable for Image {
+    fn hidden(&mut self, value: bool) -> &mut Self {
         self.layout.display = if value { Display::None } else { Display::Block };
         self
     }
-
-    pub fn build(&self) -> Node {
-        Node::new(
-            NodeKind::Image(self.meta.to_owned()),
-            self.layout.to_owned(),
-            self.visual.to_owned(),
-            None,
-        )
-    }
 }
 
-impl_node_methods!(
-    Image,
-    [
-        aspect_ratio,
-        background,
-        border,
-        border_color,
-        corner_radius,
-        dimensions,
-        margin,
-        opacity,
-        position,
-        self_align,
-        transform,
-        visibility
-    ]
-);
+impl AspectRatio for Image {}
+impl Background for Image {}
+impl Border for Image {}
+impl RoundedCorners for Image {}
+impl Dimensions for Image {}
+impl Margin for Image {}
+impl Opacity for Image {}
+impl Positioned for Image {}
+impl Transformation for Image {}
+impl SelfAlignment for Image {}
+impl Visibility for Image {}

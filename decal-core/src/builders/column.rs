@@ -1,7 +1,9 @@
+use crate::builders::Block;
+use crate::capabilities::*;
+use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
-use crate::macros::impl_node_methods;
+use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
-use crate::prelude::Typography;
 use taffy::prelude::*;
 
 #[derive(Debug, Default)]
@@ -9,6 +11,18 @@ pub struct Column {
     layout: Style,
     visual: Appearance,
     typography: Typography,
+}
+
+impl_node_builder! {
+    Column,
+    build(this) {
+        Node::new(
+            NodeKind::Column,
+            this.layout.to_owned(),
+            this.visual.to_owned(),
+            Some(this.typography.to_owned()),
+        )
+    }
 }
 
 impl Column {
@@ -22,51 +36,40 @@ impl Column {
             ..Default::default()
         }
     }
+}
 
-    pub fn reverse(&mut self, reverse: bool) -> &mut Self {
+impl Hideable for Column {
+    fn hidden(&mut self, value: bool) -> &mut Self {
+        self.layout.display = if value { Display::None } else { Display::Flex };
+        self
+    }
+}
+
+impl FlexContainer for Column {
+    fn reversed(&mut self, reverse: bool) -> &mut Self {
         self.layout.flex_direction = if reverse {
             FlexDirection::ColumnReverse
         } else {
             FlexDirection::Column
         };
-        self
-    }
 
-    pub fn hidden(&mut self, value: bool) -> &mut Self {
-        self.layout.display = if value { Display::None } else { Display::Flex };
         self
-    }
-
-    pub fn build(&self) -> Node {
-        Node::new(
-            NodeKind::Column,
-            self.layout.to_owned(),
-            self.visual.to_owned(),
-            Some(self.typography.to_owned()),
-        )
     }
 }
 
-impl_node_methods!(
-    Column,
-    [
-        aspect_ratio,
-        background,
-        border,
-        border_color,
-        container_align,
-        corner_radius,
-        dimensions,
-        flex_wrap,
-        gap,
-        margin,
-        opacity,
-        overflow,
-        padding,
-        position,
-        self_align,
-        text,
-        transform,
-        visibility
-    ]
-);
+impl AspectRatio for Column {}
+impl Background for Column {}
+impl Border for Column {}
+impl RoundedCorners for Column {}
+impl Dimensions for Column {}
+impl Gap for Column {}
+impl ContainerAlignment for Column {}
+impl Margin for Column {}
+impl Padding for Column {}
+impl Clippable for Column {}
+impl Opacity for Column {}
+impl Positioned for Column {}
+impl Transformation for Column {}
+impl Textual for Column {}
+impl SelfAlignment for Column {}
+impl Visibility for Column {}
