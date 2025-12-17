@@ -6,6 +6,7 @@ pub enum FlexWrap {
 }
 
 impl Into<taffy::FlexWrap> for FlexWrap {
+    #[inline]
     fn into(self) -> taffy::FlexWrap {
         match self {
             FlexWrap::NoWrap => taffy::FlexWrap::NoWrap,

@@ -4,6 +4,7 @@ use crate::primitives::{Length, Rect};
 pub struct Padding(pub Rect<Length>);
 
 impl Into<taffy::Rect<taffy::LengthPercentage>> for Padding {
+    #[inline]
     fn into(self) -> taffy::Rect<taffy::LengthPercentage> {
         taffy::Rect {
             top: self.top.into(),
@@ -16,12 +17,15 @@ impl Into<taffy::Rect<taffy::LengthPercentage>> for Padding {
 
 impl std::ops::Deref for Padding {
     type Target = Rect<Length>;
+
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
 impl std::ops::DerefMut for Padding {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -32,18 +36,21 @@ pub trait IntoPadding {
 }
 
 impl IntoPadding for Option<Padding> {
+    #[inline]
     fn into_padding(self) -> Option<Padding> {
         self
     }
 }
 
 impl IntoPadding for Padding {
+    #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(self)
     }
 }
 
 impl IntoPadding for Length {
+    #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Padding(Rect {
             top: self,
@@ -55,6 +62,7 @@ impl IntoPadding for Length {
 }
 
 impl IntoPadding for [Length; 1] {
+    #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Padding(Rect {
             top: self[0],
@@ -66,6 +74,7 @@ impl IntoPadding for [Length; 1] {
 }
 
 impl IntoPadding for [Length; 2] {
+    #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Padding(Rect {
             top: self[0],
@@ -77,6 +86,7 @@ impl IntoPadding for [Length; 2] {
 }
 
 impl IntoPadding for [Length; 3] {
+    #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Padding(Rect {
             top: self[0],
@@ -88,6 +98,7 @@ impl IntoPadding for [Length; 3] {
 }
 
 impl IntoPadding for [Length; 4] {
+    #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Padding(Rect {
             top: self[0],
@@ -103,18 +114,21 @@ pub trait IntoPaddingPair {
 }
 
 impl IntoPaddingPair for Length {
+    #[inline]
     fn into_padding_pair(self) -> Option<(Length, Length)> {
         Some((self, self))
     }
 }
 
 impl IntoPaddingPair for [Length; 1] {
+    #[inline]
     fn into_padding_pair(self) -> Option<(Length, Length)> {
         Some((self[0], self[0]))
     }
 }
 
 impl IntoPaddingPair for [Length; 2] {
+    #[inline]
     fn into_padding_pair(self) -> Option<(Length, Length)> {
         Some((self[0], self[1]))
     }

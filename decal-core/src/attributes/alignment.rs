@@ -28,6 +28,7 @@ pub type AlignSelf = AlignItems;
 pub type JustifySelf = AlignItems;
 
 impl Into<taffy::AlignItems> for AlignItems {
+    #[inline]
     fn into(self) -> taffy::AlignItems {
         match self {
             AlignItems::Start => taffy::AlignItems::Start,
@@ -42,6 +43,7 @@ impl Into<taffy::AlignItems> for AlignItems {
 }
 
 impl Into<taffy::AlignContent> for AlignContent {
+    #[inline]
     fn into(self) -> taffy::AlignContent {
         match self {
             AlignContent::Start => taffy::AlignContent::Start,

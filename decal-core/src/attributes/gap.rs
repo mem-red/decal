@@ -4,6 +4,7 @@ use crate::primitives::{Length, Size};
 pub struct Gap(pub Size<Length>);
 
 impl Into<taffy::Size<taffy::LengthPercentage>> for Gap {
+    #[inline]
     fn into(self) -> taffy::Size<taffy::LengthPercentage> {
         taffy::Size {
             width: self.width.into(),
@@ -14,12 +15,15 @@ impl Into<taffy::Size<taffy::LengthPercentage>> for Gap {
 
 impl std::ops::Deref for Gap {
     type Target = Size<Length>;
+
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
 impl std::ops::DerefMut for Gap {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -30,18 +34,21 @@ pub trait IntoGap {
 }
 
 impl IntoGap for Option<Gap> {
+    #[inline]
     fn into_gap(self) -> Option<Gap> {
         self
     }
 }
 
 impl IntoGap for Gap {
+    #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(self)
     }
 }
 
 impl IntoGap for Length {
+    #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(Gap(Size {
             width: self,
@@ -51,6 +58,7 @@ impl IntoGap for Length {
 }
 
 impl IntoGap for [Length; 1] {
+    #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(Gap(Size {
             width: self[0],
@@ -60,6 +68,7 @@ impl IntoGap for [Length; 1] {
 }
 
 impl IntoGap for [Length; 2] {
+    #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(Gap(Size {
             width: self[0],

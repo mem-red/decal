@@ -4,6 +4,7 @@ use crate::primitives::{Length, Rect};
 pub struct Border(pub Rect<Length>);
 
 impl Into<taffy::Rect<taffy::LengthPercentage>> for Border {
+    #[inline]
     fn into(self) -> taffy::Rect<taffy::LengthPercentage> {
         taffy::Rect {
             top: self.top.into(),
@@ -16,12 +17,15 @@ impl Into<taffy::Rect<taffy::LengthPercentage>> for Border {
 
 impl std::ops::Deref for Border {
     type Target = Rect<Length>;
+
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
 impl std::ops::DerefMut for Border {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -32,18 +36,21 @@ pub trait IntoBorder {
 }
 
 impl IntoBorder for Option<Border> {
+    #[inline]
     fn into_border(self) -> Option<Border> {
         self
     }
 }
 
 impl IntoBorder for Border {
+    #[inline]
     fn into_border(self) -> Option<Border> {
         Some(self)
     }
 }
 
 impl IntoBorder for Length {
+    #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Border(Rect {
             top: self,
@@ -55,6 +62,7 @@ impl IntoBorder for Length {
 }
 
 impl IntoBorder for [Length; 1] {
+    #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Border(Rect {
             top: self[0],
@@ -66,6 +74,7 @@ impl IntoBorder for [Length; 1] {
 }
 
 impl IntoBorder for [Length; 2] {
+    #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Border(Rect {
             top: self[0],
@@ -77,6 +86,7 @@ impl IntoBorder for [Length; 2] {
 }
 
 impl IntoBorder for [Length; 3] {
+    #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Border(Rect {
             top: self[0],
@@ -88,6 +98,7 @@ impl IntoBorder for [Length; 3] {
 }
 
 impl IntoBorder for [Length; 4] {
+    #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Border(Rect {
             top: self[0],
@@ -103,18 +114,21 @@ pub trait IntoBorderPair {
 }
 
 impl IntoBorderPair for Length {
+    #[inline]
     fn into_border_pair(self) -> Option<(Length, Length)> {
         Some((self, self))
     }
 }
 
 impl IntoBorderPair for [Length; 1] {
+    #[inline]
     fn into_border_pair(self) -> Option<(Length, Length)> {
         Some((self[0], self[0]))
     }
 }
 
 impl IntoBorderPair for [Length; 2] {
+    #[inline]
     fn into_border_pair(self) -> Option<(Length, Length)> {
         Some((self[0], self[1]))
     }

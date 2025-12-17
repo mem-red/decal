@@ -6,6 +6,7 @@ pub enum Position {
 }
 
 impl Into<taffy::Position> for Position {
+    #[inline]
     fn into(self) -> taffy::Position {
         match self {
             Position::Relative => taffy::Position::Relative,

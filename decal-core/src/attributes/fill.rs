@@ -12,6 +12,7 @@ pub enum Fill {
 }
 
 impl Display for Fill {
+    #[inline]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -32,42 +33,49 @@ pub trait IntoFill {
 }
 
 impl IntoFill for Option<Fill> {
+    #[inline]
     fn into_fill(self) -> Option<Fill> {
         self
     }
 }
 
 impl IntoFill for Fill {
+    #[inline]
     fn into_fill(self) -> Option<Fill> {
         Some(self)
     }
 }
 
 impl IntoFill for Color {
+    #[inline]
     fn into_fill(self) -> Option<Fill> {
         Some(Fill::Color(self))
     }
 }
 
 impl IntoFill for f32 {
+    #[inline]
     fn into_fill(self) -> Option<Fill> {
         Some(Fill::Color(Color::rgba(0, 0, 0, self)))
     }
 }
 
 impl IntoFill for f64 {
+    #[inline]
     fn into_fill(self) -> Option<Fill> {
         Some(Fill::Color(Color::rgba(0, 0, 0, self as f32)))
     }
 }
 
 impl IntoFill for &str {
+    #[inline]
     fn into_fill(self) -> Option<Fill> {
         Some(Fill::Color(Color::parse(self)))
     }
 }
 
 impl IntoFill for String {
+    #[inline]
     fn into_fill(self) -> Option<Fill> {
         Some(Fill::Color(Color::parse(self.as_str())))
     }
@@ -77,6 +85,7 @@ impl<T> IntoFill for [T; 1]
 where
     T: Into<f64> + Copy,
 {
+    #[inline]
     fn into_fill(self) -> Option<Fill> {
         Some(Fill::Color(Color::rgba(0, 0, 0, self[0].into() as f32)))
     }
@@ -86,6 +95,7 @@ impl<T> IntoFill for [T; 3]
 where
     T: Into<u8> + Copy,
 {
+    #[inline]
     fn into_fill(self) -> Option<Fill> {
         Some(Fill::Color(Color::rgb(
             self[0].into(),
@@ -99,6 +109,7 @@ impl<T> IntoFill for [T; 4]
 where
     T: Into<f64> + Copy,
 {
+    #[inline]
     fn into_fill(self) -> Option<Fill> {
         Some(Fill::Color(Color::rgba(
             self[0].into().clamp(0.0, 255.0) as u8,

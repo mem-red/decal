@@ -15,12 +15,15 @@ impl CornerRadius {
 
 impl std::ops::Deref for CornerRadius {
     type Target = Corner<Length>;
+
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
 impl std::ops::DerefMut for CornerRadius {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -31,18 +34,21 @@ pub trait IntoCornerRadius {
 }
 
 impl IntoCornerRadius for Option<CornerRadius> {
+    #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         self
     }
 }
 
 impl IntoCornerRadius for CornerRadius {
+    #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(self)
     }
 }
 
 impl IntoCornerRadius for Length {
+    #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(CornerRadius(Corner {
             top_left: self,
@@ -54,6 +60,7 @@ impl IntoCornerRadius for Length {
 }
 
 impl IntoCornerRadius for [Length; 1] {
+    #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(CornerRadius(Corner {
             top_left: self[0],
@@ -65,6 +72,7 @@ impl IntoCornerRadius for [Length; 1] {
 }
 
 impl IntoCornerRadius for [Length; 2] {
+    #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(CornerRadius(Corner {
             top_left: self[0],
@@ -76,6 +84,7 @@ impl IntoCornerRadius for [Length; 2] {
 }
 
 impl IntoCornerRadius for [Length; 3] {
+    #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(CornerRadius(Corner {
             top_left: self[0],
@@ -87,6 +96,7 @@ impl IntoCornerRadius for [Length; 3] {
 }
 
 impl IntoCornerRadius for [Length; 4] {
+    #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(CornerRadius(Corner {
             top_left: self[0],
