@@ -104,7 +104,6 @@ where
         self.write("Z").result
     }
 
-    #[inline(always)]
     fn write(&mut self, str: &str) -> &mut Self {
         if self.result.is_ok() {
             self.result = self.out.write_str(str);
@@ -113,7 +112,6 @@ where
         self
     }
 
-    #[inline(always)]
     fn write_float(&mut self, mut value: f32) {
         value = (value * SCALE).round() / SCALE;
         let mut buf = Buffer::new();
