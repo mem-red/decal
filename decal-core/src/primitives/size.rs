@@ -24,3 +24,30 @@ impl Default for Size<Length> {
         Self::from_values(Length::zero(), Length::zero())
     }
 }
+
+impl Into<taffy::Size<taffy::Dimension>> for Size<Length> {
+    fn into(self) -> taffy::Size<taffy::Dimension> {
+        taffy::Size {
+            width: self.width.into(),
+            height: self.height.into(),
+        }
+    }
+}
+
+impl Into<taffy::Size<taffy::LengthPercentage>> for Size<Length> {
+    fn into(self) -> taffy::Size<taffy::LengthPercentage> {
+        taffy::Size {
+            width: self.width.into(),
+            height: self.height.into(),
+        }
+    }
+}
+
+impl Into<taffy::Size<taffy::LengthPercentageAuto>> for Size<Length> {
+    fn into(self) -> taffy::Size<taffy::LengthPercentageAuto> {
+        taffy::Size {
+            width: self.width.into(),
+            height: self.height.into(),
+        }
+    }
+}

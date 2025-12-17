@@ -1,7 +1,7 @@
 use crate::builders::TextSpan;
+use crate::layout::{BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry};
 use crate::layout::{DEFAULT_FONT_FAMILY, Typography};
 use crate::paint::Appearance;
-use crate::prelude::{BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry};
 use crate::text::{FontStyle, FontWeight};
 use crate::utils::{PathBuilder, encode_image};
 use base64::Engine;

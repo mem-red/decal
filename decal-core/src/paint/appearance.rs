@@ -1,4 +1,5 @@
-use crate::prelude::*;
+use crate::capabilities::CornerRadius;
+use crate::primitives::{Fill, Transform};
 
 #[derive(Debug, Clone)]
 pub(crate) struct Appearance {

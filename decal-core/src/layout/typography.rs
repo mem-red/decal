@@ -1,4 +1,4 @@
-use crate::attributes::Fill;
+use crate::primitives::Fill;
 use crate::text::{FontStyle, FontWeight, TextAlign, TextWrap};
 
 #[derive(Debug, Clone, Default)]
@@ -19,6 +19,7 @@ pub struct Typography {
 }
 
 impl Typography {
+    //noinspection RsLiveness
     pub fn cascade_from(&mut self, parent: &Typography) {
         macro_rules! inherit {
             ($field:ident) => {

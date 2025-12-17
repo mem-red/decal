@@ -16,15 +16,3 @@ where
         Self { x, y }
     }
 }
-
-impl<T> Into<taffy::Point<T>> for Point<T>
-where
-    T: Copy,
-{
-    fn into(self) -> taffy::Point<T> {
-        taffy::Point {
-            x: self.x,
-            y: self.y,
-        }
-    }
-}

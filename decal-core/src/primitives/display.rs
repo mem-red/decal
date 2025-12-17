@@ -1,4 +1,3 @@
-// do not expose this enum in public API to avoid mess
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Display {
     #[default]

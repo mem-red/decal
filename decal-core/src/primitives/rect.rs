@@ -37,16 +37,24 @@ impl Default for Rect<Length> {
     }
 }
 
-impl<T> Into<taffy::Rect<T>> for Rect<T>
-where
-    T: Copy,
-{
-    fn into(self) -> taffy::Rect<T> {
+impl Into<taffy::Rect<taffy::LengthPercentage>> for Rect<Length> {
+    fn into(self) -> taffy::Rect<taffy::LengthPercentage> {
         taffy::Rect {
-            top: self.top,
-            right: self.right,
-            bottom: self.bottom,
-            left: self.left,
+            top: self.top.into(),
+            right: self.right.into(),
+            bottom: self.bottom.into(),
+            left: self.left.into(),
+        }
+    }
+}
+
+impl Into<taffy::Rect<taffy::LengthPercentageAuto>> for Rect<Length> {
+    fn into(self) -> taffy::Rect<taffy::LengthPercentageAuto> {
+        taffy::Rect {
+            top: self.top.into(),
+            right: self.right.into(),
+            bottom: self.bottom.into(),
+            left: self.left.into(),
         }
     }
 }

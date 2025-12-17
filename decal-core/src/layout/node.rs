@@ -1,8 +1,8 @@
+use crate::layout::Typography;
 use crate::layout::text::TextMeta;
 use crate::layout::{FontRegistry, ImageSource, TextVectorizationError};
 use crate::paint::{Appearance, compute_scaled_radii};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
-use crate::prelude::Typography;
 use crate::{builders::RootMeta, prelude::ImageMeta};
 use std::fmt::{Display, Write};
 use std::sync::{Arc, Mutex};

@@ -1,6 +1,6 @@
+use crate::layout::Typography;
 use crate::layout::{FontRegistry, ImageCache, Node, NodeKind};
 use crate::layout::{NodeId, VectorizationError};
-use crate::prelude::Typography;
 use resvg::render;
 use smallvec::SmallVec;
 use std::fmt::Write;
