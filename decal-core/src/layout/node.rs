@@ -163,7 +163,17 @@ impl Node {
                 // background
                 write!(out, r#"<path d=""#)?;
                 write_fill_path(out, w, h, radius)?;
-                write!(out, r#"" fill="{}"/>"#, self.visual.background)?;
+                write!(out, r#"""#)?;
+
+                if self.visual.background_opacity != 1.0 {
+                    write!(
+                        out,
+                        r#" fill-opacity="{}" "#,
+                        self.visual.background_opacity
+                    )?;
+                }
+
+                write!(out, r#" fill="{}" />"#, self.visual.background)?;
 
                 // borders
                 if borders.0 + borders.1 + borders.2 + borders.3 > 0.0 {
