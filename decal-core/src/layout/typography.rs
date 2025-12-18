@@ -1,4 +1,4 @@
-use crate::primitives::Fill;
+use crate::primitives::Paint;
 use crate::text::{FontStyle, FontWeight, TextAlign, TextWrap};
 
 #[derive(Debug, Clone, Default)]
@@ -7,7 +7,7 @@ pub struct Typography {
     pub size: Option<f32>,
     pub line_height: Option<f32>,
     pub weight: Option<FontWeight>,
-    pub color: Option<Fill>,
+    pub color: Option<Paint>,
     pub style: Option<FontStyle>,
     pub letter_spacing: Option<f32>,
     pub align: Option<TextAlign>,

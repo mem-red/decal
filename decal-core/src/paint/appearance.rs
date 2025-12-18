@@ -1,10 +1,10 @@
 use crate::capabilities::CornerRadius;
-use crate::primitives::{Fill, Transform};
+use crate::primitives::{Paint, Transform};
 
 #[derive(Debug, Clone)]
 pub(crate) struct Appearance {
-    pub background: Fill,
-    pub border_color: Fill,
+    pub background: Paint,
+    pub border_color: Paint,
     pub corner_radius: CornerRadius,
     pub transform: Transform,
     pub visible: bool,

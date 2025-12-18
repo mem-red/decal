@@ -3,17 +3,17 @@ use super::Drawable;
 pub trait Background: Drawable {
     fn background<T>(&mut self, value: T) -> &mut Self
     where
-        T: crate::attributes::IntoFill,
+        T: crate::attributes::IntoPaint,
     {
-        self.visual_mut().background = value.into_fill().unwrap_or(crate::primitives::Fill::None);
+        self.visual_mut().background = value.into_paint().unwrap_or(crate::primitives::Paint::None);
         self
     }
 
     fn bg<T>(&mut self, value: T) -> &mut Self
     where
-        T: crate::attributes::IntoFill,
+        T: crate::attributes::IntoPaint,
     {
-        self.visual_mut().background = value.into_fill().unwrap_or(crate::primitives::Fill::None);
+        self.visual_mut().background = value.into_paint().unwrap_or(crate::primitives::Paint::None);
         self
     }
 }

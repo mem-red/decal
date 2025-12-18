@@ -4,7 +4,7 @@ use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
-use crate::primitives::Fill;
+use crate::primitives::Paint;
 use crate::text::{FontStyle, FontWeight};
 use taffy::prelude::*;
 
@@ -111,7 +111,7 @@ impl TextSpan {
 
     pub fn color<T>(&mut self, color: T) -> &mut Self
     where
-        T: Into<Option<Fill>>,
+        T: Into<Option<Paint>>,
     {
         self.typography.color = color.into();
         self

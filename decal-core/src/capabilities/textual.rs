@@ -3,9 +3,9 @@ use super::Drawable;
 pub trait Textual: Drawable {
     fn color<T>(&mut self, value: T) -> &mut Self
     where
-        T: crate::attributes::IntoFill,
+        T: crate::attributes::IntoPaint,
     {
-        self.typography_mut().color = value.into_fill();
+        self.typography_mut().color = value.into_paint();
         self
     }
 
