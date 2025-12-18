@@ -6,6 +6,7 @@ mod utils;
 // Public
 pub mod attributes;
 pub mod builders;
+pub mod capabilities;
 pub mod layout;
 pub mod prelude;
 pub mod primitives;
