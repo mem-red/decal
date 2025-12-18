@@ -4,7 +4,7 @@ use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
 use crate::primitives::{Display, FlexDirection};
-use taffy::{FlexboxContainerStyle, Style};
+use taffy::Style;
 
 #[derive(Debug, Default)]
 pub struct Block {
