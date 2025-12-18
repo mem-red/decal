@@ -13,7 +13,7 @@ macro_rules! impl_side {
 }
 
 pub trait Border: Drawable {
-    fn border<T>(&mut self, value: T) -> &mut Self
+    fn border_width<T>(&mut self, value: T) -> &mut Self
     where
         T: crate::attributes::IntoBorder,
     {
@@ -21,7 +21,7 @@ pub trait Border: Drawable {
         self
     }
 
-    fn border_x<T>(&mut self, value: T) -> &mut Self
+    fn border_x_width<T>(&mut self, value: T) -> &mut Self
     where
         T: crate::attributes::IntoBorderPair,
     {
@@ -31,7 +31,7 @@ pub trait Border: Drawable {
         self
     }
 
-    fn border_y<T>(&mut self, value: T) -> &mut Self
+    fn border_y_width<T>(&mut self, value: T) -> &mut Self
     where
         T: crate::attributes::IntoBorderPair,
     {
@@ -41,17 +41,16 @@ pub trait Border: Drawable {
         self
     }
 
-    impl_side!(border_top, top);
-    impl_side!(border_right, right);
-    impl_side!(border_bottom, bottom);
-    impl_side!(border_left, left);
+    impl_side!(border_top_width, top);
+    impl_side!(border_right_width, right);
+    impl_side!(border_bottom_width, bottom);
+    impl_side!(border_left_width, left);
 
-    fn border_color<T>(&mut self, value: T) -> &mut Self
+    fn border<T>(&mut self, value: T) -> &mut Self
     where
         T: crate::attributes::IntoPaint,
     {
-        self.visual_mut().border_color =
-            value.into_paint().unwrap_or(crate::primitives::Paint::None);
+        self.visual_mut().border = value.into_paint().unwrap_or(crate::primitives::Paint::None);
         self
     }
 }

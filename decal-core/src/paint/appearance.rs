@@ -5,7 +5,7 @@ use crate::primitives::{Paint, Transform};
 pub(crate) struct Appearance {
     pub(crate) background: Paint,
     pub(crate) background_opacity: f32,
-    pub(crate) border_color: Paint,
+    pub(crate) border: Paint,
     pub(crate) corner_radius: CornerRadius,
     pub(crate) transform: Transform,
     pub(crate) visible: bool,
@@ -17,7 +17,7 @@ impl Default for Appearance {
         Self {
             background: Default::default(),
             background_opacity: 1.0,
-            border_color: Default::default(),
+            border: Default::default(),
             corner_radius: Default::default(),
             transform: Default::default(),
             visible: true,

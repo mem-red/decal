@@ -182,7 +182,7 @@ impl Node {
                     write!(
                         out,
                         r#"" fill="{}" fill-rule="evenodd" clip-rule="evenodd" />"#,
-                        self.visual.border_color
+                        self.visual.border
                     )?;
                 }
 
