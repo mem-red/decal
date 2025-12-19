@@ -2,7 +2,7 @@ use crate::capabilities::CornerRadius;
 use crate::primitives::{Paint, Transform};
 
 #[derive(Debug, Clone)]
-pub(crate) struct Appearance {
+pub struct Appearance {
     pub(crate) background: Paint,
     pub(crate) background_opacity: f32,
     pub(crate) border: Paint,
