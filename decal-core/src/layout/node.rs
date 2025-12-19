@@ -3,6 +3,7 @@ use crate::layout::text::TextMeta;
 use crate::layout::{FontRegistry, ImageSource, TextVectorizationError};
 use crate::paint::{Appearance, compute_scaled_radii};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
+use crate::primitives::Resource;
 use crate::{builders::RootMeta, prelude::ImageMeta};
 use std::fmt::{Display, Write};
 use std::sync::{Arc, Mutex};
@@ -67,6 +68,7 @@ pub struct Node {
     pub(crate) layout: Style,
     pub(crate) visual: Appearance,
     pub(crate) children: Vec<usize>,
+    pub(crate) resources: Vec<Resource>,
     pub(crate) typography: Typography,
     // computed
     pub(crate) cache: Cache,
@@ -93,12 +95,14 @@ impl Node {
         layout: Style,
         visual: Appearance,
         typography: Option<Typography>,
+        resources: Vec<Resource>,
     ) -> Self {
         Self {
             kind,
             layout,
             visual,
             children: Vec::new(),
+            resources,
             typography: typography.unwrap_or(Typography::default()),
             cache: Cache::new(),
             unrounded_layout: Layout::with_order(0),
