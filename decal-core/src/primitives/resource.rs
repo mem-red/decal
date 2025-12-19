@@ -10,13 +10,11 @@ pub enum Resource {
 }
 
 pub(crate) trait ResourceDigest: Hash {
-    fn digest_mut(&mut self) -> &mut u64;
-
-    fn compute_digest(&mut self) {
+    fn digest(&self) -> u64 {
         use std::hash::Hasher;
         let mut hasher = twox_hash::XxHash3_64::with_seed(0);
         self.hash(&mut hasher);
-        *self.digest_mut() = hasher.finish();
+        hasher.finish()
     }
 }
 
