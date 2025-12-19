@@ -157,6 +157,7 @@ impl Tokenize for Node {
             .build()
         };
 
+        let is_fragment = matches!(mode, TokenGenMode::Partial);
         let children_tokens = if let TokenGenMode::Full { root_found } = mode {
             self.children
                 .iter()
@@ -174,7 +175,7 @@ impl Tokenize for Node {
             None => quote! {
                 {
                     use decal::prelude::*;
-                    let mut decal = Decal::new(#node_expr);
+                    let mut decal = Decal::new(#node_expr, #is_fragment);
                     let mut #node_token = decal.root_id();
                     #(#children_tokens)*
                     decal

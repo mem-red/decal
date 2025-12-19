@@ -77,6 +77,8 @@ pub struct Node {
 
 #[derive(Debug, Error)]
 pub enum VectorizationError {
+    #[error("cannot vectorize a fragment")]
+    Fragment,
     #[error("cannot write to stream")]
     SvgWrite(#[from] std::fmt::Error),
     #[error("text vectorization error")]
