@@ -24,7 +24,9 @@ impl Display for Resource {
 pub(crate) trait ResourceDigest: Hash {
     fn digest(&self) -> u64 {
         use std::hash::Hasher;
-        let mut hasher = twox_hash::XxHash3_64::with_seed(0);
+        use twox_hash::XxHash3_64;
+
+        let mut hasher = XxHash3_64::with_seed(0);
         self.hash(&mut hasher);
         hasher.finish()
     }
