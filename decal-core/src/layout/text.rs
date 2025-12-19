@@ -24,7 +24,7 @@ pub enum TextVectorizationError {
     ImageEncoding(#[from] EncodingError),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub(crate) struct TextMeta {
     pub(crate) spans: Vec<TextSpan>,
     pub(crate) buffer: Option<Buffer>,
