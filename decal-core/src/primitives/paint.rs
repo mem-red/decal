@@ -37,15 +37,12 @@ impl Paint {
 impl Display for Paint {
     #[inline]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Paint::None => "none".into(),
-                Paint::Color(color) => color.to_string(),
-                _ => "".into(), // TODO
-            }
-        )
+        match self {
+            Paint::None => write!(f, "none"),
+            Paint::Color(color) => write!(f, "{color}"),
+            Paint::LinearGradient(gradient) => write!(f, "url('#{gradient}')"),
+            _ => todo!(),
+        }
     }
 }
 
