@@ -1,5 +1,4 @@
 use decal::prelude::*;
-use decal_macros::{decal, fragment, text};
 
 fn heading(owner: &str, repo: &str) -> Decal {
     fragment! {
