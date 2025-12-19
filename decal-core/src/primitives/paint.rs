@@ -1,5 +1,5 @@
 use crate::prelude::{LinearGradient, Pattern, RadialGradient};
-use crate::primitives::Color;
+use crate::primitives::{Color, ResourceDigest};
 use std::fmt::Display;
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -40,7 +40,7 @@ impl Display for Paint {
         match self {
             Paint::None => write!(f, "none"),
             Paint::Color(color) => write!(f, "{color}"),
-            Paint::LinearGradient(gradient) => write!(f, "url('#{gradient}')"),
+            Paint::LinearGradient(gradient) => write!(f, "url('#{}')", gradient.digest()),
             _ => todo!(),
         }
     }
