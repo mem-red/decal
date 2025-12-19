@@ -1,6 +1,8 @@
 use crate::layout::Typography;
 use crate::layout::{FontRegistry, ImageCache, Node, NodeKind};
 use crate::layout::{NodeId, VectorizationError};
+use crate::paint::Resources;
+use crate::primitives::Resource;
 use resvg::render;
 use smallvec::SmallVec;
 use std::fmt::Write;
@@ -21,6 +23,8 @@ const INLINE_FRAG_CASCADE: usize = 16;
 
 #[derive(Debug, Error)]
 pub enum RasterizationError {
+    #[error("cannot rasterize a fragment")]
+    Fragment,
     #[error("vectorization error")]
     Vectorization(#[from] VectorizationError),
     #[error("cannot write to stream")]
@@ -34,14 +38,18 @@ pub enum RasterizationError {
 #[derive(Debug)]
 pub struct Decal {
     fonts: Arc<Mutex<FontRegistry>>,
+    resources: Resources,
     nodes: Vec<Node>,
+    is_fragment: bool,
 }
 
 impl Decal {
-    pub fn new(root: Node) -> Self {
+    pub fn new(root: Node, is_fragment: bool) -> Self {
         Self {
-            nodes: vec![root],
             fonts: Arc::new(Mutex::new(FontRegistry::new())),
+            resources: Default::default(),
+            nodes: vec![root],
+            is_fragment,
         }
     }
 
@@ -93,6 +101,17 @@ impl Decal {
         }
     }
 
+    // pub fn get_or_add_resource<R>(&mut self, resource: R) -> usize
+    // where
+    //     R: Into<Resource>,
+    // {
+    //     if self.is_fragment {
+    //         return;
+    //     }
+    //
+    //     self.resources.get_or_add_resource(resource.into())
+    // }
+
     #[allow(dead_code)]
     pub(crate) fn print_tree(&self) {
         print_tree(self, taffy::NodeId::from(ROOT_ID));
@@ -105,6 +124,10 @@ impl Decal {
         transform: Option<Transform>,
         debug: bool,
     ) -> Result<Pixmap, RasterizationError> {
+        if self.is_fragment {
+            return Err(RasterizationError::Fragment);
+        }
+
         let tf = transform.unwrap_or_default();
         let mut options = options.unwrap_or_default();
 
@@ -159,6 +182,10 @@ impl Decal {
     }
 
     pub(crate) fn vectorize(&self) -> Result<String, VectorizationError> {
+        if self.is_fragment {
+            return Err(VectorizationError::Fragment);
+        }
+
         let mut out = String::new();
         let root = &self.nodes[ROOT_ID];
 
