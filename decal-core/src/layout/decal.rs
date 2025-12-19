@@ -2,7 +2,6 @@ use crate::layout::Typography;
 use crate::layout::{FontRegistry, ImageCache, Node, NodeKind};
 use crate::layout::{NodeId, VectorizationError};
 use crate::paint::Resources;
-use crate::primitives::Resource;
 use resvg::render;
 use smallvec::SmallVec;
 use std::fmt::Write;
@@ -71,6 +70,11 @@ impl Decal {
             meta.set_typography(child.typography.clone());
         }
 
+        // register resources
+        for resource in &child.resources {
+            self.resources.get_or_add_resource(*resource);
+        }
+
         self.nodes.push(child);
         let child_id = self.nodes.len() - 1;
         self.nodes[parent_id].children.push(child_id);
@@ -97,20 +101,14 @@ impl Decal {
                 *child_id += root_id;
             }
 
+            // register resources
+            for resource in &node.resources {
+                self.resources.get_or_add_resource(*resource);
+            }
+
             self.nodes.push(node);
         }
     }
-
-    // pub fn get_or_add_resource<R>(&mut self, resource: R) -> usize
-    // where
-    //     R: Into<Resource>,
-    // {
-    //     if self.is_fragment {
-    //         return;
-    //     }
-    //
-    //     self.resources.get_or_add_resource(resource.into())
-    // }
 
     #[allow(dead_code)]
     pub(crate) fn print_tree(&self) {
@@ -195,6 +193,10 @@ impl Decal {
                 r#"<svg xmlns="http://www.w3.org/2000/svg" width="{}" height="{}">"#,
                 meta.width, meta.height,
             )?;
+
+            if !self.resources.is_empty() {
+                write!(out, r#"<defs>{}</defs>"#, self.resources)?;
+            }
         }
 
         self.write_node(
@@ -213,6 +215,10 @@ impl Decal {
         round_layout(self, taffy::NodeId::from(ROOT_ID));
     }
 
+    pub(crate) fn set_fonts(&mut self, fonts: Arc<Mutex<FontRegistry>>) {
+        self.fonts = fonts;
+    }
+
     /// Panics if the node with the given `id` is atomic (cannot have children).
     ///
     /// Note: This is a safety check. The macro should prevent adding children to atomic nodes at compile time.
@@ -220,10 +226,6 @@ impl Decal {
         if self.nodes[id].kind.is_atomic() {
             panic!("node with id {id} is atomic and cannot contain children");
         }
-    }
-
-    pub(crate) fn set_fonts(&mut self, fonts: Arc<Mutex<FontRegistry>>) {
-        self.fonts = fonts;
     }
 
     #[inline(always)]

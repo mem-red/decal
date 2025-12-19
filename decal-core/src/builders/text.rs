@@ -5,7 +5,7 @@ use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
 use crate::prelude::Resource;
-use crate::primitives::Paint;
+use crate::primitives::{IntoResource, Paint};
 use crate::text::{FontStyle, FontWeight};
 use taffy::prelude::*;
 
@@ -39,8 +39,16 @@ impl Text {
     where
         S: IntoText,
     {
+        let spans = content.into_text_spans();
+        let mut resources = Vec::new();
+
+        for span in &spans {
+            resources.extend(span.resources.clone());
+        }
+
         Self {
-            meta: TextMeta::new(content.into_text_spans()),
+            meta: TextMeta::new(spans),
+            resources,
             ..Default::default()
         }
     }
@@ -66,6 +74,7 @@ impl Visibility for Text {}
 pub struct TextSpan {
     pub(crate) content: String,
     pub(crate) typography: Typography,
+    pub(crate) resources: Vec<Resource>,
     pub(crate) hidden: bool,
 }
 
@@ -74,11 +83,12 @@ impl TextSpan {
         Self {
             content,
             typography: Default::default(),
+            resources: Vec::new(),
             hidden: false,
         }
     }
 
-    pub fn family<T>(&mut self, family: T) -> &mut Self
+    pub fn family<T>(mut self, family: T) -> Self
     where
         T: Into<Option<String>>,
     {
@@ -86,7 +96,7 @@ impl TextSpan {
         self
     }
 
-    pub fn size<T>(&mut self, size: T) -> &mut Self
+    pub fn size<T>(mut self, size: T) -> Self
     where
         T: Into<Option<f32>>,
     {
@@ -94,7 +104,7 @@ impl TextSpan {
         self
     }
 
-    pub fn line_height<T>(&mut self, line_height: T) -> &mut Self
+    pub fn line_height<T>(mut self, line_height: T) -> Self
     where
         T: Into<Option<f32>>,
     {
@@ -102,7 +112,7 @@ impl TextSpan {
         self
     }
 
-    pub fn weight<T>(&mut self, weight: T) -> &mut Self
+    pub fn weight<T>(mut self, weight: T) -> Self
     where
         T: Into<Option<FontWeight>>,
     {
@@ -110,15 +120,21 @@ impl TextSpan {
         self
     }
 
-    pub fn color<T>(&mut self, color: T) -> &mut Self
+    pub fn color<T>(mut self, color: T) -> Self
     where
         T: Into<Option<Paint>>,
     {
-        self.typography.color = color.into();
+        let color = color.into();
+        self.typography.color = color;
+
+        if let Some(resource) = color.and_then(|c| c.into_resource()) {
+            self.resources.push(resource);
+        }
+
         self
     }
 
-    pub fn style<T>(&mut self, style: T) -> &mut Self
+    pub fn style<T>(mut self, style: T) -> Self
     where
         T: Into<Option<FontStyle>>,
     {
@@ -126,7 +142,7 @@ impl TextSpan {
         self
     }
 
-    pub fn letter_spacing<T>(&mut self, letter_spacing: T) -> &mut Self
+    pub fn letter_spacing<T>(mut self, letter_spacing: T) -> Self
     where
         T: Into<Option<f32>>,
     {
@@ -134,7 +150,7 @@ impl TextSpan {
         self
     }
 
-    pub fn hidden(&mut self, value: bool) -> &mut Self {
+    pub fn hidden(mut self, value: bool) -> Self {
         self.hidden = value;
         self
     }

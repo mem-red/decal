@@ -5,7 +5,10 @@ pub trait Background: Drawable {
     where
         T: crate::attributes::IntoPaint,
     {
-        self.visual_mut().background = value.into_paint().unwrap_or(crate::primitives::Paint::None);
+        let background = value.into_paint().unwrap_or(crate::primitives::Paint::None);
+        self.visual_mut().background = background;
+        self.add_resource(background);
+
         self
     }
 
@@ -19,19 +22,17 @@ pub trait Background: Drawable {
 
     //
 
-    fn bg<T>(mut self, value: T) -> Self
+    fn bg<T>(self, value: T) -> Self
     where
         T: crate::attributes::IntoPaint,
     {
-        self.visual_mut().background = value.into_paint().unwrap_or(crate::primitives::Paint::None);
-        self
+        self.background(value)
     }
 
-    fn bg_opacity<T>(mut self, value: T) -> Self
+    fn bg_opacity<T>(self, value: T) -> Self
     where
         T: Into<f32>,
     {
-        self.visual_mut().background_opacity = value.into().clamp(0.0, 1.0);
-        self
+        self.background_opacity(value)
     }
 }

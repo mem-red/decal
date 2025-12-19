@@ -1,4 +1,4 @@
-use crate::primitives::{Color, Paint};
+use crate::primitives::{Color, LinearGradient, Paint, Pattern, RadialGradient};
 
 pub trait IntoPaint {
     fn into_paint(self) -> Option<Paint>;
@@ -22,6 +22,27 @@ impl IntoPaint for Color {
     #[inline]
     fn into_paint(self) -> Option<Paint> {
         Some(Paint::Color(self))
+    }
+}
+
+impl IntoPaint for LinearGradient {
+    #[inline]
+    fn into_paint(self) -> Option<Paint> {
+        Some(Paint::LinearGradient(self))
+    }
+}
+
+impl IntoPaint for RadialGradient {
+    #[inline]
+    fn into_paint(self) -> Option<Paint> {
+        Some(Paint::RadialGradient(self))
+    }
+}
+
+impl IntoPaint for Pattern {
+    #[inline]
+    fn into_paint(self) -> Option<Paint> {
+        Some(Paint::Pattern(self))
     }
 }
 

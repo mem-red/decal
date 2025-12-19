@@ -1,5 +1,6 @@
 use crate::primitives::Resource;
 use hashbrown::HashMap;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Default)]
 pub(crate) struct Resources {
@@ -20,7 +21,17 @@ impl Resources {
         idx
     }
 
-    pub(crate) fn get_resources(&self) -> &Vec<Resource> {
-        self.resources.as_ref()
+    pub(crate) fn is_empty(&self) -> bool {
+        self.resources.is_empty()
+    }
+}
+
+impl Display for Resources {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        for resource in &self.resources {
+            write!(f, "{resource}")?;
+        }
+
+        Ok(())
     }
 }

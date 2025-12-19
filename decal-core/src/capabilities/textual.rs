@@ -5,7 +5,13 @@ pub trait Textual: Drawable {
     where
         T: crate::attributes::IntoPaint,
     {
-        self.typography_mut().color = value.into_paint();
+        let color = value.into_paint();
+        self.typography_mut().color = color;
+
+        if let Some(color) = color {
+            self.add_resource(color);
+        }
+
         self
     }
 

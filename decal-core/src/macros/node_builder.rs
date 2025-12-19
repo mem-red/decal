@@ -21,6 +21,13 @@ macro_rules! impl_node_builder {
             }
 
             #[inline]
+            fn resources(&self) -> &Vec<crate::primitives::Resource> {
+                &self.resources
+            }
+
+            //
+
+            #[inline]
             fn layout_mut(&mut self) -> &mut taffy::Style {
                 &mut self.layout
             }
@@ -33,6 +40,11 @@ macro_rules! impl_node_builder {
             #[inline]
             fn typography_mut(&mut self) -> &mut crate::layout::Typography {
                 &mut self.typography
+            }
+
+            #[inline]
+            fn resources_mut(&mut self) -> &mut Vec<crate::primitives::Resource> {
+                &mut self.resources
             }
         }
 

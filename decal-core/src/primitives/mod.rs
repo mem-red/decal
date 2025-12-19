@@ -34,9 +34,10 @@ pub use point::*;
 pub use position::*;
 pub use radial_gradient::*;
 pub use rect::*;
-pub use resource::*;
 pub use size::*;
 pub use transform::*;
+
+pub(crate) use resource::*;
 
 // TODO: re-export under a feature
 pub use color::helpers::*;

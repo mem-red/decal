@@ -50,7 +50,10 @@ pub trait Border: Drawable {
     where
         T: crate::attributes::IntoPaint,
     {
-        self.visual_mut().border = value.into_paint().unwrap_or(crate::primitives::Paint::None);
+        let border = value.into_paint().unwrap_or(crate::primitives::Paint::None);
+        self.visual_mut().border = border;
+        self.add_resource(border);
+
         self
     }
 }
