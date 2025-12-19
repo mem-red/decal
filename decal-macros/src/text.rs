@@ -77,21 +77,15 @@ fn expand(tokens: proc_macro2::TokenStream) -> proc_macro2::TokenStream {
         let expr = item.expr;
 
         if let Some(styles) = item.style {
-            let mut block = quote! {
-                let mut text_span = decal::prelude::TextSpan::from(#expr.into_text_span());
+            let mut expr = quote! {
+                decal::prelude::TextSpan::from(#expr.into_text_span())
             };
 
             for Style { attr, value, .. } in styles {
-                block = quote! {
-                    #block
-                    text_span.#attr(#value);
-                };
+                expr = quote! { #expr.#attr(#value) };
             }
 
-            return quote! {
-                #block
-                text_spans.push(text_span);
-            };
+            return quote! { text_spans.push(#expr); };
         }
 
         quote! { text_spans.extend(#expr.into_text_spans()); }
