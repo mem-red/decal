@@ -91,12 +91,14 @@ impl From<&str> for ImageSource {
 
 impl Display for ImageSource {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let value = match self {
-            ImageSource::Url(url) => url,
-            ImageSource::DataUri(uri) => uri,
-            ImageSource::Svg(svg) => svg,
-        };
-
-        write!(f, "{}", value)
+        write!(
+            f,
+            "{}",
+            match self {
+                ImageSource::Url(url) => url,
+                ImageSource::DataUri(uri) => uri,
+                ImageSource::Svg(svg) => svg,
+            }
+        )
     }
 }
