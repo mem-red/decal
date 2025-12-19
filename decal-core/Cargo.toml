@@ -12,7 +12,6 @@ base64 = "0.22.1"
 color = "0.3.2"
 cosmic-text = { version = "0.15.0", features = ["shape-run-cache", "hashbrown"] }
 decal-macros = { path = "../decal-macros" }
-derivative = "2.2.0"
 hashbrown = "0.16.1"
 infer = "0.19.0"
 png = "0.18.0"
