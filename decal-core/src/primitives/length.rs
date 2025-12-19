@@ -42,13 +42,6 @@ impl Length {
         Self(LengthInner::Percent((value / 100.0).clamp(0.0, 1.0)))
     }
 
-    pub(crate) fn is_zero(&self) -> bool {
-        matches!(
-            self.0,
-            LengthInner::Zero | LengthInner::Pixels(0.0) | LengthInner::Percent(0.0)
-        )
-    }
-
     pub(crate) fn get_pixels(&self) -> Option<f32> {
         match self.0 {
             LengthInner::Pixels(pix) => Some(pix),
