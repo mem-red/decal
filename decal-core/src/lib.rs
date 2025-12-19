@@ -1,5 +1,4 @@
 // Private
-mod macros;
 mod paint;
 mod utils;
 
@@ -8,9 +7,7 @@ pub mod attributes;
 pub mod builders;
 pub mod capabilities;
 pub mod layout;
+pub mod macros;
 pub mod prelude;
 pub mod primitives;
 pub mod text;
-
-// Public macros re-export
-pub use decal_macros::*;
