@@ -1,7 +1,7 @@
 use super::Drawable;
 
 pub trait ContainerAlignment: Drawable {
-    fn align_items<T>(&mut self, value: T) -> &mut Self
+    fn align_items<T>(mut self, value: T) -> Self
     where
         T: Into<Option<crate::primitives::AlignItems>>,
     {
@@ -9,7 +9,7 @@ pub trait ContainerAlignment: Drawable {
         self
     }
 
-    fn align_content<T>(&mut self, value: T) -> &mut Self
+    fn align_content<T>(mut self, value: T) -> Self
     where
         T: Into<Option<crate::primitives::AlignContent>>,
     {
@@ -17,7 +17,7 @@ pub trait ContainerAlignment: Drawable {
         self
     }
 
-    fn justify_content<T>(&mut self, value: T) -> &mut Self
+    fn justify_content<T>(mut self, value: T) -> Self
     where
         T: Into<Option<crate::primitives::JustifyContent>>,
     {

@@ -1,7 +1,7 @@
 use super::Drawable;
 
 pub trait Transformation: Drawable {
-    fn transform<T>(&mut self, value: T) -> &mut Self
+    fn transform<T>(mut self, value: T) -> Self
     where
         T: Into<Option<crate::primitives::Transform>>,
     {

@@ -5,7 +5,7 @@ pub type CornerRadius = Corner<Length>;
 
 macro_rules! impl_corner {
     ($method:ident, $field:ident) => {
-        fn $method<T>(&mut self, value: T) -> &mut Self
+        fn $method<T>(mut self, value: T) -> Self
         where
             T: Into<Option<crate::primitives::Length>>,
         {
@@ -16,7 +16,7 @@ macro_rules! impl_corner {
 }
 
 pub trait RoundedCorners: Drawable {
-    fn corner_radius<T>(&mut self, value: T) -> &mut Self
+    fn corner_radius<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoCornerRadius,
     {

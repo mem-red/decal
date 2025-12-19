@@ -1,7 +1,7 @@
 use super::Drawable;
 
 pub trait FlexContainer: Drawable {
-    fn reversed(&mut self, reverse: bool) -> &mut Self {
+    fn reversed(mut self, reverse: bool) -> Self {
         self.layout_mut().flex_direction = if reverse {
             match self.layout().flex_direction {
                 taffy::FlexDirection::Row => taffy::FlexDirection::RowReverse,
@@ -19,14 +19,14 @@ pub trait FlexContainer: Drawable {
         self
     }
 
-    fn flex_wrap(&mut self, value: crate::primitives::FlexWrap) -> &mut Self {
+    fn flex_wrap(mut self, value: crate::primitives::FlexWrap) -> Self {
         self.layout_mut().flex_wrap = value.into();
         self
     }
 
     //
 
-    fn reverse(&mut self) -> &mut Self {
+    fn reverse(mut self) -> Self {
         self.layout_mut().flex_direction = match self.layout().flex_direction {
             taffy::FlexDirection::Row => taffy::FlexDirection::RowReverse,
             taffy::FlexDirection::RowReverse => taffy::FlexDirection::Row,

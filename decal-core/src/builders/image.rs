@@ -2,6 +2,7 @@ use crate::capabilities::*;
 use crate::layout::{ImageMeta, ImageSource, Node, NodeKind, Typography};
 use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
+use crate::primitives::Resource;
 use taffy::prelude::*;
 
 #[derive(Debug, Default)]
@@ -9,18 +10,19 @@ pub struct Image {
     meta: ImageMeta,
     layout: Style,
     visual: Appearance,
-    // unused, only for satisfying the Sealed trait
-    typography: Typography,
+    typography: Typography, // unused, only for satisfying the Sealed trait
+    resources: Vec<Resource>,
 }
 
 impl_node_builder! {
     Image,
     build(this) {
         Node::new(
-            NodeKind::Image(this.meta.to_owned()),
-            this.layout.to_owned(),
-            this.visual.to_owned(),
-            None
+            NodeKind::Image(this.meta),
+            this.layout,
+            this.visual,
+            None,
+            this.resources
         )
     }
 }
@@ -49,7 +51,7 @@ impl Image {
 }
 
 impl Hideable for Image {
-    fn hidden(&mut self, value: bool) -> &mut Self {
+    fn hidden(mut self, value: bool) -> Self {
         self.layout.display = if value { Display::None } else { Display::Block };
         self
     }

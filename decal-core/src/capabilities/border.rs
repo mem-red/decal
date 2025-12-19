@@ -2,7 +2,7 @@ use super::Drawable;
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {
-        fn $method<T>(&mut self, value: T) -> &mut Self
+        fn $method<T>(mut self, value: T) -> Self
         where
             T: Into<Option<crate::primitives::Length>>,
         {
@@ -13,7 +13,7 @@ macro_rules! impl_side {
 }
 
 pub trait Border: Drawable {
-    fn border_width<T>(&mut self, value: T) -> &mut Self
+    fn border_width<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoBorder,
     {
@@ -21,7 +21,7 @@ pub trait Border: Drawable {
         self
     }
 
-    fn border_x_width<T>(&mut self, value: T) -> &mut Self
+    fn border_x_width<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoBorderPair,
     {
@@ -31,7 +31,7 @@ pub trait Border: Drawable {
         self
     }
 
-    fn border_y_width<T>(&mut self, value: T) -> &mut Self
+    fn border_y_width<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoBorderPair,
     {
@@ -46,7 +46,7 @@ pub trait Border: Drawable {
     impl_side!(border_bottom_width, bottom);
     impl_side!(border_left_width, left);
 
-    fn border<T>(&mut self, value: T) -> &mut Self
+    fn border<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoPaint,
     {

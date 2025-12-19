@@ -2,7 +2,7 @@ use super::Drawable;
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {
-        fn $method<T>(&mut self, value: T) -> &mut Self
+        fn $method<T>(mut self, value: T) -> Self
         where
             T: Into<Option<crate::primitives::Length>>,
         {
@@ -13,7 +13,7 @@ macro_rules! impl_side {
 }
 
 pub trait Padding: Drawable {
-    fn padding<T>(&mut self, value: T) -> &mut Self
+    fn padding<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoPadding,
     {
@@ -21,7 +21,7 @@ pub trait Padding: Drawable {
         self
     }
 
-    fn padding_x<T>(&mut self, value: T) -> &mut Self
+    fn padding_x<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoPaddingPair,
     {
@@ -31,7 +31,7 @@ pub trait Padding: Drawable {
         self
     }
 
-    fn padding_y<T>(&mut self, value: T) -> &mut Self
+    fn padding_y<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoPaddingPair,
     {

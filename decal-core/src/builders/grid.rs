@@ -3,6 +3,7 @@ use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
+use crate::prelude::Resource;
 use taffy::prelude::*;
 
 // TODO: impl grid layout
@@ -12,6 +13,7 @@ pub struct Grid {
     layout: Style,
     visual: Appearance,
     typography: Typography,
+    resources: Vec<Resource>,
 }
 
 impl_node_builder! {
@@ -19,9 +21,10 @@ impl_node_builder! {
     build(this) {
         Node::new(
             NodeKind::Grid,
-            this.layout.to_owned(),
-            this.visual.to_owned(),
-            Some(this.typography.to_owned()),
+            this.layout,
+            this.visual,
+            Some(this.typography),
+            this.resources
         )
     }
 }
@@ -39,7 +42,7 @@ impl Grid {
 }
 
 impl Hideable for Grid {
-    fn hidden(&mut self, value: bool) -> &mut Self {
+    fn hidden(mut self, value: bool) -> Self {
         self.layout.display = if value { Display::None } else { Display::Grid };
         self
     }

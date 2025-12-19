@@ -1,7 +1,7 @@
 use super::Drawable;
 
 pub trait GridAlignment: Drawable {
-    fn justify_items<T>(&mut self, value: T) -> &mut Self
+    fn justify_items<T>(mut self, value: T) -> Self
     where
         T: Into<Option<crate::primitives::JustifyItems>>,
     {

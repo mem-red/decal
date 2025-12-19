@@ -3,7 +3,7 @@ use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
-use crate::primitives::{Display, FlexDirection};
+use crate::primitives::{Display, FlexDirection, Resource};
 use taffy::Style;
 
 #[derive(Debug, Default)]
@@ -11,6 +11,7 @@ pub struct Block {
     layout: Style,
     visual: Appearance,
     typography: Typography,
+    resources: Vec<Resource>,
     //
     _prev_display: taffy::Display,
 }
@@ -20,9 +21,10 @@ impl_node_builder! {
     build(this) {
         Node::new(
             NodeKind::Block,
-            this.layout.to_owned(),
-            this.visual.to_owned(),
-            Some(this.typography.to_owned()),
+            this.layout,
+            this.visual,
+            Some(this.typography),
+            this.resources
         )
     }
 }
@@ -38,33 +40,31 @@ impl Block {
         }
     }
 
-    pub fn display(&mut self, display: Display) -> &mut Self {
+    pub fn display(mut self, display: Display) -> Self {
         self.layout.display = display.into();
         self
     }
 
-    pub fn flex_direction(&mut self, direction: FlexDirection) -> &mut Self {
+    pub fn flex_direction(mut self, direction: FlexDirection) -> Self {
         self.layout.flex_direction = direction.into();
         self
     }
 
     //
 
-    pub fn flex_col(&mut self) -> &mut Self {
-        self.display(Display::Flex);
-        self.flex_direction(FlexDirection::Column);
-        self
+    pub fn flex_col(self) -> Self {
+        self.display(Display::Flex)
+            .flex_direction(FlexDirection::Column)
     }
 
-    pub fn flex_row(&mut self) -> &mut Self {
-        self.display(Display::Flex);
-        self.flex_direction(FlexDirection::Row);
-        self
+    pub fn flex_row(self) -> Self {
+        self.display(Display::Flex)
+            .flex_direction(FlexDirection::Row)
     }
 }
 
 impl Hideable for Block {
-    fn hidden(&mut self, value: bool) -> &mut Self {
+    fn hidden(mut self, value: bool) -> Self {
         self.layout.display = if value {
             self._prev_display = self.layout.display;
             taffy::Display::None

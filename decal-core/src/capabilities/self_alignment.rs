@@ -1,7 +1,7 @@
 use super::Drawable;
 
 pub trait SelfAlignment: Drawable {
-    fn align_self<T>(&mut self, value: T) -> &mut Self
+    fn align_self<T>(mut self, value: T) -> Self
     where
         T: Into<Option<crate::primitives::AlignSelf>>,
     {
@@ -9,7 +9,7 @@ pub trait SelfAlignment: Drawable {
         self
     }
 
-    fn justify_self<T>(&mut self, value: T) -> &mut Self
+    fn justify_self<T>(mut self, value: T) -> Self
     where
         T: Into<Option<crate::primitives::JustifySelf>>,
     {
@@ -17,7 +17,7 @@ pub trait SelfAlignment: Drawable {
         self
     }
 
-    fn flex_basis<T>(&mut self, value: T) -> &mut Self
+    fn flex_basis<T>(mut self, value: T) -> Self
     where
         T: Into<Option<crate::primitives::Length>>,
     {
@@ -28,7 +28,7 @@ pub trait SelfAlignment: Drawable {
         self
     }
 
-    fn flex_grow<T>(&mut self, value: T) -> &mut Self
+    fn flex_grow<T>(mut self, value: T) -> Self
     where
         T: Into<Option<f32>>,
     {
@@ -36,7 +36,7 @@ pub trait SelfAlignment: Drawable {
         self
     }
 
-    fn flex_shrink<T>(&mut self, value: T) -> &mut Self
+    fn flex_shrink<T>(mut self, value: T) -> Self
     where
         T: Into<Option<f32>>,
     {

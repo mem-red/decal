@@ -1,7 +1,7 @@
 use super::Drawable;
 
 pub trait Textual: Drawable {
-    fn color<T>(&mut self, value: T) -> &mut Self
+    fn color<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoPaint,
     {
@@ -9,7 +9,7 @@ pub trait Textual: Drawable {
         self
     }
 
-    fn font_family<T, S>(&mut self, family: T) -> &mut Self
+    fn font_family<T, S>(mut self, family: T) -> Self
     where
         T: Into<Option<S>>,
         S: Into<String>,
@@ -18,7 +18,7 @@ pub trait Textual: Drawable {
         self
     }
 
-    fn font_size<T, F>(&mut self, font_size: T) -> &mut Self
+    fn font_size<T, F>(mut self, font_size: T) -> Self
     where
         T: Into<Option<F>>,
         F: Into<f64>,
@@ -27,7 +27,7 @@ pub trait Textual: Drawable {
         self
     }
 
-    fn line_height<T, F>(&mut self, line_height: T) -> &mut Self
+    fn line_height<T, F>(mut self, line_height: T) -> Self
     where
         T: Into<Option<F>>,
         F: Into<f64>,
@@ -36,7 +36,7 @@ pub trait Textual: Drawable {
         self
     }
 
-    fn font_weight<T>(&mut self, font_weight: T) -> &mut Self
+    fn font_weight<T>(mut self, font_weight: T) -> Self
     where
         T: Into<Option<crate::text::FontWeight>>,
     {
@@ -44,7 +44,7 @@ pub trait Textual: Drawable {
         self
     }
 
-    fn letter_spacing<T, F>(&mut self, letter_spacing: T) -> &mut Self
+    fn letter_spacing<T, F>(mut self, letter_spacing: T) -> Self
     where
         T: Into<Option<F>>,
         F: Into<f64>,
@@ -53,7 +53,7 @@ pub trait Textual: Drawable {
         self
     }
 
-    fn font_style<T>(&mut self, font_style: T) -> &mut Self
+    fn font_style<T>(mut self, font_style: T) -> Self
     where
         T: Into<Option<crate::text::FontStyle>>,
     {
@@ -61,7 +61,7 @@ pub trait Textual: Drawable {
         self
     }
 
-    fn text_align<T>(&mut self, text_align: T) -> &mut Self
+    fn text_align<T>(mut self, text_align: T) -> Self
     where
         T: Into<Option<crate::text::TextAlign>>,
     {
@@ -69,7 +69,7 @@ pub trait Textual: Drawable {
         self
     }
 
-    fn text_wrap<T>(&mut self, text_wrap: T) -> &mut Self
+    fn text_wrap<T>(mut self, text_wrap: T) -> Self
     where
         T: Into<Option<crate::text::TextWrap>>,
     {

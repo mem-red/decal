@@ -3,6 +3,7 @@ use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
+use crate::prelude::Resource;
 use taffy::prelude::*;
 
 #[derive(Debug, Default)]
@@ -11,6 +12,7 @@ pub struct Root {
     layout: Style,
     visual: Appearance,
     typography: Typography,
+    resources: Vec<Resource>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -23,10 +25,11 @@ impl_node_builder!(
     Root,
     build(this) {
         Node::new(
-            NodeKind::Root(this.meta.to_owned()),
-            this.layout.to_owned(),
-            this.visual.to_owned(),
-            Some(this.typography.to_owned()),
+            NodeKind::Root(this.meta),
+            this.layout,
+            this.visual,
+            Some(this.typography),
+            this.resources
         )
     }
 );

@@ -1,7 +1,7 @@
 use super::Drawable;
 
 pub trait Gap: Drawable {
-    fn gap<T>(&mut self, value: T) -> &mut Self
+    fn gap<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoGap,
     {

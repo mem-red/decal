@@ -1,7 +1,7 @@
 use super::Drawable;
 
 pub trait Background: Drawable {
-    fn background<T>(&mut self, value: T) -> &mut Self
+    fn background<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoPaint,
     {
@@ -9,7 +9,7 @@ pub trait Background: Drawable {
         self
     }
 
-    fn background_opacity<T>(&mut self, value: T) -> &mut Self
+    fn background_opacity<T>(mut self, value: T) -> Self
     where
         T: Into<f32>,
     {
@@ -19,7 +19,7 @@ pub trait Background: Drawable {
 
     //
 
-    fn bg<T>(&mut self, value: T) -> &mut Self
+    fn bg<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoPaint,
     {
@@ -27,7 +27,7 @@ pub trait Background: Drawable {
         self
     }
 
-    fn bg_opacity<T>(&mut self, value: T) -> &mut Self
+    fn bg_opacity<T>(mut self, value: T) -> Self
     where
         T: Into<f32>,
     {

@@ -3,7 +3,7 @@ use crate::primitives::Overflow;
 
 macro_rules! impl_axis {
     ($method:ident, $field:ident) => {
-        fn $method<T>(&mut self, value: T) -> &mut Self
+        fn $method<T>(mut self, value: T) -> Self
         where
             T: Into<Option<crate::primitives::Overflow>>,
         {
@@ -14,7 +14,7 @@ macro_rules! impl_axis {
 }
 
 pub trait Clippable: Drawable {
-    fn overflow<T>(&mut self, value: T) -> &mut Self
+    fn overflow<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoOverflow,
     {
@@ -27,13 +27,11 @@ pub trait Clippable: Drawable {
 
     //
 
-    fn overflow_hidden(&mut self) -> &mut Self {
-        self.overflow(Overflow::Hidden);
-        self
+    fn overflow_hidden(self) -> Self {
+        self.overflow(Overflow::Hidden)
     }
 
-    fn overflow_visible(&mut self) -> &mut Self {
-        self.overflow(Overflow::Visible);
-        self
+    fn overflow_visible(self) -> Self {
+        self.overflow(Overflow::Visible)
     }
 }

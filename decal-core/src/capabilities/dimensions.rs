@@ -2,7 +2,7 @@ use super::Drawable;
 
 macro_rules! impl_dimension {
     ($method:ident, $taffy_method:ident, $taffy_field:ident) => {
-        fn $method<T>(&mut self, value: T) -> &mut Self
+        fn $method<T>(mut self, value: T) -> Self
         where
             T: Into<Option<crate::primitives::Length>>,
         {
@@ -15,7 +15,7 @@ macro_rules! impl_dimension {
 }
 
 pub trait Dimensions: Drawable {
-    fn size<T>(&mut self, value: T) -> &mut Self
+    fn size<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoDimensions,
     {
@@ -25,7 +25,7 @@ pub trait Dimensions: Drawable {
         self
     }
 
-    fn min_size<T>(&mut self, value: T) -> &mut Self
+    fn min_size<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoDimensions,
     {
@@ -35,7 +35,7 @@ pub trait Dimensions: Drawable {
         self
     }
 
-    fn max_size<T>(&mut self, value: T) -> &mut Self
+    fn max_size<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoDimensions,
     {

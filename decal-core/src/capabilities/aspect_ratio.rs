@@ -7,7 +7,7 @@ pub trait AspectRatio: Drawable {
     const SIXTEEN_NINE: f32 = 16.0 / 9.0;
     const NINE_SIXTEEN: f32 = 9.0 / 16.0;
 
-    fn aspect_ratio<T>(&mut self, value: T) -> &mut Self
+    fn aspect_ratio<T>(mut self, value: T) -> Self
     where
         T: Into<Option<f32>>,
     {
@@ -17,28 +17,23 @@ pub trait AspectRatio: Drawable {
 
     //
 
-    fn aspect_square(&mut self) -> &mut Self {
-        self.aspect_ratio(Self::SQUARE);
-        self
+    fn aspect_square(self) -> Self {
+        self.aspect_ratio(Self::SQUARE)
     }
 
-    fn aspect_three_two(&mut self) -> &mut Self {
-        self.aspect_ratio(Self::THREE_TWO);
-        self
+    fn aspect_three_two(self) -> Self {
+        self.aspect_ratio(Self::THREE_TWO)
     }
 
-    fn aspect_four_three(&mut self) -> &mut Self {
-        self.aspect_ratio(Self::FOUR_THREE);
-        self
+    fn aspect_four_three(self) -> Self {
+        self.aspect_ratio(Self::FOUR_THREE)
     }
 
-    fn aspect_sixteen_nine(&mut self) -> &mut Self {
-        self.aspect_ratio(Self::SIXTEEN_NINE);
-        self
+    fn aspect_sixteen_nine(self) -> Self {
+        self.aspect_ratio(Self::SIXTEEN_NINE)
     }
 
-    fn aspect_nine_sixteen(&mut self) -> &mut Self {
-        self.aspect_ratio(Self::NINE_SIXTEEN);
-        self
+    fn aspect_nine_sixteen(self) -> Self {
+        self.aspect_ratio(Self::NINE_SIXTEEN)
     }
 }

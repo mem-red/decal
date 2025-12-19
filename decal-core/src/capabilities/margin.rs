@@ -2,7 +2,7 @@ use super::Drawable;
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {
-        fn $method<T>(&mut self, value: T) -> &mut Self
+        fn $method<T>(mut self, value: T) -> Self
         where
             T: Into<Option<crate::primitives::Length>>,
         {
@@ -13,7 +13,7 @@ macro_rules! impl_side {
 }
 
 pub trait Margin: Drawable {
-    fn margin<T>(&mut self, value: T) -> &mut Self
+    fn margin<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoMargin,
     {
@@ -21,7 +21,7 @@ pub trait Margin: Drawable {
         self
     }
 
-    fn margin_x<T>(&mut self, value: T) -> &mut Self
+    fn margin_x<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoMarginPair,
     {
@@ -31,7 +31,7 @@ pub trait Margin: Drawable {
         self
     }
 
-    fn margin_y<T>(&mut self, value: T) -> &mut Self
+    fn margin_y<T>(mut self, value: T) -> Self
     where
         T: crate::attributes::IntoMarginPair,
     {

@@ -1,17 +1,15 @@
 use super::Drawable;
 
 pub trait Hideable: Drawable {
-    fn hidden(&mut self, value: bool) -> &mut Self;
+    fn hidden(self, value: bool) -> Self;
 
     //
 
-    fn hide(&mut self) -> &mut Self {
-        self.hidden(true);
-        self
+    fn hide(self) -> Self {
+        self.hidden(true)
     }
 
-    fn show(&mut self) -> &mut Self {
-        self.hidden(false);
-        self
+    fn show(self) -> Self {
+        self.hidden(false)
     }
 }
