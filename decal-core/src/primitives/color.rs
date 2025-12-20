@@ -1,7 +1,7 @@
 use color::{AlphaColor, Srgb, parse_color};
 use std::fmt::Display;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq)]
 pub struct Color {
     r: u8,
     g: u8,
