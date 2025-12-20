@@ -16,6 +16,7 @@ mod radial_gradient;
 mod rect;
 mod resource;
 mod size;
+mod stop;
 mod transform;
 
 pub use alignment::*;
@@ -35,6 +36,7 @@ pub use position::*;
 pub use radial_gradient::*;
 pub use rect::*;
 pub use size::*;
+pub use stop::*;
 pub use transform::*;
 
 pub(crate) use resource::*;
