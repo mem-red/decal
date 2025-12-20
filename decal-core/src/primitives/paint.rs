@@ -41,6 +41,7 @@ impl Display for Paint {
             Paint::None => write!(f, "none"),
             Paint::Color(color) => write!(f, "{color}"),
             Paint::LinearGradient(gradient) => write!(f, "url(#{})", gradient.iri()),
+            Paint::RadialGradient(gradient) => write!(f, "url(#{})", gradient.iri()),
             _ => todo!(),
         }
     }
