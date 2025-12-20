@@ -21,8 +21,8 @@ impl Display for Resource {
     }
 }
 
-pub(crate) trait ResourceDigest: Hash {
-    fn digest(&self) -> u64 {
+pub(crate) trait ResourceIri: Hash {
+    fn iri(&self) -> u64 {
         use std::hash::Hasher;
         use twox_hash::XxHash3_64;
 
