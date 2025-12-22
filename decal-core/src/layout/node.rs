@@ -1,9 +1,9 @@
 use crate::layout::Typography;
 use crate::layout::text::TextMeta;
 use crate::layout::{FontRegistry, ImageSource, TextVectorizationError};
+use crate::paint::Resource;
 use crate::paint::{Appearance, compute_scaled_radii};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
-use crate::primitives::Resource;
 use crate::{builders::RootMeta, prelude::ImageMeta};
 use std::fmt::{Display, Write};
 use std::sync::{Arc, Mutex};
@@ -152,34 +152,34 @@ impl Node {
                 let clip_y = self.layout.overflow.y == taffy::Overflow::Hidden;
                 let use_clip = clip_x || clip_y;
 
-                write!(out, r#"<g"#)?;
+                write!(out, "<g")?;
 
                 if self.visual.opacity != 1.0 {
-                    write!(out, r#" opacity="{}" "#, self.visual.opacity)?;
+                    write!(out, r#" opacity="{}""#, self.visual.opacity)?;
                 }
 
-                self.visual.transform.write_transform_matrix(
+                self.visual.transform.write_transform(
                     out,
                     (0.0, 0.0),
                     (self.final_layout.location.x, self.final_layout.location.y),
                     (w, h),
+                    None,
                 )?;
-                write!(out, r#">"#)?;
+
+                write!(out, ">")?;
 
                 // background
                 write!(out, r#"<path d=""#)?;
                 write_fill_path(out, w, h, radius)?;
                 write!(out, r#"""#)?;
 
+                write!(out, r#" fill="{}""#, self.visual.background)?;
+
                 if self.visual.background_opacity != 1.0 {
-                    write!(
-                        out,
-                        r#" fill-opacity="{}" "#,
-                        self.visual.background_opacity
-                    )?;
+                    write!(out, r#" fill-opacity="{}""#, self.visual.background_opacity)?;
                 }
 
-                write!(out, r#" fill="{}" />"#, self.visual.background)?;
+                write!(out, " />")?;
 
                 // borders
                 if borders.0 + borders.1 + borders.2 + borders.3 > 0.0 {
@@ -193,11 +193,12 @@ impl Node {
                 }
 
                 // clip content
+                // TODO: use as resource
                 if use_clip {
                     let clip_id = format!("decal-clip-{node_id}");
                     write!(out, r#"<clipPath id="{clip_id}"><path d=""#)?;
                     write_clip_path(out, w, h, radius, borders, clip_x, clip_y, root_size)?;
-                    write!(out, r#""/></clipPath>"#)?;
+                    write!(out, r#"" /></clipPath>"#)?;
                     write!(out, r#"<g clip-path="url(#{clip_id})">"#)?;
                 }
             }
@@ -235,35 +236,40 @@ impl Node {
                         )?;
 
                         if self.visual.opacity != 1.0 {
-                            write!(out, r#" opacity="{}" "#, self.visual.opacity)?;
+                            write!(out, r#" opacity="{}""#, self.visual.opacity)?;
                         }
 
-                        self.visual.transform.write_transform_matrix(
+                        self.visual.transform.write_transform(
                             out,
                             (x, y),
                             (0.0, 0.0),
                             (w, h),
+                            None,
                         )?;
 
-                        write!(out, r#"/>"#)?;
+                        write!(out, " />")?;
                     }
 
                     ImageSource::Svg(svg) => {
-                        write!(out, r#"<g"#)?;
+                        write!(out, "<g")?;
 
                         if self.visual.opacity != 1.0 {
-                            write!(out, r#" opacity="{}" "#, self.visual.opacity)?;
+                            write!(out, r#" opacity="{}""#, self.visual.opacity)?;
                         }
 
-                        self.visual.transform.write_transform_matrix(
+                        self.visual.transform.write_transform(
                             out,
                             (0.0, 0.0),
                             (x, y),
                             (w, h),
+                            None,
                         )?;
-                        write!(out, r#">"#)?;
-                        out.write_str(svg.as_str())?;
-                        write!(out, r#"</g>"#)?;
+
+                        write!(out, ">")?;
+
+                        out.write_str(svg)?;
+
+                        write!(out, "</g>")?;
                     }
                 };
             }
@@ -290,10 +296,10 @@ impl Node {
                 if self.layout.overflow.x == taffy::Overflow::Hidden
                     || self.layout.overflow.y == taffy::Overflow::Hidden
                 {
-                    write!(out, r#"</g>"#)?; // close clip group
+                    write!(out, "</g>")?; // close clip group
                 }
 
-                write!(out, r#"</g>"#)?; // close transform group
+                write!(out, "</g>")?; // close transform group
             }
             //
             NodeKind::Root(_) | NodeKind::Text(_) | NodeKind::Image(_) => {}
