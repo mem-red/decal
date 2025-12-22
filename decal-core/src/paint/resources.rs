@@ -2,7 +2,7 @@ use super::Resource;
 use hashbrown::HashMap;
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub(crate) struct Resources {
     index_map: HashMap<Resource, usize>,
     resources: Vec<Resource>,
