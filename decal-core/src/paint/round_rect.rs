@@ -1,5 +1,5 @@
 use crate::paint::ScaledRadii;
-use crate::utils::PathBuilder;
+use crate::utils::PathWriter;
 
 pub(crate) fn write_fill_path<T>(out: &mut T, w: f32, h: f32, r: ScaledRadii) -> std::fmt::Result
 where
@@ -88,14 +88,14 @@ where
     T: std::fmt::Write,
 {
     if r.h_tl + r.h_tr + r.h_br + r.h_bl == 0.0 {
-        PathBuilder::new(out)
+        PathWriter::new(out)
             .move_to(x1, y1)
             .horizontal_to(x2)
             .vertical_to(y2)
             .horizontal_to(x1)
             .close()
     } else {
-        PathBuilder::new(out)
+        PathWriter::new(out)
             .move_to(x1 + r.h_tl, y1)
             .horizontal_to(x2 - r.h_tr)
             .arc_to(r.h_tr, r.v_tr, x2, y1 + r.v_tr)
