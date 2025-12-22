@@ -71,7 +71,7 @@ impl TextMeta {
             write!(out, r#" opacity="{}" "#, appearance.opacity)?;
         }
 
-        transform.write_transform(out, offset, (0.0, 0.0), (self.width, self.height), None)?;
+        transform.write(out, offset, (0.0, 0.0), (self.width, self.height))?;
         write!(out, r#" >"#)?;
 
         for run in buffer.layout_runs() {
