@@ -1,4 +1,4 @@
-use crate::primitives::{Filter, LinearGradient, Paint, Pattern, RadialGradient};
+use crate::primitives::{ClipPath, Filter, LinearGradient, Paint, Pattern, RadialGradient};
 use std::fmt::{Display, Formatter};
 use std::hash::Hash;
 
@@ -7,6 +7,7 @@ pub(crate) enum Resource {
     LinearGradient(LinearGradient),
     RadialGradient(RadialGradient),
     Pattern(Pattern),
+    ClipPath(ClipPath),
     Filter(Filter),
 }
 
@@ -16,6 +17,7 @@ impl Display for Resource {
             Resource::LinearGradient(value) => write!(f, "{value}"),
             Resource::RadialGradient(value) => write!(f, "{value}"),
             Resource::Pattern(value) => write!(f, "{value}"),
+            Resource::ClipPath(value) => write!(f, "{value}"),
             Resource::Filter(value) => write!(f, "{value}"),
         }
     }
@@ -78,6 +80,13 @@ impl From<Pattern> for Resource {
     #[inline]
     fn from(value: Pattern) -> Self {
         Self::Pattern(value)
+    }
+}
+
+impl From<ClipPath> for Resource {
+    #[inline]
+    fn from(value: ClipPath) -> Self {
+        Self::ClipPath(value)
     }
 }
 
