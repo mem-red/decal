@@ -122,12 +122,13 @@ impl Transform {
 
     //
 
-    pub(crate) fn write_transform_matrix<T>(
+    pub(crate) fn write_transform<T>(
         &self,
         out: &mut T,
         pos: (f32, f32),
         translate: (f32, f32),
         size: (f32, f32),
+        attr: Option<&str>,
     ) -> std::fmt::Result
     where
         T: Write,
@@ -194,19 +195,19 @@ impl Transform {
             ty,
         } = tf;
 
-        out.write_str(r#" transform="matrix("#)?;
+        write!(out, r#" {}="matrix("#, attr.unwrap_or("transform"))?;
         write_float(out, sx)?;
-        out.write_str(" ")?;
+        out.write_char(' ')?;
         write_float(out, ky)?;
-        out.write_str(" ")?;
+        out.write_char(' ')?;
         write_float(out, kx)?;
-        out.write_str(" ")?;
+        out.write_char(' ')?;
         write_float(out, sy)?;
-        out.write_str(" ")?;
+        out.write_char(' ')?;
         write_float(out, tx)?;
-        out.write_str(" ")?;
+        out.write_char(' ')?;
         write_float(out, ty)?;
-        out.write_str(r#")" "#)
+        out.write_str(r#")""#)
     }
 }
 
@@ -215,6 +216,11 @@ where
     T: Write,
 {
     value = (value * SCALE).round() / SCALE;
+
+    if value.fract() == 0.0 {
+        return write!(out, "{}", value as i32);
+    }
+
     let mut buf = Buffer::new();
     out.write_str(buf.format_finite(value))
 }
