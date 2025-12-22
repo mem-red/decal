@@ -33,6 +33,10 @@ impl Paint {
     pub const fn pattern(pattern: Pattern) -> Self {
         Self::Pattern(pattern)
     }
+
+    pub(crate) fn is_none(&self) -> bool {
+        matches!(self, Paint::None)
+    }
 }
 
 impl Display for Paint {
