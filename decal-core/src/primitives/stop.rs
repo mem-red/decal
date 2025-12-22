@@ -61,12 +61,12 @@ impl Display for Stop {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            r#"<stop offset="{}" stop-color="{}" "#,
+            r#"<stop offset="{}" stop-color="{}""#,
             self.offset, self.color
         )?;
 
         if self.opacity != 1.0 {
-            write!(f, r#" stop-opacity="{}" "#, self.opacity)?;
+            write!(f, r#" stop-opacity="{}""#, self.opacity)?;
         }
 
         write!(f, r#" />"#)?;
