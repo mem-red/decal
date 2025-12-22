@@ -2,8 +2,8 @@ use crate::capabilities::*;
 use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_builder;
-use crate::paint::Appearance;
-use crate::primitives::{Display, FlexDirection, Resource};
+use crate::paint::{Appearance, Resource};
+use crate::primitives::{Display, FlexDirection};
 use taffy::Style;
 
 #[derive(Debug, Default)]

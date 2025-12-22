@@ -1,5 +1,6 @@
-use crate::prelude::{LinearGradient, Pattern, RadialGradient};
-use crate::primitives::{Color, ResourceIri};
+use crate::paint::ResourceIri;
+use crate::primitives::Color;
+use crate::primitives::{LinearGradient, Pattern, RadialGradient};
 use std::fmt::Display;
 
 #[derive(Debug, Clone, Default)]

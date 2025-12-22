@@ -1,4 +1,4 @@
-use crate::primitives::Resource;
+use super::Resource;
 use hashbrown::HashMap;
 use std::fmt::{Display, Formatter};
 

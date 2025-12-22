@@ -3,7 +3,7 @@ use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
-use crate::prelude::Resource;
+use crate::paint::Resource;
 use crate::primitives::FlexDirection;
 use taffy::{Display, Style};
 

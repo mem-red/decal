@@ -21,7 +21,7 @@ macro_rules! impl_node_builder {
             }
 
             #[inline]
-            fn resources(&self) -> &Vec<crate::primitives::Resource> {
+            fn resources(&self) -> &Vec<crate::paint::Resource> {
                 &self.resources
             }
 
@@ -43,7 +43,7 @@ macro_rules! impl_node_builder {
             }
 
             #[inline]
-            fn resources_mut(&mut self) -> &mut Vec<crate::primitives::Resource> {
+            fn resources_mut(&mut self) -> &mut Vec<crate::paint::Resource> {
                 &mut self.resources
             }
         }

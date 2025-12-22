@@ -1,4 +1,5 @@
-use crate::primitives::{ResourceIri, Stop};
+use crate::paint::ResourceIri;
+use crate::primitives::Stop;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]

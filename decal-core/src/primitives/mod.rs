@@ -14,7 +14,6 @@ mod point;
 mod position;
 mod radial_gradient;
 mod rect;
-mod resource;
 mod size;
 mod stop;
 mod transform;
@@ -38,8 +37,6 @@ pub use rect::*;
 pub use size::*;
 pub use stop::*;
 pub use transform::*;
-
-pub(crate) use resource::*;
 
 // TODO: re-export under a feature
 pub use color::helpers::*;

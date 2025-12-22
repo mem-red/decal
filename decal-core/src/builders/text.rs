@@ -3,9 +3,9 @@ use crate::layout::TextMeta;
 use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_builder;
-use crate::paint::Appearance;
-use crate::prelude::Resource;
-use crate::primitives::{IntoResource, Paint};
+use crate::paint::Resource;
+use crate::paint::{Appearance, IntoResource};
+use crate::primitives::Paint;
 use crate::text::{FontStyle, FontWeight};
 use taffy::prelude::*;
 

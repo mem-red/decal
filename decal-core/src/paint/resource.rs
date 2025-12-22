@@ -2,7 +2,7 @@ use crate::primitives::{Filter, LinearGradient, Paint, Pattern, RadialGradient};
 use std::fmt::{Display, Formatter};
 use std::hash::Hash;
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub(crate) enum Resource {
     LinearGradient(LinearGradient),
     RadialGradient(RadialGradient),
@@ -18,17 +18,6 @@ impl Display for Resource {
             Resource::Pattern(value) => write!(f, "{value}"),
             Resource::Filter(value) => write!(f, "{value}"),
         }
-    }
-}
-
-pub(crate) trait ResourceIri: Hash {
-    fn iri(&self) -> u64 {
-        use std::hash::Hasher;
-        use twox_hash::XxHash3_64;
-
-        let mut hasher = XxHash3_64::with_seed(0);
-        self.hash(&mut hasher);
-        hasher.finish()
     }
 }
 

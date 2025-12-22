@@ -1,7 +1,7 @@
 pub(crate) mod private {
     use crate::layout::Typography;
     use crate::paint::Appearance;
-    use crate::primitives::{IntoResource, Resource};
+    use crate::paint::{IntoResource, Resource};
     use taffy::Style;
 
     /// Sealed avoids exposing private methods and stops crates

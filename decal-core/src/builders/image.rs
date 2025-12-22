@@ -2,7 +2,7 @@ use crate::capabilities::*;
 use crate::layout::{ImageMeta, ImageSource, Node, NodeKind, Typography};
 use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
-use crate::primitives::Resource;
+use crate::paint::Resource;
 use taffy::prelude::*;
 
 #[derive(Debug, Default)]
