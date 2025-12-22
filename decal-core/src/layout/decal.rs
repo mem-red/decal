@@ -72,7 +72,7 @@ impl Decal {
 
         // register resources
         for resource in &child.resources {
-            self.resources.get_or_add_resource(*resource);
+            self.resources.get_or_add_resource(resource.clone());
         }
 
         self.nodes.push(child);
@@ -103,7 +103,7 @@ impl Decal {
 
             // register resources
             for resource in &node.resources {
-                self.resources.get_or_add_resource(*resource);
+                self.resources.get_or_add_resource(resource.clone());
             }
 
             self.nodes.push(node);
@@ -195,7 +195,7 @@ impl Decal {
             )?;
 
             if !self.resources.is_empty() {
-                write!(out, r#"<defs>{}</defs>"#, self.resources)?;
+                write!(out, "<defs>{}</defs>", self.resources)?;
             }
         }
 

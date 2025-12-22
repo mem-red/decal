@@ -15,7 +15,7 @@ impl Resources {
         }
 
         let idx = self.resources.len();
-        self.index_map.insert(resource, idx);
+        self.index_map.insert(resource.clone(), idx);
         self.resources.push(resource);
 
         idx

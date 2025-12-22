@@ -6,7 +6,7 @@ pub trait Textual: Drawable {
         T: crate::attributes::IntoPaint,
     {
         let color = value.into_paint();
-        self.typography_mut().color = color;
+        self.typography_mut().color = color.clone();
 
         if let Some(color) = color {
             self.add_resource(color);

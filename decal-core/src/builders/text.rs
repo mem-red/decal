@@ -125,7 +125,7 @@ impl TextSpan {
         T: Into<Option<Paint>>,
     {
         let color = color.into();
-        self.typography.color = color;
+        self.typography.color = color.clone();
 
         if let Some(resource) = color.and_then(|c| c.into_resource()) {
             self.resources.push(resource);
