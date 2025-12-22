@@ -1,10 +1,12 @@
 mod alignment;
+mod clip_path;
 mod color;
 mod corner;
 mod display;
 mod filter;
 mod flex_direction;
 mod flex_wrap;
+mod gradient_transform;
 mod length;
 mod linear_gradient;
 mod overflow;
@@ -25,6 +27,7 @@ pub use display::*;
 pub use filter::*;
 pub use flex_direction::*;
 pub use flex_wrap::*;
+pub use gradient_transform::*;
 pub use length::*;
 pub use linear_gradient::*;
 pub use overflow::*;
@@ -37,6 +40,8 @@ pub use rect::*;
 pub use size::*;
 pub use stop::*;
 pub use transform::*;
+
+pub(crate) use clip_path::*;
 
 // TODO: re-export under a feature
 pub use color::helpers::*;
