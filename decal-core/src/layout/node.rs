@@ -1,9 +1,10 @@
 use crate::layout::Typography;
 use crate::layout::text::TextMeta;
 use crate::layout::{FontRegistry, ImageSource, TextVectorizationError};
-use crate::paint::Resource;
-use crate::paint::{Appearance, compute_scaled_radii};
+use crate::paint::{Appearance, Resources, compute_scaled_radii};
+use crate::paint::{Resource, ResourceIri};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
+use crate::primitives::ClipPath;
 use crate::{builders::RootMeta, prelude::ImageMeta};
 use std::fmt::{Display, Write};
 use std::sync::{Arc, Mutex};
@@ -124,13 +125,19 @@ impl Node {
         out: &mut T,
         root_size: (f32, f32),
         fonts: Arc<Mutex<FontRegistry>>,
-        node_id: usize,
-    ) -> Result<(), VectorizationError>
+        resources: &Mutex<Resources>,
+    ) -> Result<Option<Vec<Resource>>, VectorizationError>
     where
         T: Write,
     {
         match &self.kind {
-            NodeKind::Root(_) => {}
+            NodeKind::Root(meta) => {
+                write!(
+                    out,
+                    r#"<svg xmlns="http://www.w3.org/2000/svg" width="{}" height="{}">"#,
+                    meta.width, meta.height,
+                )?;
+            }
             //
             NodeKind::Block
             | NodeKind::Flex
@@ -158,28 +165,28 @@ impl Node {
                     write!(out, r#" opacity="{}""#, self.visual.opacity)?;
                 }
 
-                self.visual.transform.write_transform(
+                self.visual.transform.write(
                     out,
                     (0.0, 0.0),
                     (self.final_layout.location.x, self.final_layout.location.y),
                     (w, h),
-                    None,
                 )?;
 
                 write!(out, ">")?;
 
                 // background
-                write!(out, r#"<path d=""#)?;
-                write_fill_path(out, w, h, radius)?;
-                write!(out, r#"""#)?;
+                if !self.visual.background.is_none() {
+                    write!(out, r#"<path d=""#)?;
+                    write_fill_path(out, w, h, radius)?;
+                    write!(out, r#"""#)?;
+                    write!(out, r#" fill="{}""#, self.visual.background)?;
 
-                write!(out, r#" fill="{}""#, self.visual.background)?;
+                    if self.visual.background_opacity != 1.0 {
+                        write!(out, r#" fill-opacity="{}""#, self.visual.background_opacity)?;
+                    }
 
-                if self.visual.background_opacity != 1.0 {
-                    write!(out, r#" fill-opacity="{}""#, self.visual.background_opacity)?;
+                    write!(out, " />")?;
                 }
-
-                write!(out, " />")?;
 
                 // borders
                 if borders.0 + borders.1 + borders.2 + borders.3 > 0.0 {
@@ -193,13 +200,29 @@ impl Node {
                 }
 
                 // clip content
-                // TODO: use as resource
                 if use_clip {
-                    let clip_id = format!("decal-clip-{node_id}");
-                    write!(out, r#"<clipPath id="{clip_id}"><path d=""#)?;
-                    write_clip_path(out, w, h, radius, borders, clip_x, clip_y, root_size)?;
-                    write!(out, r#"" /></clipPath>"#)?;
-                    write!(out, r#"<g clip-path="url(#{clip_id})">"#)?;
+                    let clip = ClipPath::new({
+                        let mut content = String::new();
+                        write!(content, r#"<path d=""#)?;
+                        write_clip_path(
+                            &mut content,
+                            w,
+                            h,
+                            radius,
+                            borders,
+                            clip_x,
+                            clip_y,
+                            root_size,
+                        )?;
+                        write!(content, r#"" />"#)?;
+                        content
+                    });
+
+                    write!(out, r#"<g clip-path="url(#{})">"#, clip.iri())?;
+                    resources
+                        .lock()
+                        .map_err(|_| VectorizationError::Other)?
+                        .get_or_add_resource(clip.into());
                 }
             }
             //
@@ -239,13 +262,9 @@ impl Node {
                             write!(out, r#" opacity="{}""#, self.visual.opacity)?;
                         }
 
-                        self.visual.transform.write_transform(
-                            out,
-                            (x, y),
-                            (0.0, 0.0),
-                            (w, h),
-                            None,
-                        )?;
+                        self.visual
+                            .transform
+                            .write(out, (x, y), (0.0, 0.0), (w, h))?;
 
                         write!(out, " />")?;
                     }
@@ -257,13 +276,9 @@ impl Node {
                             write!(out, r#" opacity="{}""#, self.visual.opacity)?;
                         }
 
-                        self.visual.transform.write_transform(
-                            out,
-                            (0.0, 0.0),
-                            (x, y),
-                            (w, h),
-                            None,
-                        )?;
+                        self.visual
+                            .transform
+                            .write(out, (0.0, 0.0), (x, y), (w, h))?;
 
                         write!(out, ">")?;
 
@@ -275,19 +290,28 @@ impl Node {
             }
         };
 
-        Ok(())
+        Ok(None)
     }
 
     pub(crate) fn write_svg_end<T>(
         &self,
         out: &mut T,
-        _root_size: (f32, f32),
-        _node_id: usize,
+        resources: &Mutex<Resources>,
     ) -> Result<(), VectorizationError>
     where
         T: Write,
     {
         match &self.kind {
+            NodeKind::Root(_) => {
+                let resources = resources.lock().map_err(|_| VectorizationError::Other)?;
+
+                if !resources.is_empty() {
+                    write!(out, "<defs>{resources}</defs>")?;
+                }
+
+                write!(out, "</svg>")?;
+            }
+            //
             NodeKind::Block
             | NodeKind::Flex
             | NodeKind::Column
@@ -302,7 +326,7 @@ impl Node {
                 write!(out, "</g>")?; // close transform group
             }
             //
-            NodeKind::Root(_) | NodeKind::Text(_) | NodeKind::Image(_) => {}
+            NodeKind::Text(_) | NodeKind::Image(_) => {}
         }
 
         Ok(())

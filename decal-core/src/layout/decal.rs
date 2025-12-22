@@ -37,7 +37,7 @@ pub enum RasterizationError {
 #[derive(Debug)]
 pub struct Decal {
     fonts: Arc<Mutex<FontRegistry>>,
-    resources: Resources,
+    resources: Mutex<Resources>,
     nodes: Vec<Node>,
     is_fragment: bool,
 }
@@ -71,8 +71,10 @@ impl Decal {
         }
 
         // register resources
-        for resource in &child.resources {
-            self.resources.get_or_add_resource(resource.clone());
+        if let Ok(mut resources) = self.resources.lock() {
+            for resource in &child.resources {
+                resources.get_or_add_resource(resource.clone());
+            }
         }
 
         self.nodes.push(child);
@@ -102,8 +104,10 @@ impl Decal {
             }
 
             // register resources
-            for resource in &node.resources {
-                self.resources.get_or_add_resource(resource.clone());
+            if let Ok(mut resources) = self.resources.lock() {
+                for resource in &node.resources {
+                    resources.get_or_add_resource(resource.clone());
+                }
             }
 
             self.nodes.push(node);
@@ -113,6 +117,23 @@ impl Decal {
     #[allow(dead_code)]
     pub(crate) fn print_tree(&self) {
         print_tree(self, taffy::NodeId::from(ROOT_ID));
+    }
+
+    pub(crate) fn vectorize(&self) -> Result<String, VectorizationError> {
+        if self.is_fragment {
+            return Err(VectorizationError::Fragment);
+        }
+
+        let mut out = String::new();
+        let root = &self.nodes[ROOT_ID];
+
+        self.write_node(
+            &mut out,
+            (root.final_layout.size.width, root.final_layout.size.height),
+            taffy::NodeId::from(ROOT_ID),
+        )?;
+
+        Ok(out)
     }
 
     pub(crate) fn rasterize(
@@ -179,37 +200,6 @@ impl Decal {
         Ok(pixmap)
     }
 
-    pub(crate) fn vectorize(&self) -> Result<String, VectorizationError> {
-        if self.is_fragment {
-            return Err(VectorizationError::Fragment);
-        }
-
-        let mut out = String::new();
-        let root = &self.nodes[ROOT_ID];
-
-        if let NodeKind::Root(meta) = &root.kind {
-            write!(
-                out,
-                r#"<svg xmlns="http://www.w3.org/2000/svg" width="{}" height="{}">"#,
-                meta.width, meta.height,
-            )?;
-
-            if !self.resources.is_empty() {
-                write!(out, "<defs>{}</defs>", self.resources)?;
-            }
-        }
-
-        self.write_node(
-            &mut out,
-            (root.final_layout.size.width, root.final_layout.size.height),
-            taffy::NodeId::from(ROOT_ID),
-        )?;
-
-        out.push_str("</svg>");
-
-        Ok(out)
-    }
-
     pub(crate) fn compute_layout(&mut self) {
         compute_root_layout(self, taffy::NodeId::from(ROOT_ID), taffy::Size::MAX_CONTENT);
         round_layout(self, taffy::NodeId::from(ROOT_ID));
@@ -251,13 +241,13 @@ impl Decal {
         let node = &self.nodes[node_idx];
 
         if node.visual.visible && !matches!(node.layout.display, taffy::Display::None) {
-            node.write_svg_start(out, root_size, self.fonts.clone(), node_idx)?;
+            node.write_svg_start(out, root_size, self.fonts.clone(), &self.resources)?;
 
             for &child_id in &node.children {
                 self.write_node(out, root_size, taffy::NodeId::from(child_id))?;
             }
 
-            node.write_svg_end(out, root_size, node_idx)?;
+            node.write_svg_end(out, &self.resources)?;
         }
 
         Ok(())
@@ -350,9 +340,11 @@ impl std::ops::IndexMut<NodeId> for Vec<Node> {
     }
 }
 
-pub struct ChildIter<'a>(std::slice::Iter<'a, usize>);
+mod sealed {
+    pub struct ChildIter<'a>(pub std::slice::Iter<'a, usize>);
+}
 
-impl Iterator for ChildIter<'_> {
+impl Iterator for sealed::ChildIter<'_> {
     type Item = taffy::NodeId;
     fn next(&mut self) -> Option<Self::Item> {
         self.0.next().copied().map(taffy::NodeId::from)
@@ -360,10 +352,10 @@ impl Iterator for ChildIter<'_> {
 }
 
 impl TraversePartialTree for Decal {
-    type ChildIter<'a> = ChildIter<'a>;
+    type ChildIter<'a> = sealed::ChildIter<'a>;
 
     fn child_ids(&self, node_id: taffy::NodeId) -> Self::ChildIter<'_> {
-        ChildIter(self.node_from_id(node_id).children.iter())
+        sealed::ChildIter(self.node_from_id(node_id).children.iter())
     }
 
     fn child_count(&self, node_id: taffy::NodeId) -> usize {
