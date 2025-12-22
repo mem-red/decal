@@ -1,4 +1,5 @@
 use super::writer::Writer;
+use crate::utils::FloatWriter;
 use std::fmt::Write;
 
 #[derive(Debug)]
@@ -10,14 +11,19 @@ where
     result: std::fmt::Result,
 }
 
-impl<T> Writer<T> for PathWriter<'_, T>
+impl<T> FloatWriter<T> for PathWriter<'_, T>
 where
     T: Write,
 {
     fn out_mut(&mut self) -> &mut T {
         &mut self.out
     }
+}
 
+impl<T> Writer<T> for PathWriter<'_, T>
+where
+    T: Write,
+{
     fn result_mut(&mut self) -> &mut std::fmt::Result {
         &mut self.result
     }

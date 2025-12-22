@@ -1,8 +1,6 @@
-use ryu::Buffer;
+use crate::utils::FloatWriter;
 use std::fmt::Write;
 use usvg::tiny_skia_path;
-
-const SCALE: f32 = 10_000.0;
 
 #[derive(Debug, Clone)]
 enum RotationAnchor {
@@ -67,34 +65,53 @@ impl Transform {
         self
     }
 
-    pub fn scale_x(mut self, value: f32) -> Self {
-        self.0.push(TransformOperation::Scale(value, 1.0));
+    pub fn scale_x<T>(mut self, value: T) -> Self
+    where
+        T: Into<f32>,
+    {
+        self.0.push(TransformOperation::Scale(value.into(), 1.0));
         self
     }
 
-    pub fn scale_y(mut self, value: f32) -> Self {
-        self.0.push(TransformOperation::Scale(1.0, value));
+    pub fn scale_y<T>(mut self, value: T) -> Self
+    where
+        T: Into<f32>,
+    {
+        self.0.push(TransformOperation::Scale(1.0, value.into()));
         self
     }
 
     //
 
-    pub fn rotate(mut self, angle: f32) -> Self {
-        self.0
-            .push(TransformOperation::Rotate(angle, RotationAnchor::Center));
-        self
-    }
-
-    pub fn rotate_origin(mut self, angle: f32) -> Self {
-        self.0
-            .push(TransformOperation::Rotate(angle, RotationAnchor::Origin));
-        self
-    }
-
-    pub fn rotate_at(mut self, angle: f32, x: f32, y: f32) -> Self {
+    pub fn rotate<T>(mut self, angle: T) -> Self
+    where
+        T: Into<f32>,
+    {
         self.0.push(TransformOperation::Rotate(
-            angle,
-            RotationAnchor::Point(x, y),
+            angle.into(),
+            RotationAnchor::Center,
+        ));
+        self
+    }
+
+    pub fn rotate_origin<T>(mut self, angle: T) -> Self
+    where
+        T: Into<f32>,
+    {
+        self.0.push(TransformOperation::Rotate(
+            angle.into(),
+            RotationAnchor::Origin,
+        ));
+        self
+    }
+
+    pub fn rotate_at<T>(mut self, angle: T, x: T, y: T) -> Self
+    where
+        T: Into<f32>,
+    {
+        self.0.push(TransformOperation::Rotate(
+            angle.into(),
+            RotationAnchor::Point(x.into(), y.into()),
         ));
         self
     }
@@ -110,25 +127,30 @@ impl Transform {
         self
     }
 
-    pub fn skew_x(mut self, angle: f32) -> Self {
-        self.0.push(TransformOperation::Skew(angle, 0.0));
+    pub fn skew_x<T>(mut self, angle: T) -> Self
+    where
+        T: Into<f32>,
+    {
+        self.0.push(TransformOperation::Skew(angle.into(), 0.0));
         self
     }
 
-    pub fn skew_y(mut self, angle: f32) -> Self {
-        self.0.push(TransformOperation::Skew(0.0, angle));
+    pub fn skew_y<T>(mut self, angle: T) -> Self
+    where
+        T: Into<f32>,
+    {
+        self.0.push(TransformOperation::Skew(0.0, angle.into()));
         self
     }
 
     //
 
-    pub(crate) fn write_transform<T>(
+    pub(crate) fn write<T>(
         &self,
         out: &mut T,
         pos: (f32, f32),
         translate: (f32, f32),
         size: (f32, f32),
-        attr: Option<&str>,
     ) -> std::fmt::Result
     where
         T: Write,
@@ -182,73 +204,53 @@ impl Transform {
             }
         }
 
-        if !tf.is_valid() || (pos == (0.0, 0.0) && tf.is_identity()) {
+        if tf.is_identity() || !tf.is_valid() {
             return Ok(());
         }
 
-        let usvg::Transform {
-            sx,
-            ky,
-            kx,
-            sy,
-            tx,
-            ty,
-        } = tf;
-
-        write!(out, r#" {}="matrix("#, attr.unwrap_or("transform"))?;
-        write_float(out, sx)?;
+        write!(out, r#" transform="matrix("#)?;
+        FloatWriter::write_float(out, tf.sx)?;
         out.write_char(' ')?;
-        write_float(out, ky)?;
+        FloatWriter::write_float(out, tf.ky)?;
         out.write_char(' ')?;
-        write_float(out, kx)?;
+        FloatWriter::write_float(out, tf.kx)?;
         out.write_char(' ')?;
-        write_float(out, sy)?;
+        FloatWriter::write_float(out, tf.sy)?;
         out.write_char(' ')?;
-        write_float(out, tx)?;
+        FloatWriter::write_float(out, tf.tx)?;
         out.write_char(' ')?;
-        write_float(out, ty)?;
+        FloatWriter::write_float(out, tf.ty)?;
         out.write_str(r#")""#)
     }
-}
-
-fn write_float<T>(out: &mut T, mut value: f32) -> std::fmt::Result
-where
-    T: Write,
-{
-    value = (value * SCALE).round() / SCALE;
-
-    if value.fract() == 0.0 {
-        return write!(out, "{}", value as i32);
-    }
-
-    let mut buf = Buffer::new();
-    out.write_str(buf.format_finite(value))
 }
 
 pub trait IntoFloatPair {
     fn into_float_pair(self) -> (f32, f32);
 }
 
-impl IntoFloatPair for f32 {
+impl<T> IntoFloatPair for (T, T)
+where
+    T: Into<f32>,
+{
     fn into_float_pair(self) -> (f32, f32) {
-        (self, self)
+        (self.0.into(), self.1.into())
     }
 }
 
-impl IntoFloatPair for (f32, f32) {
+impl<T> IntoFloatPair for [T; 1]
+where
+    T: Into<f32> + Copy,
+{
     fn into_float_pair(self) -> (f32, f32) {
-        self
+        (self[0].into(), self[0].into())
     }
 }
 
-impl IntoFloatPair for [f32; 1] {
+impl<T> IntoFloatPair for [T; 2]
+where
+    T: Into<f32> + Copy,
+{
     fn into_float_pair(self) -> (f32, f32) {
-        (self[0], self[0])
-    }
-}
-
-impl IntoFloatPair for [f32; 2] {
-    fn into_float_pair(self) -> (f32, f32) {
-        (self[0], self[1])
+        (self[0].into(), self[1].into())
     }
 }
