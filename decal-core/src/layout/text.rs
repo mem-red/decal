@@ -2,8 +2,9 @@ use crate::builders::TextSpan;
 use crate::layout::{BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry};
 use crate::layout::{DEFAULT_FONT_FAMILY, Typography};
 use crate::paint::Appearance;
+use crate::prelude::Color;
 use crate::text::{FontStyle, FontWeight};
-use crate::utils::{PathBuilder, encode_image};
+use crate::utils::{PathWriter, encode_image};
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;
 use cosmic_text::{Attrs, Buffer, Command, Family, FontSystem, Metrics, Shaping, SwashCache};
@@ -14,7 +15,7 @@ use taffy::prelude::*;
 use thiserror::Error;
 use zeno::Point;
 
-const DEFAULT_COLOR: &'static str = "#000";
+const DEFAULT_COLOR: Color = Color::rgb(0, 0, 0);
 
 #[derive(Error, Debug)]
 pub enum TextVectorizationError {
@@ -70,7 +71,7 @@ impl TextMeta {
             write!(out, r#" opacity="{}" "#, appearance.opacity)?;
         }
 
-        transform.write_transform_matrix(out, offset, (0.0, 0.0), (self.width, self.height))?;
+        transform.write_transform(out, offset, (0.0, 0.0), (self.width, self.height), None)?;
         write!(out, r#" >"#)?;
 
         for run in buffer.layout_runs() {
@@ -86,16 +87,15 @@ impl TextMeta {
                     .get_outline_commands(font_system, cache_key)
                     .filter(|x| is_drawable(*x))
                 {
-                    let span_fill = if let Some(span) = self.spans.get(glyph.metadata) {
-                        span.typography.color
-                    } else {
-                        self.typography.color
-                    }
-                    .map_or(DEFAULT_COLOR.to_string(), |c| c.to_string());
+                    let span_fill = self
+                        .spans
+                        .get(glyph.metadata)
+                        .and_then(|span| span.typography.color.clone())
+                        .unwrap_or(DEFAULT_COLOR.into());
 
                     write!(out, r#"<path fill="{span_fill}" d=""#)?;
 
-                    let mut d = PathBuilder::new(out);
+                    let mut d = PathWriter::new(out);
 
                     for command in outline_commands.iter() {
                         match *command {
