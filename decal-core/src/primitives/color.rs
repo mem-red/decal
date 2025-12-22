@@ -43,17 +43,17 @@ impl Default for Color {
 
 impl Display for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            format!(
+        if self.a == 255 {
+            f.write_fmt(format_args!("rgb({},{},{})", self.r, self.g, self.b))
+        } else {
+            f.write_fmt(format_args!(
                 "rgba({},{},{},{:.2})",
                 self.r,
                 self.g,
                 self.b,
                 self.a as f32 / 255.0
-            )
-        )
+            ))
+        }
     }
 }
 
