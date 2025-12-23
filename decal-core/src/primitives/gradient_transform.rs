@@ -1,6 +1,7 @@
 use crate::macros::ff32;
 use crate::primitives::IntoFloatPair;
 use crate::utils::FloatWriter;
+use crate::utils::IsDefault;
 use std::fmt::Write;
 use strict_num::FiniteF32;
 use usvg::Transform;
@@ -41,13 +42,15 @@ impl From<Transform> for GradientTransform {
     }
 }
 
+impl IsDefault for GradientTransform {}
+
 impl GradientTransform {
     pub fn new() -> Self {
         Self::default()
     }
 
     pub fn is_identity(&self) -> bool {
-        *self == GradientTransform::default()
+        self.is_default()
     }
 
     //
