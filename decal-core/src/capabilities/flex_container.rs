@@ -1,4 +1,5 @@
 use super::Drawable;
+use crate::primitives::FlexWrap;
 
 pub trait FlexContainer: Drawable {
     fn reversed(mut self, reverse: bool) -> Self {
@@ -19,7 +20,7 @@ pub trait FlexContainer: Drawable {
         self
     }
 
-    fn flex_wrap(mut self, value: crate::primitives::FlexWrap) -> Self {
+    fn flex_wrap(mut self, value: FlexWrap) -> Self {
         self.layout_mut().flex_wrap = value.into();
         self
     }

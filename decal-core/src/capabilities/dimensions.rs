@@ -1,10 +1,12 @@
 use super::Drawable;
+use crate::attributes::IntoDimensions;
+use crate::primitives::Length;
 
 macro_rules! impl_dimension {
     ($method:ident, $taffy_method:ident, $taffy_field:ident) => {
         fn $method<T>(mut self, value: T) -> Self
         where
-            T: Into<Option<crate::primitives::Length>>,
+            T: Into<Option<Length>>,
         {
             self.layout_mut().$taffy_method.$taffy_field = value
                 .into()
@@ -17,7 +19,7 @@ macro_rules! impl_dimension {
 pub trait Dimensions: Drawable {
     fn size<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoDimensions,
+        T: IntoDimensions,
     {
         self.layout_mut().size = value
             .into_dimensions()
@@ -27,7 +29,7 @@ pub trait Dimensions: Drawable {
 
     fn min_size<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoDimensions,
+        T: IntoDimensions,
     {
         self.layout_mut().min_size = value
             .into_dimensions()
@@ -37,7 +39,7 @@ pub trait Dimensions: Drawable {
 
     fn max_size<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoDimensions,
+        T: IntoDimensions,
     {
         self.layout_mut().max_size = value
             .into_dimensions()

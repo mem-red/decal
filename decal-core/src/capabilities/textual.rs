@@ -1,9 +1,11 @@
 use super::Drawable;
+use crate::attributes::IntoPaint;
+use crate::text::{FontStyle, FontWeight, TextAlign, TextWrap};
 
 pub trait Textual: Drawable {
     fn color<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoPaint,
+        T: IntoPaint,
     {
         let color = value.into_paint();
         self.typography_mut().color = color.clone();
@@ -44,7 +46,7 @@ pub trait Textual: Drawable {
 
     fn font_weight<T>(mut self, font_weight: T) -> Self
     where
-        T: Into<Option<crate::text::FontWeight>>,
+        T: Into<Option<FontWeight>>,
     {
         self.typography_mut().weight = font_weight.into();
         self
@@ -61,7 +63,7 @@ pub trait Textual: Drawable {
 
     fn font_style<T>(mut self, font_style: T) -> Self
     where
-        T: Into<Option<crate::text::FontStyle>>,
+        T: Into<Option<FontStyle>>,
     {
         self.typography_mut().style = font_style.into();
         self
@@ -69,7 +71,7 @@ pub trait Textual: Drawable {
 
     fn text_align<T>(mut self, text_align: T) -> Self
     where
-        T: Into<Option<crate::text::TextAlign>>,
+        T: Into<Option<TextAlign>>,
     {
         self.typography_mut().align = text_align.into();
         self
@@ -77,7 +79,7 @@ pub trait Textual: Drawable {
 
     fn text_wrap<T>(mut self, text_wrap: T) -> Self
     where
-        T: Into<Option<crate::text::TextWrap>>,
+        T: Into<Option<TextWrap>>,
     {
         self.typography_mut().wrap = text_wrap.into();
         self

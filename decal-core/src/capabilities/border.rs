@@ -1,12 +1,13 @@
 use super::Drawable;
+use crate::attributes::{IntoBorder, IntoBorderPair, IntoBorderWidth, IntoPaint};
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {
         fn $method<T>(mut self, value: T) -> Self
         where
-            T: Into<Option<crate::primitives::Length>>,
+            T: IntoBorderWidth,
         {
-            self.layout_mut().border.$field = value.into().unwrap_or_default().into();
+            self.layout_mut().border.$field = value.into_border_width().unwrap_or_default().into();
             self
         }
     };
@@ -15,7 +16,7 @@ macro_rules! impl_side {
 pub trait Border: Drawable {
     fn border_width<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoBorder,
+        T: IntoBorder,
     {
         self.layout_mut().border = value.into_border().unwrap_or_default().into();
         self
@@ -23,7 +24,7 @@ pub trait Border: Drawable {
 
     fn border_x_width<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoBorderPair,
+        T: IntoBorderPair,
     {
         let (left, right) = value.into_border_pair().unwrap_or_default();
         self.layout_mut().border.left = left.into();
@@ -33,7 +34,7 @@ pub trait Border: Drawable {
 
     fn border_y_width<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoBorderPair,
+        T: IntoBorderPair,
     {
         let (top, bottom) = value.into_border_pair().unwrap_or_default();
         self.layout_mut().border.top = top.into();
@@ -48,7 +49,7 @@ pub trait Border: Drawable {
 
     fn border<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoPaint,
+        T: IntoPaint,
     {
         let border = value.into_paint().unwrap_or(crate::primitives::Paint::None);
         self.visual_mut().border = border.clone();

@@ -1,12 +1,13 @@
 use super::Drawable;
+use crate::attributes::{IntoPadding, IntoPaddingPair, IntoPaddingSize};
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {
         fn $method<T>(mut self, value: T) -> Self
         where
-            T: Into<Option<crate::primitives::Length>>,
+            T: IntoPaddingSize,
         {
-            self.layout_mut().padding.$field = value.into().unwrap_or_default().into();
+            self.layout_mut().padding.$field = value.into_padding_size().unwrap_or_default().into();
             self
         }
     };
@@ -15,7 +16,7 @@ macro_rules! impl_side {
 pub trait Padding: Drawable {
     fn padding<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoPadding,
+        T: IntoPadding,
     {
         self.layout_mut().padding = value.into_padding().unwrap_or_default().into();
         self
@@ -23,7 +24,7 @@ pub trait Padding: Drawable {
 
     fn padding_x<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoPaddingPair,
+        T: IntoPaddingPair,
     {
         let (left, right) = value.into_padding_pair().unwrap_or_default();
         self.layout_mut().padding.left = left.into();
@@ -33,7 +34,7 @@ pub trait Padding: Drawable {
 
     fn padding_y<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoPaddingPair,
+        T: IntoPaddingPair,
     {
         let (top, bottom) = value.into_padding_pair().unwrap_or_default();
         self.layout_mut().padding.top = top.into();

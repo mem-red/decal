@@ -1,6 +1,5 @@
-use crate::capabilities::CornerRadius;
+use crate::capabilities::{CornerRadii, CornerRadius};
 use crate::primitives::Corner;
-use crate::primitives::Length;
 
 pub trait IntoCornerRadius {
     fn into_corner_radius(self) -> Option<CornerRadius>;
@@ -20,7 +19,7 @@ impl IntoCornerRadius for CornerRadius {
     }
 }
 
-impl IntoCornerRadius for Length {
+impl IntoCornerRadius for CornerRadii {
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {
@@ -32,7 +31,7 @@ impl IntoCornerRadius for Length {
     }
 }
 
-impl IntoCornerRadius for [Length; 1] {
+impl IntoCornerRadius for [CornerRadii; 1] {
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {
@@ -44,7 +43,7 @@ impl IntoCornerRadius for [Length; 1] {
     }
 }
 
-impl IntoCornerRadius for [Length; 2] {
+impl IntoCornerRadius for [CornerRadii; 2] {
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {
@@ -56,7 +55,7 @@ impl IntoCornerRadius for [Length; 2] {
     }
 }
 
-impl IntoCornerRadius for [Length; 3] {
+impl IntoCornerRadius for [CornerRadii; 3] {
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {
@@ -68,7 +67,7 @@ impl IntoCornerRadius for [Length; 3] {
     }
 }
 
-impl IntoCornerRadius for [Length; 4] {
+impl IntoCornerRadius for [CornerRadii; 4] {
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {

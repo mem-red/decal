@@ -1,11 +1,12 @@
 use super::Drawable;
+use crate::attributes::IntoOverflow;
 use crate::primitives::Overflow;
 
 macro_rules! impl_axis {
     ($method:ident, $field:ident) => {
         fn $method<T>(mut self, value: T) -> Self
         where
-            T: Into<Option<crate::primitives::Overflow>>,
+            T: Into<Option<Overflow>>,
         {
             self.layout_mut().overflow.$field = value.into().unwrap_or_default().into();
             self
@@ -16,7 +17,7 @@ macro_rules! impl_axis {
 pub trait Clippable: Drawable {
     fn overflow<T>(mut self, value: T) -> Self
     where
-        T: crate::attributes::IntoOverflow,
+        T: IntoOverflow,
     {
         self.layout_mut().overflow = value.into_overflow().unwrap_or_default().into();
         self
