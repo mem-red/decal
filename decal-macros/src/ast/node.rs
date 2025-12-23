@@ -54,7 +54,7 @@ impl Parse for Node {
                 parse_children(&content)?
             }
         } else if is_snippet {
-            return Err(input.error("expected `{` after the [`decal::prelude::Snippet`] node"));
+            return Err(input.error("expected `{` after the `Snippet` node"));
         } else {
             Vec::new()
         };
