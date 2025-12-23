@@ -228,6 +228,12 @@ pub trait IntoFloatPair {
     fn into_float_pair(self) -> (f32, f32);
 }
 
+impl IntoFloatPair for f32 {
+    fn into_float_pair(self) -> (f32, f32) {
+        (self, self)
+    }
+}
+
 impl<T> IntoFloatPair for (T, T)
 where
     T: Into<f32>,
