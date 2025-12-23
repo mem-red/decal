@@ -1,6 +1,6 @@
-use crate::layout::Typography;
 use crate::layout::text::TextMeta;
 use crate::layout::{FontRegistry, ImageSource, TextVectorizeError};
+use crate::layout::{Typography, VectorizeOptions};
 use crate::paint::{Appearance, Resources, compute_scaled_radii};
 use crate::paint::{Resource, ResourceIri};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
@@ -111,17 +111,25 @@ impl Node {
         root_size: (f32, f32),
         fonts: Arc<Mutex<FontRegistry>>,
         resources: &Mutex<Resources>,
+        options: &VectorizeOptions,
     ) -> Result<Option<Vec<Resource>>, VectorizeError>
     where
         T: Write,
     {
         match &self.kind {
             NodeKind::Root(meta) => {
+                let (w, h) = (meta.width, meta.height);
+
                 write!(
                     out,
-                    r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {} {}">"#,
-                    meta.width, meta.height,
+                    r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}""#
                 )?;
+
+                if options.emit_svg_dimensions {
+                    write!(out, r#" width="{w}" height="{h}""#)?;
+                }
+
+                out.write_char('>')?;
             }
             //
             NodeKind::Block
