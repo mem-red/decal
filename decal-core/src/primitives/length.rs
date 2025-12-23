@@ -56,6 +56,15 @@ impl<const AUTO: bool, const PERCENT: bool> Length<AUTO, PERCENT> {
         Self(LengthInner::Pixels(ff32!(value.into() as f32)))
     }
 
+    pub(crate) fn is_zero(&self) -> bool {
+        match self.0 {
+            LengthInner::Zero => true,
+            LengthInner::Pixels(px) => px.get() == 0.0,
+            LengthInner::Percent(pc) => pc.get() == 0.0,
+            _ => false,
+        }
+    }
+
     pub(crate) fn get_pixels(&self) -> Option<f32> {
         match self.0 {
             LengthInner::Pixels(px) => Some(px.get()),
