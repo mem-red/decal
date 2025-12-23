@@ -1,6 +1,6 @@
-use crate::layout::Typography;
-use crate::layout::{FontRegistry, ImageCache, Node, NodeKind};
+use crate::layout::{FontRegistry, ImageCache, Node, NodeKind, RasterizeOptions};
 use crate::layout::{NodeId, VectorizeError};
+use crate::layout::{Typography, VectorizeOptions};
 use crate::paint::Resources;
 use resvg::render;
 use smallvec::SmallVec;
@@ -14,23 +14,23 @@ use taffy::{
     compute_leaf_layout, compute_root_layout, print_tree, round_layout,
 };
 use thiserror::Error;
-use tiny_skia::{Pixmap, Transform};
-use usvg::{ImageHrefResolver, ImageKind, Options, Tree};
+use tiny_skia::Pixmap;
+use usvg::{ImageHrefResolver, ImageKind, Tree};
 
 const ROOT_ID: usize = 0;
 const INLINE_FRAG_CASCADE: usize = 16;
 
 #[derive(Debug, Error)]
-pub enum RasterizationError {
+pub enum RasterizeError {
     #[error("cannot rasterize a fragment")]
-    Fragment,
-    #[error("vectorization error")]
-    Vectorization(#[from] VectorizeError),
-    #[error("cannot write to stream")]
-    SvgWrite(#[from] std::fmt::Error),
-    #[error("svg parsing error")]
-    SvgParse(#[from] usvg::Error),
-    #[error("pixmap alloc error")]
+    NonRootNode,
+    #[error("failed to vectorize")]
+    Vectorize(#[from] VectorizeError),
+    #[error("failed to write to the output stream")]
+    Write(#[from] std::fmt::Error),
+    #[error("failed to parse svg")]
+    Parse(#[from] usvg::Error),
+    #[error("failed to allocate pixmap")]
     PixmapAlloc,
 }
 
@@ -119,7 +119,7 @@ impl Decal {
         print_tree(self, taffy::NodeId::from(ROOT_ID));
     }
 
-    pub(crate) fn vectorize(&self) -> Result<String, VectorizeError> {
+    pub(crate) fn vectorize(&self, options: &VectorizeOptions) -> Result<String, VectorizeError> {
         if self.is_fragment {
             return Err(VectorizeError::NonRootNode);
         }
@@ -127,10 +127,11 @@ impl Decal {
         let mut out = String::new();
         let root = &self.nodes[ROOT_ID];
 
-        self.write_node(
+        self.vectorize_node(
             &mut out,
             (root.final_layout.size.width, root.final_layout.size.height),
             taffy::NodeId::from(ROOT_ID),
+            options,
         )?;
 
         Ok(out)
@@ -139,42 +140,41 @@ impl Decal {
     pub(crate) fn rasterize(
         &self,
         image_cache: &ImageCache,
-        options: Option<Options>,
-        transform: Option<Transform>,
-        debug: bool,
-    ) -> Result<Pixmap, RasterizationError> {
+        options: &RasterizeOptions,
+    ) -> Result<Pixmap, RasterizeError> {
         if self.is_fragment {
-            return Err(RasterizationError::Fragment);
+            return Err(RasterizeError::NonRootNode);
         }
 
-        let tf = transform.unwrap_or_default();
-        let mut options = options.unwrap_or_default();
+        let tf = options.root_transform;
+        let usvg_options = usvg::Options {
+            image_href_resolver: ImageHrefResolver {
+                resolve_string: Box::new(move |href: &str, _opts: &usvg::Options| {
+                    let bytes = fetch_image_cached(image_cache, href)?;
+                    let kind = infer::get(&bytes)?;
 
-        options.image_href_resolver = ImageHrefResolver {
-            resolve_string: Box::new(move |href: &str, _opts: &Options| {
-                let bytes = fetch_image_cached(image_cache, href)?;
-                let kind = infer::get(&bytes)?;
-
-                Some(match kind.mime_type() {
-                    "image/png" => ImageKind::PNG(bytes.clone()),
-                    "image/jpeg" => ImageKind::JPEG(bytes.clone()),
-                    "image/webp" => ImageKind::WEBP(bytes.clone()),
-                    "image/gif" => ImageKind::GIF(bytes.clone()),
-                    _ => return None,
-                })
-            }),
+                    Some(match kind.mime_type() {
+                        "image/png" => ImageKind::PNG(bytes.clone()),
+                        "image/jpeg" => ImageKind::JPEG(bytes.clone()),
+                        "image/webp" => ImageKind::WEBP(bytes.clone()),
+                        "image/gif" => ImageKind::GIF(bytes.clone()),
+                        _ => return None,
+                    })
+                }),
+                ..Default::default()
+            },
             ..Default::default()
         };
 
-        let tree =
-            Tree::from_str(&self.vectorize()?, &options).map_err(RasterizationError::SvgParse)?;
+        let svg = self.vectorize(&options.vectorize_options)?;
+        let tree = Tree::from_str(&svg, &usvg_options).map_err(RasterizeError::Parse)?;
         let size = tree.size();
         let mut pixmap = Pixmap::new(size.width() as u32, size.height() as u32)
-            .ok_or(RasterizationError::PixmapAlloc)?;
+            .ok_or(RasterizeError::PixmapAlloc)?;
 
         render(&tree, tf, &mut pixmap.as_mut());
 
-        if debug {
+        if options.debug {
             let mut bboxes = Vec::new();
             let mut stroke_bboxes = Vec::new();
 
@@ -228,11 +228,12 @@ impl Decal {
         &mut self.nodes[usize::from(node_id)]
     }
 
-    fn write_node<T>(
+    fn vectorize_node<T>(
         &self,
         out: &mut T,
         root_size: (f32, f32),
         node_id: taffy::NodeId,
+        options: &VectorizeOptions,
     ) -> Result<(), VectorizeError>
     where
         T: Write,
@@ -241,10 +242,10 @@ impl Decal {
         let node = &self.nodes[node_idx];
 
         if node.visual.visible && !matches!(node.layout.display, taffy::Display::None) {
-            node.write_svg_start(out, root_size, self.fonts.clone(), &self.resources)?;
+            node.write_svg_start(out, root_size, self.fonts.clone(), &self.resources, options)?;
 
             for &child_id in &node.children {
-                self.write_node(out, root_size, taffy::NodeId::from(child_id))?;
+                self.vectorize_node(out, root_size, taffy::NodeId::from(child_id), options)?;
             }
 
             node.write_svg_end(out, &self.resources)?;
