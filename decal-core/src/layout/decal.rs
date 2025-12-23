@@ -1,6 +1,6 @@
 use crate::layout::Typography;
 use crate::layout::{FontRegistry, ImageCache, Node, NodeKind};
-use crate::layout::{NodeId, VectorizationError};
+use crate::layout::{NodeId, VectorizeError};
 use crate::paint::Resources;
 use resvg::render;
 use smallvec::SmallVec;
@@ -25,7 +25,7 @@ pub enum RasterizationError {
     #[error("cannot rasterize a fragment")]
     Fragment,
     #[error("vectorization error")]
-    Vectorization(#[from] VectorizationError),
+    Vectorization(#[from] VectorizeError),
     #[error("cannot write to stream")]
     SvgWrite(#[from] std::fmt::Error),
     #[error("svg parsing error")]
@@ -119,9 +119,9 @@ impl Decal {
         print_tree(self, taffy::NodeId::from(ROOT_ID));
     }
 
-    pub(crate) fn vectorize(&self) -> Result<String, VectorizationError> {
+    pub(crate) fn vectorize(&self) -> Result<String, VectorizeError> {
         if self.is_fragment {
-            return Err(VectorizationError::Fragment);
+            return Err(VectorizeError::NonRootNode);
         }
 
         let mut out = String::new();
@@ -233,7 +233,7 @@ impl Decal {
         out: &mut T,
         root_size: (f32, f32),
         node_id: taffy::NodeId,
-    ) -> Result<(), VectorizationError>
+    ) -> Result<(), VectorizeError>
     where
         T: Write,
     {

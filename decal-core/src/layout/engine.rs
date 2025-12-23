@@ -1,5 +1,5 @@
 use crate::layout::font::FontRegistry;
-use crate::layout::{Decal, RasterizationError, VectorizationError};
+use crate::layout::{Decal, RasterizationError, VectorizeError};
 use hashbrown::HashMap;
 use std::sync::{Arc, Mutex};
 use tiny_skia::{Pixmap, Transform};
@@ -53,7 +53,7 @@ impl Engine {
         decal.rasterize(&self.image_cache, options, transform, debug)
     }
 
-    pub fn vectorize(&mut self, decal: &mut Decal) -> Result<String, VectorizationError> {
+    pub fn vectorize(&mut self, decal: &mut Decal) -> Result<String, VectorizeError> {
         decal.set_fonts(self.fonts.clone());
         decal.compute_layout();
         decal.vectorize()

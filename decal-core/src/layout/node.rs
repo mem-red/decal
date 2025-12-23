@@ -1,6 +1,6 @@
 use crate::layout::Typography;
 use crate::layout::text::TextMeta;
-use crate::layout::{FontRegistry, ImageSource, TextVectorizationError};
+use crate::layout::{FontRegistry, ImageSource, TextVectorizeError};
 use crate::paint::{Appearance, Resources, compute_scaled_radii};
 use crate::paint::{Resource, ResourceIri};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
@@ -25,15 +25,7 @@ pub(crate) enum NodeKind {
 
 impl NodeKind {
     pub(crate) fn is_atomic(&self) -> bool {
-        match self {
-            NodeKind::Root(_)
-            | NodeKind::Block
-            | NodeKind::Flex
-            | NodeKind::Column
-            | NodeKind::Row
-            | NodeKind::Grid => false,
-            NodeKind::Text(_) | NodeKind::Image(_) => true,
-        }
+        matches!(self, NodeKind::Text(_) | NodeKind::Image(_))
     }
 }
 
@@ -49,14 +41,7 @@ impl Display for NodeKind {
                 NodeKind::Column => "Column".into(),
                 NodeKind::Row => "Row".into(),
                 NodeKind::Grid => "Grid".into(),
-                NodeKind::Text(TextMeta { spans, .. }) => format!(
-                    "Text: {}",
-                    spans
-                        .iter()
-                        .map(|x| x.content.clone())
-                        .collect::<Vec<_>>()
-                        .join("")
-                ),
+                NodeKind::Text(meta) => format!("Text: {meta}"),
                 NodeKind::Image(meta) => format!("Image: {meta:?}"),
             }
         )
@@ -79,14 +64,14 @@ pub struct Node {
 }
 
 #[derive(Debug, Error)]
-pub enum VectorizationError {
+pub enum VectorizeError {
     #[error("cannot vectorize a fragment")]
-    Fragment,
-    #[error("cannot write to stream")]
-    SvgWrite(#[from] std::fmt::Error),
-    #[error("text vectorization error")]
-    Text(#[from] TextVectorizationError),
-    #[error("other error")]
+    NonRootNode,
+    #[error("failed to write to the output stream")]
+    Write(#[from] std::fmt::Error),
+    #[error("failed to vectorize text")]
+    TextVectorize(#[from] TextVectorizeError),
+    #[error("internal error")]
     Other,
 }
 
@@ -126,7 +111,7 @@ impl Node {
         root_size: (f32, f32),
         fonts: Arc<Mutex<FontRegistry>>,
         resources: &Mutex<Resources>,
-    ) -> Result<Option<Vec<Resource>>, VectorizationError>
+    ) -> Result<Option<Vec<Resource>>, VectorizeError>
     where
         T: Write,
     {
@@ -134,7 +119,7 @@ impl Node {
             NodeKind::Root(meta) => {
                 write!(
                     out,
-                    r#"<svg xmlns="http://www.w3.org/2000/svg" width="{}" height="{}">"#,
+                    r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {} {}">"#,
                     meta.width, meta.height,
                 )?;
             }
@@ -221,20 +206,20 @@ impl Node {
                     write!(out, r#"<g clip-path="url(#{})">"#, clip.iri())?;
                     resources
                         .lock()
-                        .map_err(|_| VectorizationError::Other)?
+                        .map_err(|_| VectorizeError::Other)?
                         .get_or_add_resource(clip.into());
                 }
             }
             //
             NodeKind::Text(meta) => {
-                let mut fonts = fonts.lock().map_err(|_| VectorizationError::Other)?;
+                let mut fonts = fonts.lock().map_err(|_| VectorizeError::Other)?;
                 let FontRegistry {
                     swash_cache,
                     system,
                     ..
                 } = &mut *fonts;
 
-                meta.write_vectorized_text(
+                meta.vectorize_text(
                     out,
                     (self.final_layout.location.x, self.final_layout.location.y),
                     &self.visual,
@@ -297,13 +282,13 @@ impl Node {
         &self,
         out: &mut T,
         resources: &Mutex<Resources>,
-    ) -> Result<(), VectorizationError>
+    ) -> Result<(), VectorizeError>
     where
         T: Write,
     {
         match &self.kind {
             NodeKind::Root(_) => {
-                let resources = resources.lock().map_err(|_| VectorizationError::Other)?;
+                let resources = resources.lock().map_err(|_| VectorizeError::Other)?;
 
                 if !resources.is_empty() {
                     write!(out, "<defs>{resources}</defs>")?;

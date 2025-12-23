@@ -9,6 +9,7 @@ use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;
 use cosmic_text::{Attrs, Buffer, Command, Family, FontSystem, Metrics, Shaping, SwashCache};
 use png::EncodingError;
+use std::fmt::Formatter;
 use std::sync::{Arc, Mutex};
 use swash::scale::image::Content;
 use taffy::prelude::*;
@@ -18,20 +19,20 @@ use zeno::Point;
 const DEFAULT_COLOR: Color = Color::rgb(0, 0, 0);
 
 #[derive(Error, Debug)]
-pub enum TextVectorizationError {
-    #[error("cannot write to stream")]
-    SvgWrite(#[from] std::fmt::Error),
-    #[error("failed to encode image")]
-    ImageEncoding(#[from] EncodingError),
+pub enum TextVectorizeError {
+    #[error("failed to write to the output stream")]
+    Write(#[from] std::fmt::Error),
+    #[error("failed to encode emoji image")]
+    EncodeEmoji(#[from] EncodingError),
 }
 
 #[derive(Debug, Clone, Default)]
 pub(crate) struct TextMeta {
-    pub(crate) spans: Vec<TextSpan>,
-    pub(crate) buffer: Option<Buffer>,
-    pub(crate) typography: Typography,
-    pub(crate) width: f32,
-    pub(crate) height: f32,
+    spans: Vec<TextSpan>,
+    buffer: Option<Buffer>,
+    typography: Typography,
+    width: f32,
+    height: f32,
 }
 
 impl TextMeta {
@@ -49,14 +50,14 @@ impl TextMeta {
         self.typography = typography;
     }
 
-    pub(crate) fn write_vectorized_text<T>(
+    pub(crate) fn vectorize_text<T>(
         &self,
         out: &mut T,
         offset: (f32, f32),
         appearance: &Appearance,
         cache: &mut SwashCache,
         font_system: &mut FontSystem,
-    ) -> Result<(), TextVectorizationError>
+    ) -> Result<(), TextVectorizeError>
     where
         T: std::fmt::Write,
     {
@@ -235,6 +236,19 @@ impl TextMeta {
         );
 
         self.buffer = Some(brw.to_owned());
+    }
+}
+
+impl std::fmt::Display for TextMeta {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(
+            &self
+                .spans
+                .iter()
+                .map(|x| x.content.clone())
+                .collect::<Vec<_>>()
+                .join(""),
+        )
     }
 }
 
