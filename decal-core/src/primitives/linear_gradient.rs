@@ -1,5 +1,4 @@
 use crate::paint::ResourceIri;
-use crate::primitives::Color;
 use crate::primitives::{GradientTransform, GradientUnits, Length, SpreadMethod, Stop};
 use crate::utils::IsDefault;
 use std::fmt::{Display, Formatter};
@@ -156,12 +155,4 @@ impl Display for LinearGradient {
             write!(f, r#"</linearGradient>"#)
         }
     }
-}
-
-fn testing() {
-    let e = LinearGradient::new().stops([
-        (0.1, Color::parse("red"), 0.75),
-        (0.4, Color::parse("blue"), 0.75),
-        (0.9, Color::parse("yellow"), 0.75),
-    ]);
 }
