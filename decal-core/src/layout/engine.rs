@@ -1,9 +1,8 @@
 use crate::layout::font::FontRegistry;
-use crate::layout::{Decal, RasterizationError, VectorizeError};
+use crate::layout::{Decal, RasterizeError, RasterizeOptions, VectorizeError, VectorizeOptions};
 use hashbrown::HashMap;
 use std::sync::{Arc, Mutex};
-use tiny_skia::{Pixmap, Transform};
-use usvg::Options;
+use tiny_skia::Pixmap;
 
 pub(crate) type ImageCache = Arc<Mutex<HashMap<String, Arc<Vec<u8>>>>>;
 
@@ -44,18 +43,20 @@ impl Engine {
     pub fn rasterize(
         &mut self,
         decal: &mut Decal,
-        options: Option<Options>,
-        transform: Option<Transform>,
-        debug: bool,
-    ) -> Result<Pixmap, RasterizationError> {
+        options: &RasterizeOptions,
+    ) -> Result<Pixmap, RasterizeError> {
         decal.set_fonts(self.fonts.clone());
         decal.compute_layout();
-        decal.rasterize(&self.image_cache, options, transform, debug)
+        decal.rasterize(&self.image_cache, options)
     }
 
-    pub fn vectorize(&mut self, decal: &mut Decal) -> Result<String, VectorizeError> {
+    pub fn vectorize(
+        &mut self,
+        decal: &mut Decal,
+        options: &VectorizeOptions,
+    ) -> Result<String, VectorizeError> {
         decal.set_fonts(self.fonts.clone());
         decal.compute_layout();
-        decal.vectorize()
+        decal.vectorize(options)
     }
 }
