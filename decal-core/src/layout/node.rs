@@ -1,5 +1,5 @@
 use crate::layout::text::TextMeta;
-use crate::layout::{FontRegistry, ImageSource, TextVectorizeError};
+use crate::layout::{FontRegistry, ImageSource, SvgDimensions, TextVectorizeError};
 use crate::layout::{Typography, VectorizeOptions};
 use crate::paint::{Appearance, Resources, compute_scaled_radii};
 use crate::paint::{Resource, ResourceIri};
@@ -120,14 +120,21 @@ impl Node {
             NodeKind::Root(meta) => {
                 let (w, h) = (meta.width, meta.height);
 
-                write!(
-                    out,
-                    r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}""#
-                )?;
+                write!(out, "<svg")?;
 
-                if options.emit_svg_dimensions {
-                    write!(out, r#" width="{w}" height="{h}""#)?;
+                if !options.omit_svg_xmlns {
+                    write!(out, r#" xmlns="http://www.w3.org/2000/svg""#)?;
                 }
+
+                write!(out, r#" viewBox="0 0 {w} {h}""#)?;
+
+                match &options.svg_dimensions {
+                    SvgDimensions::Omit => {}
+                    SvgDimensions::Layout => write!(out, r#" width="{w}" height="{h}""#)?,
+                    SvgDimensions::Custom { width, height } => {
+                        write!(out, r#" width="{width}" height="{height}""#)?
+                    }
+                };
 
                 out.write_char('>')?;
             }

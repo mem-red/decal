@@ -1,13 +1,24 @@
 use tiny_skia::Transform;
 use usvg::{ImageRendering, ShapeRendering, TextRendering};
 
-#[derive(Debug, Copy, Clone, Default)]
-pub struct VectorizeOptions {
-    /// Write `width` and `height` attributes to SVG
-    pub emit_svg_dimensions: bool,
+#[derive(Debug, Clone, Default)]
+pub enum SvgDimensions {
+    #[default]
+    Omit,
+    Layout,
+    Custom {
+        width: String,
+        height: String,
+    },
 }
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Clone, Default)]
+pub struct VectorizeOptions {
+    pub svg_dimensions: SvgDimensions,
+    pub omit_svg_xmlns: bool,
+}
+
+#[derive(Debug, Clone, Default)]
 pub struct RasterizeOptions {
     pub debug: bool,
     pub vectorize_options: VectorizeOptions,
