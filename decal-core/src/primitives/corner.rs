@@ -26,7 +26,7 @@ where
     }
 }
 
-impl Default for Corner<Length> {
+impl<const AUTO: bool, const PERCENT: bool> Default for Corner<Length<AUTO, PERCENT>> {
     fn default() -> Self {
         Self::from_values(
             Length::zero(),

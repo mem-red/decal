@@ -19,13 +19,15 @@ where
     }
 }
 
-impl Default for Size<Length> {
+impl<const AUTO: bool, const PERCENT: bool> Default for Size<Length<AUTO, PERCENT>> {
     fn default() -> Self {
         Self::from_values(Length::zero(), Length::zero())
     }
 }
 
-impl Into<taffy::Size<taffy::Dimension>> for Size<Length> {
+impl<const AUTO: bool, const PERCENT: bool> Into<taffy::Size<taffy::Dimension>>
+    for Size<Length<AUTO, PERCENT>>
+{
     fn into(self) -> taffy::Size<taffy::Dimension> {
         taffy::Size {
             width: self.width.into(),
@@ -34,7 +36,9 @@ impl Into<taffy::Size<taffy::Dimension>> for Size<Length> {
     }
 }
 
-impl Into<taffy::Size<taffy::LengthPercentage>> for Size<Length> {
+impl<const PERCENT: bool> Into<taffy::Size<taffy::LengthPercentage>>
+    for Size<Length<false, PERCENT>>
+{
     fn into(self) -> taffy::Size<taffy::LengthPercentage> {
         taffy::Size {
             width: self.width.into(),
@@ -43,7 +47,9 @@ impl Into<taffy::Size<taffy::LengthPercentage>> for Size<Length> {
     }
 }
 
-impl Into<taffy::Size<taffy::LengthPercentageAuto>> for Size<Length> {
+impl<const AUTO: bool, const PERCENT: bool> Into<taffy::Size<taffy::LengthPercentageAuto>>
+    for Size<Length<AUTO, PERCENT>>
+{
     fn into(self) -> taffy::Size<taffy::LengthPercentageAuto> {
         taffy::Size {
             width: self.width.into(),

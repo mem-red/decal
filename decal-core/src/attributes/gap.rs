@@ -1,6 +1,7 @@
 use crate::primitives::{Length, Size};
 
-type Gap = Size<Length>;
+type GapSize = Length<false, true>;
+type Gap = Size<GapSize>;
 
 pub trait IntoGap {
     fn into_gap(self) -> Option<Gap>;
@@ -20,7 +21,7 @@ impl IntoGap for Gap {
     }
 }
 
-impl IntoGap for Length {
+impl IntoGap for GapSize {
     #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(Size {
@@ -30,7 +31,7 @@ impl IntoGap for Length {
     }
 }
 
-impl IntoGap for [Length; 1] {
+impl IntoGap for [GapSize; 1] {
     #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(Size {
@@ -40,7 +41,7 @@ impl IntoGap for [Length; 1] {
     }
 }
 
-impl IntoGap for [Length; 2] {
+impl IntoGap for [GapSize; 2] {
     #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(Size {

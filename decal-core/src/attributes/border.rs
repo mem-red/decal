@@ -1,6 +1,26 @@
 use crate::primitives::{Length, Rect};
 
-type Border = Rect<Length>;
+type BorderWidth = Length<false, true>;
+
+pub trait IntoBorderWidth {
+    fn into_border_width(self) -> Option<BorderWidth>;
+}
+
+impl IntoBorderWidth for Option<BorderWidth> {
+    #[inline]
+    fn into_border_width(self) -> Option<BorderWidth> {
+        self
+    }
+}
+
+impl IntoBorderWidth for BorderWidth {
+    #[inline]
+    fn into_border_width(self) -> Option<BorderWidth> {
+        Some(self)
+    }
+}
+
+type Border = Rect<BorderWidth>;
 
 pub trait IntoBorder {
     fn into_border(self) -> Option<Border>;
@@ -20,7 +40,7 @@ impl IntoBorder for Border {
     }
 }
 
-impl IntoBorder for Length {
+impl IntoBorder for BorderWidth {
     #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Rect {
@@ -32,7 +52,7 @@ impl IntoBorder for Length {
     }
 }
 
-impl IntoBorder for [Length; 1] {
+impl IntoBorder for [BorderWidth; 1] {
     #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Rect {
@@ -44,7 +64,7 @@ impl IntoBorder for [Length; 1] {
     }
 }
 
-impl IntoBorder for [Length; 2] {
+impl IntoBorder for [BorderWidth; 2] {
     #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Rect {
@@ -56,7 +76,7 @@ impl IntoBorder for [Length; 2] {
     }
 }
 
-impl IntoBorder for [Length; 3] {
+impl IntoBorder for [BorderWidth; 3] {
     #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Rect {
@@ -68,7 +88,7 @@ impl IntoBorder for [Length; 3] {
     }
 }
 
-impl IntoBorder for [Length; 4] {
+impl IntoBorder for [BorderWidth; 4] {
     #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Rect {
@@ -80,27 +100,29 @@ impl IntoBorder for [Length; 4] {
     }
 }
 
+type BorderPair = (BorderWidth, BorderWidth);
+
 pub trait IntoBorderPair {
-    fn into_border_pair(self) -> Option<(Length, Length)>;
+    fn into_border_pair(self) -> Option<BorderPair>;
 }
 
-impl IntoBorderPair for Length {
+impl IntoBorderPair for BorderWidth {
     #[inline]
-    fn into_border_pair(self) -> Option<(Length, Length)> {
+    fn into_border_pair(self) -> Option<BorderPair> {
         Some((self, self))
     }
 }
 
-impl IntoBorderPair for [Length; 1] {
+impl IntoBorderPair for [BorderWidth; 1] {
     #[inline]
-    fn into_border_pair(self) -> Option<(Length, Length)> {
+    fn into_border_pair(self) -> Option<BorderPair> {
         Some((self[0], self[0]))
     }
 }
 
-impl IntoBorderPair for [Length; 2] {
+impl IntoBorderPair for [BorderWidth; 2] {
     #[inline]
-    fn into_border_pair(self) -> Option<(Length, Length)> {
+    fn into_border_pair(self) -> Option<BorderPair> {
         Some((self[0], self[1]))
     }
 }

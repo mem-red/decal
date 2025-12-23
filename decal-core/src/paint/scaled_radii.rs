@@ -13,10 +13,22 @@ pub(crate) struct ScaledRadii {
 }
 
 pub(crate) fn compute_scaled_radii(r: CornerRadius, w: f32, h: f32) -> ScaledRadii {
-    let (mut h_tl, mut v_tl) = (r.top_left.resolve_abs(w), r.top_left.resolve_abs(h));
-    let (mut h_tr, mut v_tr) = (r.top_right.resolve_abs(w), r.top_right.resolve_abs(h));
-    let (mut h_br, mut v_br) = (r.bottom_right.resolve_abs(w), r.bottom_right.resolve_abs(h));
-    let (mut h_bl, mut v_bl) = (r.bottom_left.resolve_abs(w), r.bottom_left.resolve_abs(h));
+    let (mut h_tl, mut v_tl) = (
+        r.top_left.resolve_abs(w).unwrap_or_default(),
+        r.top_left.resolve_abs(h).unwrap_or_default(),
+    );
+    let (mut h_tr, mut v_tr) = (
+        r.top_right.resolve_abs(w).unwrap_or_default(),
+        r.top_right.resolve_abs(h).unwrap_or_default(),
+    );
+    let (mut h_br, mut v_br) = (
+        r.bottom_right.resolve_abs(w).unwrap_or_default(),
+        r.bottom_right.resolve_abs(h).unwrap_or_default(),
+    );
+    let (mut h_bl, mut v_bl) = (
+        r.bottom_left.resolve_abs(w).unwrap_or_default(),
+        r.bottom_left.resolve_abs(h).unwrap_or_default(),
+    );
 
     // scale all the radii by min ratio if adjacent radii exceed the available edge length
     let mut scale = 1.0_f32;

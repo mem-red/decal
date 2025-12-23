@@ -26,7 +26,7 @@ where
     }
 }
 
-impl Default for Rect<Length> {
+impl<const AUTO: bool, const PERCENT: bool> Default for Rect<Length<AUTO, PERCENT>> {
     fn default() -> Self {
         Self::from_values(
             Length::zero(),
@@ -37,7 +37,9 @@ impl Default for Rect<Length> {
     }
 }
 
-impl Into<taffy::Rect<taffy::LengthPercentage>> for Rect<Length> {
+impl<const PERCENT: bool> Into<taffy::Rect<taffy::LengthPercentage>>
+    for Rect<Length<false, PERCENT>>
+{
     fn into(self) -> taffy::Rect<taffy::LengthPercentage> {
         taffy::Rect {
             top: self.top.into(),
@@ -48,7 +50,9 @@ impl Into<taffy::Rect<taffy::LengthPercentage>> for Rect<Length> {
     }
 }
 
-impl Into<taffy::Rect<taffy::LengthPercentageAuto>> for Rect<Length> {
+impl<const AUTO: bool, const PERCENT: bool> Into<taffy::Rect<taffy::LengthPercentageAuto>>
+    for Rect<Length<AUTO, PERCENT>>
+{
     fn into(self) -> taffy::Rect<taffy::LengthPercentageAuto> {
         taffy::Rect {
             top: self.top.into(),
