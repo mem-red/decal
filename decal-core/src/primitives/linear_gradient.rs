@@ -1,5 +1,5 @@
 use crate::paint::ResourceIri;
-use crate::prelude::Color;
+use crate::primitives::Color;
 use crate::primitives::{GradientTransform, GradientUnits, Length, SpreadMethod, Stop};
 use crate::utils::IsDefault;
 use std::fmt::{Display, Formatter};
