@@ -1,6 +1,6 @@
 use crate::paint::ResourceIri;
 use crate::primitives::{GradientTransform, GradientUnits, Length, SpreadMethod, Stop};
-use crate::utils::IsDefault;
+use crate::utils::{IsDefault, angle_to_line};
 use std::fmt::{Display, Formatter};
 
 type GradientUnit = Length<false, true>;
@@ -36,6 +36,82 @@ impl LinearGradient {
     pub fn new() -> Self {
         LinearGradient::default()
     }
+
+    pub fn angle<T>(angle: T) -> Self
+    where
+        T: Into<f32>,
+    {
+        let (x1, y1, x2, y2) = angle_to_line(angle.into());
+        LinearGradient {
+            x1: GradientUnit::percent_normalized(x1),
+            y1: GradientUnit::percent_normalized(y1),
+            x2: GradientUnit::percent_normalized(x2),
+            y2: GradientUnit::percent_normalized(y2),
+            ..Default::default()
+        }
+    }
+
+    pub fn top() -> Self {
+        Self::new()
+            .x1(Length::zero())
+            .y1(Length::percent(100))
+            .x2(Length::zero())
+            .y2(Length::zero())
+    }
+
+    pub fn right() -> Self {
+        Self::new()
+    }
+
+    pub fn bottom() -> Self {
+        Self::new()
+            .x1(Length::zero())
+            .y1(Length::zero())
+            .x2(Length::zero())
+            .y2(Length::percent(100))
+    }
+
+    pub fn left() -> Self {
+        Self::new()
+            .x1(Length::percent(100))
+            .y1(Length::zero())
+            .x2(Length::zero())
+            .y2(Length::zero())
+    }
+
+    pub fn top_left() -> Self {
+        Self::new()
+            .x1(Length::percent(100))
+            .y1(Length::percent(100))
+            .x2(Length::zero())
+            .y2(Length::zero())
+    }
+
+    pub fn top_right() -> Self {
+        Self::new()
+            .x1(Length::zero())
+            .y1(Length::percent(100))
+            .x2(Length::percent(100))
+            .y2(Length::zero())
+    }
+
+    pub fn bottom_left() -> Self {
+        Self::new()
+            .x1(Length::percent(100))
+            .y1(Length::zero())
+            .x2(Length::zero())
+            .y2(Length::percent(100))
+    }
+
+    pub fn bottom_right() -> Self {
+        Self::new()
+            .x1(Length::zero())
+            .y1(Length::zero())
+            .x2(Length::percent(100))
+            .y2(Length::percent(100))
+    }
+
+    //
 
     pub fn stop<T>(mut self, value: T) -> Self
     where
