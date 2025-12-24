@@ -1,11 +1,14 @@
+use enum_display::EnumDisplay;
 use quick_xml::escape::escape;
-use std::fmt::Display;
 use taffy::Size;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, EnumDisplay)]
 pub enum ImageSource {
+    #[display("{0}")]
     Url(String),
+    #[display("{0}")]
     DataUri(String),
+    #[display("{0}")]
     Svg(String),
 }
 
@@ -86,19 +89,5 @@ impl From<String> for ImageSource {
 impl From<&str> for ImageSource {
     fn from(value: &str) -> Self {
         ImageSource::Url(escape(value).to_string())
-    }
-}
-
-impl Display for ImageSource {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                ImageSource::Url(url) => url,
-                ImageSource::DataUri(uri) => uri,
-                ImageSource::Svg(svg) => svg,
-            }
-        )
     }
 }

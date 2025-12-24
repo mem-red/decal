@@ -1,20 +1,13 @@
 use crate::utils::IsDefault;
-use std::fmt::{Display, Formatter};
+use enum_display::EnumDisplay;
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, Default, EnumDisplay)]
 pub enum GradientUnits {
-    UserSpaceOnUse,
     #[default]
+    #[display("objectBoundingBox")]
     ObjectBoundingBox,
+    #[display("userSpaceOnUse")]
+    UserSpaceOnUse,
 }
 
 impl IsDefault for GradientUnits {}
-
-impl Display for GradientUnits {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match self {
-            GradientUnits::UserSpaceOnUse => "userSpaceOnUse",
-            GradientUnits::ObjectBoundingBox => "objectBoundingBox",
-        })
-    }
-}

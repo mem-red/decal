@@ -6,45 +6,30 @@ use crate::paint::{Resource, ResourceIri};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
 use crate::primitives::ClipPath;
 use crate::{builders::RootMeta, prelude::ImageMeta};
-use std::fmt::{Display, Write};
+use enum_display::EnumDisplay;
+use std::fmt::Write;
 use std::sync::{Arc, Mutex};
 use taffy::{Cache, Point, Size, prelude::*};
 use thiserror::Error;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, EnumDisplay)]
 pub(crate) enum NodeKind {
+    #[display("Root: {0:?}")]
     Root(RootMeta),
     Block,
     Flex,
     Column,
     Row,
     Grid,
+    #[display("Text: {0}")]
     Text(TextMeta),
+    #[display("Image: {0:?}")]
     Image(ImageMeta),
 }
 
 impl NodeKind {
     pub(crate) fn is_atomic(&self) -> bool {
         matches!(self, NodeKind::Text(_) | NodeKind::Image(_))
-    }
-}
-
-impl Display for NodeKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                NodeKind::Root(meta) => format!("Root: {meta:?}"),
-                NodeKind::Block => "Block".into(),
-                NodeKind::Flex => "Flex".into(),
-                NodeKind::Column => "Column".into(),
-                NodeKind::Row => "Row".into(),
-                NodeKind::Grid => "Grid".into(),
-                NodeKind::Text(meta) => format!("Text: {meta}"),
-                NodeKind::Image(meta) => format!("Image: {meta:?}"),
-            }
-        )
     }
 }
 

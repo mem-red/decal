@@ -1,22 +1,15 @@
 use crate::utils::IsDefault;
-use std::fmt::{Display, Formatter};
+use enum_display::EnumDisplay;
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, Default, EnumDisplay)]
 pub enum SpreadMethod {
     #[default]
+    #[display("pad")]
     Pad,
+    #[display("reflect")]
     Reflect,
+    #[display("repeat")]
     Repeat,
 }
 
 impl IsDefault for SpreadMethod {}
-
-impl Display for SpreadMethod {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match self {
-            SpreadMethod::Pad => "pad",
-            SpreadMethod::Reflect => "reflect",
-            SpreadMethod::Repeat => "repeat",
-        })
-    }
-}
