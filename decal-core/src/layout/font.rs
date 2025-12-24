@@ -16,8 +16,8 @@ pub struct FontRegistry {
     pub(crate) default_family: &'static str,
 }
 
-impl FontRegistry {
-    pub fn new() -> Self {
+impl Default for FontRegistry {
+    fn default() -> Self {
         Self {
             system: FontSystem::new(),
             aliases: HashMap::new(),
@@ -25,6 +25,12 @@ impl FontRegistry {
             swash_cache: SwashCache::new(),
             default_family: DEFAULT_FONT_FAMILY,
         }
+    }
+}
+
+impl FontRegistry {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn load_font<T>(mut self, alias: &str, data: T) -> Self
