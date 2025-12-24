@@ -34,7 +34,19 @@ impl<const AUTO: bool> Length<AUTO, true> {
         Self(LengthInner::Percent(ff32!(value / 100.0)))
     }
 
+    #[must_use]
+    pub fn percent_normalized<T>(value: T) -> Self
+    where
+        T: Into<f64>,
+    {
+        Self(LengthInner::Percent(ff32!(value.into() as f32)))
+    }
+
     pub(crate) fn get_percent(&self) -> Option<f32> {
+        self.get_percent_normalized().map(|x| x * 100.0)
+    }
+
+    pub(crate) fn get_percent_normalized(&self) -> Option<f32> {
         match self.0 {
             LengthInner::Percent(pc) => Some(pc.get()),
             _ => None,
@@ -88,7 +100,7 @@ impl<const AUTO: bool, const PERCENT: bool> Display for Length<AUTO, PERCENT> {
             LengthInner::Auto => f.write_str("auto"),
             LengthInner::Pixels(px) => f.write_fmt(format_args!("{px}")),
             LengthInner::Percent(pc) => {
-                FloatWriter::write_float(f, pc.get())?;
+                FloatWriter::write_float(f, pc.get() * 100.0)?;
                 f.write_char('%')
             }
         }
