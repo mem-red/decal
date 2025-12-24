@@ -1,4 +1,5 @@
 mod alignment;
+mod blend_mode;
 mod clip_path;
 mod color;
 mod corner;
@@ -23,6 +24,7 @@ mod stop;
 mod transform;
 
 pub use alignment::*;
+pub use blend_mode::*;
 pub use color::*;
 pub use corner::*;
 pub use display::*;
