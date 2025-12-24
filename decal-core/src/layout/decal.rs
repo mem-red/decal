@@ -1,4 +1,4 @@
-use crate::layout::{FontRegistry, ImageCache, Node, NodeKind, RasterizeOptions};
+use crate::layout::{FontRegistry, ImageCache, ImageOptions, Node, NodeKind, RasterizeOptions};
 use crate::layout::{NodeId, VectorizeError};
 use crate::layout::{Typography, VectorizeOptions};
 use crate::paint::Resources;
@@ -147,10 +147,13 @@ impl Decal {
         }
 
         let tf = options.root_transform;
-        let usvg_options = usvg::Options {
+        let mut usvg_options = usvg::Options {
+            shape_rendering: options.shape_rendering,
+            text_rendering: options.text_rendering,
+            image_rendering: options.image_rendering,
             image_href_resolver: ImageHrefResolver {
                 resolve_string: Box::new(move |href: &str, _opts: &usvg::Options| {
-                    let bytes = fetch_image_cached(image_cache, href)?;
+                    let bytes = fetch_image_cached(image_cache, href, &options.image)?;
                     let kind = infer::get(&bytes)?;
 
                     Some(match kind.mime_type() {
@@ -165,6 +168,19 @@ impl Decal {
             },
             ..Default::default()
         };
+
+        if let Some(ref resolve_string) = options.image.href_string_resolver {
+            usvg_options.image_href_resolver.resolve_string =
+                Box::new(move |href: &str, opts: &usvg::Options| resolve_string(href, opts));
+        }
+
+        if let Some(ref resolve_data) = options.image.href_data_resolver {
+            usvg_options.image_href_resolver.resolve_data = Box::new(
+                move |mime: &str, data: Arc<Vec<u8>>, opts: &usvg::Options| {
+                    resolve_data(mime, data, opts)
+                },
+            );
+        }
 
         let svg = self.vectorize(&options.vectorize_options)?;
         let tree = Tree::from_str(&svg, &usvg_options).map_err(RasterizeError::Parse)?;
@@ -256,10 +272,23 @@ impl Decal {
 }
 
 //noinspection HttpUrlsUsage
-fn fetch_image_cached(image_cache: &ImageCache, href: &str) -> Option<Arc<Vec<u8>>> {
-    if let Ok(cache) = image_cache.lock() {
-        if let Some(bytes) = cache.get(href).map(|x| x.clone()) {
-            return Some(bytes);
+fn fetch_image_cached(
+    image_cache: &ImageCache,
+    href: &str,
+    opts: &ImageOptions,
+) -> Option<Arc<Vec<u8>>> {
+    let skip_cache = opts.disable_caching
+        || opts.cache_ignore_list.iter().any(|item| item == href)
+        || opts
+            .cache_ignore_fn
+            .as_ref()
+            .is_some_and(|ignore_fn| ignore_fn(href));
+
+    if !skip_cache {
+        if let Ok(mut cache) = image_cache.lock() {
+            if let Some(bytes) = cache.get(href).map(|x| x.clone()) {
+                return Some(bytes);
+            }
         }
     }
 
@@ -274,8 +303,10 @@ fn fetch_image_cached(image_cache: &ImageCache, href: &str) -> Option<Arc<Vec<u8
             {
                 let data = Arc::new(buf);
 
-                if let Ok(mut cache) = image_cache.lock() {
-                    cache.insert(href.to_owned(), data.clone());
+                if !skip_cache {
+                    if let Ok(mut cache) = image_cache.lock() {
+                        cache.push(href.to_owned(), data.clone());
+                    }
                 }
 
                 return Some(data);

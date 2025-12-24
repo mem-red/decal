@@ -1,17 +1,27 @@
 use crate::layout::font::FontRegistry;
 use crate::layout::{Decal, RasterizeError, RasterizeOptions, VectorizeError, VectorizeOptions};
-use hashbrown::HashMap;
+use lru::LruCache;
+use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
 use tiny_skia::Pixmap;
 
-pub(crate) type ImageCache = Arc<Mutex<HashMap<String, Arc<Vec<u8>>>>>;
+pub(crate) type ImageCache = Arc<Mutex<LruCache<String, Arc<Vec<u8>>>>>;
+
+const DEFAULT_IMAGE_CACHE_CAP: NonZeroUsize = NonZeroUsize::new(128).expect("128 is non-zero");
 
 #[derive(Debug)]
-pub struct EngineOptions<F>
-where
-    F: Into<FontRegistry>,
-{
-    pub fonts: F,
+pub struct EngineOptions {
+    pub fonts: FontRegistry,
+    pub image_cache_capacity: NonZeroUsize,
+}
+
+impl Default for EngineOptions {
+    fn default() -> Self {
+        Self {
+            fonts: FontRegistry::default(),
+            image_cache_capacity: DEFAULT_IMAGE_CACHE_CAP,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -21,13 +31,10 @@ pub struct Engine {
 }
 
 impl Engine {
-    pub fn new<F>(options: EngineOptions<F>) -> Self
-    where
-        F: Into<FontRegistry>,
-    {
+    pub fn new(options: EngineOptions) -> Self {
         Self {
-            fonts: Arc::new(Mutex::new(options.fonts.into())),
-            image_cache: Arc::new(Mutex::new(HashMap::new())),
+            fonts: Arc::new(Mutex::new(options.fonts)),
+            image_cache: Arc::new(Mutex::new(LruCache::new(options.image_cache_capacity))),
         }
     }
 
