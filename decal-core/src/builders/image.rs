@@ -3,6 +3,7 @@ use crate::layout::{ImageMeta, ImageSource, Node, NodeKind, Typography};
 use crate::macros::impl_node_builder;
 use crate::paint::Appearance;
 use crate::paint::Resource;
+use crate::primitives::CrossOrigin;
 use taffy::prelude::*;
 
 #[derive(Debug, Default)]
@@ -47,6 +48,14 @@ impl Image {
             },
             ..Default::default()
         }
+    }
+
+    pub fn cross_origin<T>(mut self, cross_origin: T) -> Self
+    where
+        T: Into<Option<CrossOrigin>>,
+    {
+        self.meta.cross_origin = cross_origin.into();
+        self
     }
 }
 

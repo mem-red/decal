@@ -1,6 +1,6 @@
 use enum_display::EnumDisplay;
 
-#[derive(Debug, Copy, Clone, EnumDisplay)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, EnumDisplay)]
 pub enum CrossOrigin {
     #[display("anonymous")]
     Anonymous,
