@@ -251,6 +251,10 @@ impl Node {
                             .transform
                             .write(out, (x, y), (0.0, 0.0), (w, h))?;
 
+                        if let Some(cross_origin) = meta.cross_origin {
+                            write!(out, r#" crossorigin="{cross_origin}""#)?;
+                        }
+
                         write!(out, " />")?;
                     }
 

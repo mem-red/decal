@@ -1,3 +1,4 @@
+use crate::primitives::CrossOrigin;
 use enum_display::EnumDisplay;
 use quick_xml::escape::escape;
 use taffy::Size;
@@ -17,6 +18,7 @@ pub(crate) struct ImageMeta {
     pub(crate) source: ImageSource,
     pub(crate) width: f32,
     pub(crate) height: f32,
+    pub(crate) cross_origin: Option<CrossOrigin>,
 }
 
 impl ImageMeta {
