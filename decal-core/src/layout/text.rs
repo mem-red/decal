@@ -66,14 +66,14 @@ impl TextMeta {
             return Ok(());
         };
 
-        write!(out, r#"<g"#)?;
+        write!(out, "<g")?;
 
         if appearance.opacity != 1.0 {
-            write!(out, r#" opacity="{}" "#, appearance.opacity)?;
+            write!(out, r#" opacity="{}""#, appearance.opacity)?;
         }
 
         transform.write(out, offset, (0.0, 0.0), (self.width, self.height))?;
-        write!(out, r#" >"#)?;
+        write!(out, r#">"#)?;
 
         for run in buffer.layout_runs() {
             let line_y = run.line_y;
@@ -88,13 +88,14 @@ impl TextMeta {
                     .get_outline_commands(font_system, cache_key)
                     .filter(|x| is_drawable(*x))
                 {
-                    let span_fill = self
-                        .spans
-                        .get(glyph.metadata)
-                        .and_then(|span| span.typography.color.clone())
-                        .unwrap_or(DEFAULT_COLOR.into());
-
-                    write!(out, r#"<path fill="{span_fill}" d=""#)?;
+                    write!(
+                        out,
+                        r#"<path fill="{}" d=""#,
+                        self.spans
+                            .get(glyph.metadata)
+                            .and_then(|span| span.typography.color.clone())
+                            .unwrap_or(DEFAULT_COLOR.into())
+                    )?;
 
                     let mut d = PathWriter::new(out);
 
@@ -151,7 +152,7 @@ impl TextMeta {
             }
         }
 
-        write!(out, r#"</g>"#)?;
+        write!(out, "</g>")?;
 
         Ok(())
     }
