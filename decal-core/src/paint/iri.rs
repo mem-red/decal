@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
 use twox_hash::XxHash3_64;
 
-const PREFIX: &'static str = "dcl";
+const PREFIX: &'static str = "decal";
 
 #[derive(Debug)]
 pub(crate) struct Iri(u64);
