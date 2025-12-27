@@ -18,11 +18,21 @@ enum TransformOperation {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Transform(Vec<TransformOperation>);
+pub struct Transform {
+    initial_tf: Option<usvg::Transform>,
+    operations: Vec<TransformOperation>,
+}
 
 impl Transform {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn matrix(sx: f32, ky: f32, kx: f32, sy: f32, tx: f32, ty: f32) -> Self {
+        Transform {
+            initial_tf: Some(usvg::Transform::from_row(sx, ky, kx, sy, tx, ty)),
+            ..Default::default()
+        }
     }
 
     //
@@ -32,7 +42,7 @@ impl Transform {
         T: IntoFloatPair,
     {
         let (x, y) = value.into_float_pair();
-        self.0.push(TransformOperation::Translate(x, y));
+        self.operations.push(TransformOperation::Translate(x, y));
         self
     }
 
@@ -40,7 +50,7 @@ impl Transform {
     where
         T: Into<f32>,
     {
-        self.0
+        self.operations
             .push(TransformOperation::Translate(value.into(), 0.0));
         self
     }
@@ -49,7 +59,7 @@ impl Transform {
     where
         T: Into<f32>,
     {
-        self.0
+        self.operations
             .push(TransformOperation::Translate(0.0, value.into()));
         self
     }
@@ -61,7 +71,7 @@ impl Transform {
         T: IntoFloatPair,
     {
         let (x, y) = value.into_float_pair();
-        self.0.push(TransformOperation::Scale(x, y));
+        self.operations.push(TransformOperation::Scale(x, y));
         self
     }
 
@@ -69,7 +79,8 @@ impl Transform {
     where
         T: Into<f32>,
     {
-        self.0.push(TransformOperation::Scale(value.into(), 1.0));
+        self.operations
+            .push(TransformOperation::Scale(value.into(), 1.0));
         self
     }
 
@@ -77,7 +88,8 @@ impl Transform {
     where
         T: Into<f32>,
     {
-        self.0.push(TransformOperation::Scale(1.0, value.into()));
+        self.operations
+            .push(TransformOperation::Scale(1.0, value.into()));
         self
     }
 
@@ -87,7 +99,7 @@ impl Transform {
     where
         T: Into<f32>,
     {
-        self.0.push(TransformOperation::Rotate(
+        self.operations.push(TransformOperation::Rotate(
             angle.into(),
             RotationAnchor::Center,
         ));
@@ -98,7 +110,7 @@ impl Transform {
     where
         T: Into<f32>,
     {
-        self.0.push(TransformOperation::Rotate(
+        self.operations.push(TransformOperation::Rotate(
             angle.into(),
             RotationAnchor::Origin,
         ));
@@ -109,7 +121,7 @@ impl Transform {
     where
         T: Into<f32>,
     {
-        self.0.push(TransformOperation::Rotate(
+        self.operations.push(TransformOperation::Rotate(
             angle.into(),
             RotationAnchor::Point(x.into(), y.into()),
         ));
@@ -123,7 +135,7 @@ impl Transform {
         T: IntoFloatPair,
     {
         let (x, y) = value.into_float_pair();
-        self.0.push(TransformOperation::Skew(x, y));
+        self.operations.push(TransformOperation::Skew(x, y));
         self
     }
 
@@ -131,7 +143,8 @@ impl Transform {
     where
         T: Into<f32>,
     {
-        self.0.push(TransformOperation::Skew(angle.into(), 0.0));
+        self.operations
+            .push(TransformOperation::Skew(angle.into(), 0.0));
         self
     }
 
@@ -139,7 +152,8 @@ impl Transform {
     where
         T: Into<f32>,
     {
-        self.0.push(TransformOperation::Skew(0.0, angle.into()));
+        self.operations
+            .push(TransformOperation::Skew(0.0, angle.into()));
         self
     }
 
@@ -155,13 +169,17 @@ impl Transform {
     where
         T: Write,
     {
-        let mut tf = usvg::Transform::from_translate(translate.0, translate.1);
+        let mut tf = self
+            .initial_tf
+            .unwrap_or_default()
+            .post_translate(translate.0, translate.1);
+
         let center = tiny_skia_path::Point {
             x: pos.0 + size.0 / 2.0,
             y: pos.1 + size.1 / 2.0,
         };
 
-        for op in &self.0 {
+        for op in &self.operations {
             // center of obj before ops
             let mut before = center;
             tf.map_point(&mut before);
