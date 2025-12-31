@@ -1,3 +1,4 @@
 pub use crate::{
-    attributes::*, builders::*, capabilities::*, layout::*, macros::*, primitives::*, text::*,
+    attributes::*, builders::*, capabilities::*, filters::*, layout::*, macros::*, primitives::*,
+    text::*,
 };

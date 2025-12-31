@@ -1,10 +1,10 @@
 use crate::builders::TextSpan;
 use crate::layout::{BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry};
 use crate::layout::{DEFAULT_FONT_FAMILY, Typography};
-use crate::paint::Appearance;
+use crate::paint::{Appearance, ResourceIri};
 use crate::primitives::Color;
 use crate::text::{FontStyle, FontWeight};
-use crate::utils::{PathWriter, encode_image};
+use crate::utils::{IsDefault, PathWriter, encode_image};
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;
 use cosmic_text::{Attrs, Buffer, Command, Family, FontSystem, Metrics, Shaping, SwashCache};
@@ -70,6 +70,10 @@ impl TextMeta {
 
         if appearance.opacity != 1.0 {
             write!(out, r#" opacity="{}""#, appearance.opacity)?;
+        }
+
+        if !appearance.filter.is_default() {
+            write!(out, r#" filter="url(#{})""#, appearance.filter.iri())?;
         }
 
         transform.write(out, offset, (0.0, 0.0), (self.width, self.height))?;

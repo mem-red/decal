@@ -75,3 +75,4 @@ impl Transformation for Row {}
 impl Textual for Row {}
 impl SelfAlignment for Row {}
 impl Visibility for Row {}
+impl FilterEffects for Row {}

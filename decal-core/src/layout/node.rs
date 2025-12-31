@@ -5,6 +5,7 @@ use crate::paint::{Appearance, Resources, compute_scaled_radii};
 use crate::paint::{Resource, ResourceIri};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
 use crate::primitives::ClipPath;
+use crate::utils::IsDefault;
 use crate::{builders::RootMeta, prelude::ImageMeta};
 use enum_display::EnumDisplay;
 use std::fmt::Write;
@@ -150,6 +151,10 @@ impl Node {
                     write!(out, r#" opacity="{}""#, self.visual.opacity)?;
                 }
 
+                if !self.visual.filter.is_default() {
+                    write!(out, r#" filter="url(#{})""#, self.visual.filter.iri())?;
+                }
+
                 self.visual.transform.write(
                     out,
                     (0.0, 0.0),
@@ -247,6 +252,10 @@ impl Node {
                             write!(out, r#" opacity="{}""#, self.visual.opacity)?;
                         }
 
+                        if !self.visual.filter.is_default() {
+                            write!(out, r#" filter="url(#{})""#, self.visual.filter.iri())?;
+                        }
+
                         self.visual
                             .transform
                             .write(out, (x, y), (0.0, 0.0), (w, h))?;
@@ -263,6 +272,10 @@ impl Node {
 
                         if self.visual.opacity != 1.0 {
                             write!(out, r#" opacity="{}""#, self.visual.opacity)?;
+                        }
+
+                        if !self.visual.filter.is_default() {
+                            write!(out, r#" filter="url(#{})""#, self.visual.filter.iri())?;
                         }
 
                         self.visual

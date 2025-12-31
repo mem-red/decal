@@ -4,7 +4,7 @@ use crate::layout::Typography;
 use crate::layout::{Node, NodeKind};
 use crate::macros::impl_node_builder;
 use crate::paint::Resource;
-use crate::paint::{Appearance, IntoResource};
+use crate::paint::{Appearance, IntoResources};
 use crate::primitives::Paint;
 use crate::text::{FontStyle, FontWeight};
 use taffy::prelude::*;
@@ -69,6 +69,7 @@ impl Transformation for Text {}
 impl Textual for Text {}
 impl SelfAlignment for Text {}
 impl Visibility for Text {}
+impl FilterEffects for Text {}
 
 #[derive(Debug, Clone)]
 pub struct TextSpan {
@@ -127,8 +128,8 @@ impl TextSpan {
         let color = color.into();
         self.typography.color = color.clone();
 
-        if let Some(resource) = color.and_then(|c| c.into_resource()) {
-            self.resources.push(resource);
+        if let Some(resources) = color.map(|c| c.into_resources()) {
+            self.resources.extend(resources);
         }
 
         self

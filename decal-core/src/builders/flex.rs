@@ -65,3 +65,4 @@ impl Transformation for Flex {}
 impl Textual for Flex {}
 impl SelfAlignment for Flex {}
 impl Visibility for Flex {}
+impl FilterEffects for Flex {}

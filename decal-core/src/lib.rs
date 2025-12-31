@@ -6,6 +6,7 @@ mod utils;
 pub mod attributes;
 pub mod builders;
 pub mod capabilities;
+pub mod filters;
 pub mod layout;
 pub mod macros;
 pub mod prelude;

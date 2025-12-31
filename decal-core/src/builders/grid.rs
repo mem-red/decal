@@ -65,3 +65,4 @@ impl Transformation for Grid {}
 impl Textual for Grid {}
 impl SelfAlignment for Grid {}
 impl Visibility for Grid {}
+impl FilterEffects for Grid {}

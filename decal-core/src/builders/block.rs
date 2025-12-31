@@ -94,3 +94,4 @@ impl Visibility for Block {}
 impl Positioned for Block {}
 impl Transformation for Block {}
 impl Textual for Block {}
+impl FilterEffects for Block {}

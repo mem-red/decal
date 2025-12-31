@@ -75,3 +75,4 @@ impl Transformation for Column {}
 impl Textual for Column {}
 impl SelfAlignment for Column {}
 impl Visibility for Column {}
+impl FilterEffects for Column {}
