@@ -1,3 +1,4 @@
+use crate::macros::nf32;
 use crate::primitives::Color;
 use std::fmt::{Display, Formatter};
 use strict_num::NormalizedF32;
@@ -28,7 +29,7 @@ impl Stop {
     where
         T: Into<f32>,
     {
-        self.offset = NormalizedF32::new_clamped(offset.into());
+        self.offset = nf32!(offset);
         self
     }
 
@@ -52,7 +53,7 @@ impl Stop {
     where
         T: Into<f32>,
     {
-        self.opacity = NormalizedF32::new_clamped(opacity.into());
+        self.opacity = nf32!(opacity);
         self
     }
 }
