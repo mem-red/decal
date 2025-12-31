@@ -38,7 +38,7 @@ impl Display for Merge {
             write!(f, r#"<feMergeNode in="{node}" />"#)?;
         }
 
-        f.write_str(r#"</feMerge>"#)
+        f.write_str("</feMerge>")
     }
 }
 
