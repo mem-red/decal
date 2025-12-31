@@ -1,4 +1,5 @@
 use crate::filters::primitives::PrimitiveBuilder;
+use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
 use crate::primitives::{BlendMode, FilterInput};
 use crate::utils::IsDefault;
@@ -9,6 +10,7 @@ pub struct Blend {
     input: Option<FilterInput>,
     input2: Option<FilterInput>,
     mode: BlendMode,
+    region: FilterRegion,
 }
 
 impl Blend {
@@ -17,11 +19,18 @@ impl Blend {
     }
 }
 
+impl HasFilterRegion for Blend {
+    fn region_mut(&mut self) -> &mut FilterRegion {
+        &mut self.region
+    }
+}
+
 impl ResourceIri for Blend {}
 
 impl Display for Blend {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<feBlend")?;
+        f.write_str("<feBlend")?;
+        self.region.fmt(f)?;
 
         if let Some(input) = self.input {
             write!(f, r#" in="{input}""#)?;

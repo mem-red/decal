@@ -1,4 +1,5 @@
 use crate::filters::primitives::PrimitiveBuilder;
+use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, nf32};
 use crate::paint::ResourceIri;
 use crate::primitives::FilterInput;
@@ -143,6 +144,7 @@ pub struct ComponentTransfer {
     func_g: TransferFunctionInner,
     func_b: TransferFunctionInner,
     func_a: TransferFunctionInner,
+    region: FilterRegion,
 }
 
 impl ComponentTransfer {
@@ -153,9 +155,16 @@ impl ComponentTransfer {
 
 impl ResourceIri for ComponentTransfer {}
 
+impl HasFilterRegion for ComponentTransfer {
+    fn region_mut(&mut self) -> &mut FilterRegion {
+        &mut self.region
+    }
+}
+
 impl Display for ComponentTransfer {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<feComponentTransfer")?;
+        f.write_str("<feComponentTransfer")?;
+        self.region.fmt(f)?;
 
         if let Some(input) = self.input {
             write!(f, r#" in="{input}""#)?;

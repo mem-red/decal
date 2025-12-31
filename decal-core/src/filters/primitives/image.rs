@@ -1,4 +1,5 @@
 use crate::filters::primitives::PrimitiveBuilder;
+use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
 use crate::primitives::CrossOrigin;
 use std::fmt::{Display, Formatter};
@@ -7,6 +8,7 @@ use std::fmt::{Display, Formatter};
 pub struct Image {
     href: String,
     cross_origin: Option<CrossOrigin>,
+    region: FilterRegion,
 }
 
 impl Image {
@@ -20,9 +22,17 @@ impl Image {
 
 impl ResourceIri for Image {}
 
+impl HasFilterRegion for Image {
+    fn region_mut(&mut self) -> &mut FilterRegion {
+        &mut self.region
+    }
+}
+
 impl Display for Image {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, r#"<feImage href="{}""#, self.href)?;
+        f.write_str("<feImage")?;
+        self.region.fmt(f)?;
+        write!(f, r#" href="{}""#, self.href)?;
 
         if let Some(cross_origin) = self.cross_origin {
             write!(f, r#" crossorigin="{}""#, cross_origin)?;

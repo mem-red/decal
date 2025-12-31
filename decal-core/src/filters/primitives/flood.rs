@@ -1,4 +1,5 @@
 use crate::filters::primitives::PrimitiveBuilder;
+use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::nf32;
 use crate::paint::ResourceIri;
 use crate::primitives::Color;
@@ -9,6 +10,7 @@ use strict_num::NormalizedF32;
 pub struct Flood {
     color: Color,
     opacity: NormalizedF32,
+    region: FilterRegion,
 }
 
 impl Default for Flood {
@@ -16,6 +18,7 @@ impl Default for Flood {
         Flood {
             color: Color::rgb(0, 0, 0),
             opacity: NormalizedF32::ONE,
+            region: Default::default(),
         }
     }
 }
@@ -28,9 +31,17 @@ impl Flood {
 
 impl ResourceIri for Flood {}
 
+impl HasFilterRegion for Flood {
+    fn region_mut(&mut self) -> &mut FilterRegion {
+        &mut self.region
+    }
+}
+
 impl Display for Flood {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, r#"<feFlood flood-color="{}""#, self.color)?;
+        f.write_str("<feFlood")?;
+        self.region.fmt(f)?;
+        write!(f, r#" flood-color="{}""#, self.color)?;
 
         if self.opacity != NormalizedF32::ONE {
             write!(f, r#" flood-opacity="{}""#, self.opacity)?;

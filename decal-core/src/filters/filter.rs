@@ -1,5 +1,6 @@
 use crate::filters::context::FilterContext;
 use crate::filters::primitives::FilterPrimitive;
+use crate::filters::{FilterRegion, FilterRegionConfig, HasFilterRegion};
 use crate::paint::ResourceIri;
 use crate::primitives::{FilterUnits, PrimitiveUnits};
 use crate::utils::IsDefault;
@@ -11,6 +12,7 @@ pub struct Filter {
     filter_units: FilterUnits,
     primitive_units: PrimitiveUnits,
     primitives: Vec<FilterPrimitive>,
+    region: FilterRegion,
 }
 
 impl Filter {
@@ -50,12 +52,21 @@ impl Filter {
     }
 }
 
+impl HasFilterRegion for Filter {
+    fn region_mut(&mut self) -> &mut FilterRegion {
+        &mut self.region
+    }
+}
+
+impl FilterRegionConfig for Filter {}
 impl IsDefault for Filter {}
 impl ResourceIri for Filter {}
 
 impl Display for Filter {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, r#"<filter id="{}""#, self.iri())?;
+        f.write_str("<filter")?;
+        self.region.fmt(f)?;
+        write!(f, r#" id="{}""#, self.iri())?;
 
         if !self.filter_units.is_default() {
             write!(f, r#" filterUnits="{}""#, self.filter_units)?;

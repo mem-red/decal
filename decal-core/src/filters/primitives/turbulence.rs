@@ -1,4 +1,5 @@
 use crate::filters::primitives::PrimitiveBuilder;
+use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
 use crate::primitives::PositiveF32Pair;
 use crate::utils::IsDefault;
@@ -22,6 +23,7 @@ pub struct Turbulence {
     num_octaves: u64,
     seed: u64,
     kind: TurbulenceType,
+    region: FilterRegion,
 }
 
 impl Default for Turbulence {
@@ -31,6 +33,7 @@ impl Default for Turbulence {
             num_octaves: 1,
             seed: 0,
             kind: Default::default(),
+            region: Default::default(),
         }
     }
 }
@@ -43,9 +46,16 @@ impl Turbulence {
 
 impl ResourceIri for Turbulence {}
 
+impl HasFilterRegion for Turbulence {
+    fn region_mut(&mut self) -> &mut FilterRegion {
+        &mut self.region
+    }
+}
+
 impl Display for Turbulence {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<feTurbulence")?;
+        f.write_str("<feTurbulence")?;
+        self.region.fmt(f)?;
 
         if !self.kind.is_default() {
             write!(f, r#" type="{}""#, self.kind)?;

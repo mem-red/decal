@@ -1,4 +1,5 @@
 use crate::filters::primitives::PrimitiveBuilder;
+use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, pf32};
 use crate::paint::ResourceIri;
 use crate::primitives::FilterInput;
@@ -54,6 +55,7 @@ impl ColorMatrixType {
 pub struct ColorMatrix {
     input: Option<FilterInput>,
     kind: ColorMatrixType,
+    region: FilterRegion,
 }
 
 impl ColorMatrix {
@@ -64,9 +66,16 @@ impl ColorMatrix {
 
 impl ResourceIri for ColorMatrix {}
 
+impl HasFilterRegion for ColorMatrix {
+    fn region_mut(&mut self) -> &mut FilterRegion {
+        &mut self.region
+    }
+}
+
 impl Display for ColorMatrix {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, r#"<feColorMatrix"#)?;
+        f.write_str("<feColorMatrix")?;
+        self.region.fmt(f)?;
 
         match self.kind {
             ColorMatrixType::Matrix(matrix) => {

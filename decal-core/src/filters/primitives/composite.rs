@@ -1,4 +1,5 @@
 use crate::filters::primitives::PrimitiveBuilder;
+use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::ff32;
 use crate::paint::ResourceIri;
 use crate::primitives::FilterInput;
@@ -79,6 +80,7 @@ pub struct Composite {
     input: Option<FilterInput>,
     input2: Option<FilterInput>,
     operator: CompositeOperatorInner,
+    region: FilterRegion,
 }
 
 impl Composite {
@@ -89,9 +91,16 @@ impl Composite {
 
 impl ResourceIri for Composite {}
 
+impl HasFilterRegion for Composite {
+    fn region_mut(&mut self) -> &mut FilterRegion {
+        &mut self.region
+    }
+}
+
 impl Display for Composite {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<feComposite")?;
+        f.write_str("<feComposite")?;
+        self.region.fmt(f)?;
 
         if let Some(input) = self.input {
             write!(f, r#" in="{input}""#)?;

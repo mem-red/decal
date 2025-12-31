@@ -1,4 +1,5 @@
 use crate::filters::primitives::PrimitiveBuilder;
+use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
 use crate::primitives::{EdgeMode, FilterInput, PositiveF32Pair};
 use crate::utils::IsDefault;
@@ -9,6 +10,7 @@ pub struct Blur {
     input: Option<FilterInput>,
     std_deviation: PositiveF32Pair,
     edge_mode: EdgeMode,
+    region: FilterRegion,
 }
 
 impl Blur {
@@ -19,9 +21,16 @@ impl Blur {
 
 impl ResourceIri for Blur {}
 
+impl HasFilterRegion for Blur {
+    fn region_mut(&mut self) -> &mut FilterRegion {
+        &mut self.region
+    }
+}
+
 impl Display for Blur {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<feGaussianBlur")?;
+        f.write_str("<feGaussianBlur")?;
+        self.region.fmt(f)?;
 
         if let Some(input) = self.input {
             write!(f, r#" in="{input}""#)?;

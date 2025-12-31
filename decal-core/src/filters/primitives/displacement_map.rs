@@ -1,4 +1,5 @@
 use crate::filters::primitives::PrimitiveBuilder;
+use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::ff32;
 use crate::paint::ResourceIri;
 use crate::primitives::FilterInput;
@@ -29,6 +30,7 @@ pub struct DisplacementMap {
     scale: FiniteF32,
     x_channel_selector: ChannelSelector,
     y_channel_selector: ChannelSelector,
+    region: FilterRegion,
 }
 
 impl DisplacementMap {
@@ -39,9 +41,16 @@ impl DisplacementMap {
 
 impl ResourceIri for DisplacementMap {}
 
+impl HasFilterRegion for DisplacementMap {
+    fn region_mut(&mut self) -> &mut FilterRegion {
+        &mut self.region
+    }
+}
+
 impl Display for DisplacementMap {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<feDisplacementMap")?;
+        f.write_str("<feDisplacementMap")?;
+        self.region.fmt(f)?;
 
         if let Some(input) = self.input {
             write!(f, r#" in="{input}""#)?;
