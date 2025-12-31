@@ -98,7 +98,7 @@ impl<const AUTO: bool, const PERCENT: bool> Display for Length<AUTO, PERCENT> {
         match self.0 {
             LengthInner::Zero => f.write_char('0'),
             LengthInner::Auto => f.write_str("auto"),
-            LengthInner::Pixels(px) => f.write_fmt(format_args!("{px}")),
+            LengthInner::Pixels(px) => f.write_float(px.get()),
             LengthInner::Percent(pc) => {
                 f.write_float(pc.get() * 100.0)?;
                 f.write_char('%')
