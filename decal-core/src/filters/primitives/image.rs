@@ -4,7 +4,7 @@ use crate::paint::ResourceIri;
 use crate::primitives::CrossOrigin;
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct Image {
     href: String,
     cross_origin: Option<CrossOrigin>,
@@ -15,7 +15,8 @@ impl Image {
     pub(crate) fn new(href: &str) -> Self {
         Image {
             href: href.to_string(),
-            ..Default::default()
+            cross_origin: None,
+            region: Default::default(),
         }
     }
 }
