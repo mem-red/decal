@@ -1,6 +1,6 @@
 use crate::filters::primitives::{
     Blend, Blur, ColorMatrix, ComponentTransfer, Composite, DisplacementMap, Flood, Image, Merge,
-    Turbulence,
+    SpecularLighting, Turbulence,
 };
 use crate::paint::{Iri, ResourceIri};
 use std::fmt::{Display, Formatter};
@@ -17,6 +17,7 @@ pub enum FilterPrimitive {
     Composite(Composite),
     Blend(Blend),
     Merge(Merge),
+    SpecularLighting(SpecularLighting),
 }
 
 impl Display for FilterPrimitive {
@@ -32,6 +33,7 @@ impl Display for FilterPrimitive {
             Self::Composite(composite) => composite.fmt(f),
             Self::Blend(blend) => blend.fmt(f),
             Self::Merge(merge) => merge.fmt(f),
+            Self::SpecularLighting(lighting) => lighting.fmt(f),
         }
     }
 }
@@ -49,6 +51,7 @@ impl ResourceIri for FilterPrimitive {
             Self::Composite(composite) => composite.iri(),
             Self::Blend(blend) => blend.iri(),
             Self::Merge(merge) => merge.iri(),
+            Self::SpecularLighting(lighting) => lighting.iri(),
         }
     }
 }
@@ -112,5 +115,11 @@ impl From<Blend> for FilterPrimitive {
 impl From<Merge> for FilterPrimitive {
     fn from(value: Merge) -> Self {
         Self::Merge(value)
+    }
+}
+
+impl From<SpecularLighting> for FilterPrimitive {
+    fn from(value: SpecularLighting) -> Self {
+        Self::SpecularLighting(value)
     }
 }

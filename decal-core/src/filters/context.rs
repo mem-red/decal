@@ -1,9 +1,11 @@
 use crate::filters::primitives::{
-    Blend, Blur, ColorMatrix, DisplacementMap, Flood, Merge, PrimitiveBuilder, Turbulence,
+    Blend, Blur, ColorMatrix, DisplacementMap, Flood, Merge, PrimitiveBuilder, SpecularLighting,
+    Turbulence,
 };
 use crate::filters::primitives::{ComponentTransfer, FilterPrimitive};
 use crate::filters::primitives::{Composite, Image};
 use crate::paint::{Iri, ResourceIri};
+use crate::primitives::LightSource;
 use hashbrown::HashMap;
 use std::sync::Mutex;
 
@@ -67,6 +69,13 @@ impl<'a> FilterContext {
 
     pub fn merge(&self) -> PrimitiveBuilder<'_, Merge> {
         PrimitiveBuilder::new(self, Merge::new())
+    }
+
+    pub fn specular_lighting(
+        &self,
+        light_source: LightSource,
+    ) -> PrimitiveBuilder<'_, SpecularLighting> {
+        PrimitiveBuilder::new(self, SpecularLighting::new(light_source))
     }
 
     //

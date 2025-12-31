@@ -8,6 +8,7 @@ mod displacement_map;
 mod flood;
 mod image;
 mod merge;
+mod specular_lighting;
 mod turbulence;
 mod variants;
 
@@ -21,5 +22,6 @@ pub use displacement_map::*;
 pub use flood::*;
 pub use image::*;
 pub use merge::*;
+pub use specular_lighting::*;
 pub use turbulence::*;
 pub use variants::*;
