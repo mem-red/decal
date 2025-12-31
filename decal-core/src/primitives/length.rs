@@ -100,7 +100,7 @@ impl<const AUTO: bool, const PERCENT: bool> Display for Length<AUTO, PERCENT> {
             LengthInner::Auto => f.write_str("auto"),
             LengthInner::Pixels(px) => f.write_fmt(format_args!("{px}")),
             LengthInner::Percent(pc) => {
-                FloatWriter::write_float(f, pc.get() * 100.0)?;
+                f.write_float(pc.get() * 100.0)?;
                 f.write_char('%')
             }
         }
