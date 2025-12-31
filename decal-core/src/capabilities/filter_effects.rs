@@ -8,7 +8,7 @@ pub trait FilterEffects: Drawable {
     {
         let filter = value.into();
         self.visual_mut().filter = filter.clone();
-        self.add_resource(filter);
+        self.add_resources(filter);
 
         self
     }

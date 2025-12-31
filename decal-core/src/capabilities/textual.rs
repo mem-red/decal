@@ -11,7 +11,7 @@ pub trait Textual: Drawable {
         self.typography_mut().color = color.clone();
 
         if let Some(color) = color {
-            self.add_resource(color);
+            self.add_resources(color);
         }
 
         self

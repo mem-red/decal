@@ -8,7 +8,7 @@ pub trait Background: Drawable {
     {
         let background = value.into_paint().unwrap_or(crate::primitives::Paint::None);
         self.visual_mut().background = background.clone();
-        self.add_resource(background);
+        self.add_resources(background);
 
         self
     }

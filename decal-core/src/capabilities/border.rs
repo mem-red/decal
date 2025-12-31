@@ -53,7 +53,7 @@ pub trait Border: Drawable {
     {
         let border = value.into_paint().unwrap_or(crate::primitives::Paint::None);
         self.visual_mut().border = border.clone();
-        self.add_resource(border);
+        self.add_resources(border);
 
         self
     }
