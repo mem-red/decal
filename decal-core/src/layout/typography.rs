@@ -2,16 +2,16 @@ use crate::primitives::Paint;
 use crate::text::{FontStyle, FontWeight, TextAlign, TextWrap};
 
 #[derive(Debug, Clone, Default)]
-pub struct Typography {
-    pub family: Option<String>,
-    pub size: Option<f32>,
-    pub line_height: Option<f32>,
-    pub weight: Option<FontWeight>,
-    pub color: Option<Paint>,
-    pub style: Option<FontStyle>,
-    pub letter_spacing: Option<f32>,
-    pub align: Option<TextAlign>,
-    pub wrap: Option<TextWrap>,
+pub(crate) struct Typography {
+    pub(crate) family: Option<String>,
+    pub(crate) size: Option<f32>,
+    pub(crate) line_height: Option<f32>,
+    pub(crate) weight: Option<FontWeight>,
+    pub(crate) color: Option<Paint>,
+    pub(crate) style: Option<FontStyle>,
+    pub(crate) letter_spacing: Option<f32>,
+    pub(crate) align: Option<TextAlign>,
+    pub(crate) wrap: Option<TextWrap>,
     // TODO pub word_spacing: Option<f32>,
     // TODO pub decoration: Option<TextDecoration>,
     // computed
@@ -20,7 +20,7 @@ pub struct Typography {
 
 impl Typography {
     //noinspection RsLiveness
-    pub fn cascade_from(&mut self, parent: &Typography) {
+    pub(crate) fn cascade_from(&mut self, parent: &Typography) {
         macro_rules! inherit {
             ($field:ident) => {
                 if self.$field.is_none() {
