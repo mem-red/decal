@@ -1,62 +1,61 @@
-use crate::primitives::{ClipPath, Filter, LinearGradient, Paint, Pattern, RadialGradient};
-use std::fmt::{Display, Formatter};
+use crate::filters::Filter;
+use crate::primitives::{ClipPath, LinearGradient, Paint, Pattern, RadialGradient};
+use crate::utils::IsDefault;
+use enum_display::EnumDisplay;
 use std::hash::Hash;
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, EnumDisplay)]
 pub(crate) enum Resource {
+    #[display("{0}")]
     LinearGradient(LinearGradient),
+    #[display("{0}")]
     RadialGradient(RadialGradient),
+    #[display("{0}")]
     Pattern(Pattern),
+    #[display("{0}")]
     ClipPath(ClipPath),
+    #[display("{0}")]
     Filter(Filter),
 }
 
-impl Display for Resource {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Resource::LinearGradient(value) => write!(f, "{value}"),
-            Resource::RadialGradient(value) => write!(f, "{value}"),
-            Resource::Pattern(value) => write!(f, "{value}"),
-            Resource::ClipPath(value) => write!(f, "{value}"),
-            Resource::Filter(value) => write!(f, "{value}"),
-        }
-    }
+pub(crate) trait IntoResources {
+    fn into_resources(self) -> Vec<Resource>;
 }
 
-pub(crate) trait IntoResource {
-    fn into_resource(self) -> Option<Resource>;
-}
-
-impl IntoResource for Option<Resource> {
+impl IntoResources for Vec<Resource> {
     #[inline]
-    fn into_resource(self) -> Option<Resource> {
+    fn into_resources(self) -> Vec<Resource> {
         self
     }
 }
 
-impl IntoResource for Resource {
+impl IntoResources for Paint {
     #[inline]
-    fn into_resource(self) -> Option<Resource> {
-        Some(self)
-    }
-}
-
-impl IntoResource for Paint {
-    #[inline]
-    fn into_resource(self) -> Option<Resource> {
+    fn into_resources(self) -> Vec<Resource> {
         match self {
-            Paint::None | Paint::Color(_) => None,
-            Paint::LinearGradient(value) => Some(value.into()),
-            Paint::RadialGradient(value) => Some(value.into()),
-            Paint::Pattern(value) => Some(value.into()),
+            Paint::None | Paint::Color(_) => Vec::new(),
+            Paint::LinearGradient(value) => value.into_resources(),
+            Paint::RadialGradient(value) => value.into_resources(),
+            Paint::Pattern(value) => value.into_resources(),
         }
     }
 }
 
-impl IntoResource for Filter {
+impl IntoResources for Pattern {
     #[inline]
-    fn into_resource(self) -> Option<Resource> {
-        Some(Resource::Filter(self))
+    fn into_resources(self) -> Vec<Resource> {
+        vec![Resource::Pattern(self)]
+    }
+}
+
+impl IntoResources for Filter {
+    #[inline]
+    fn into_resources(self) -> Vec<Resource> {
+        if self.is_default() {
+            Vec::new()
+        } else {
+            vec![Resource::Filter(self)]
+        }
     }
 }
 
@@ -75,6 +74,32 @@ impl From<RadialGradient> for Resource {
         Self::RadialGradient(value)
     }
 }
+
+// impl From<Vec<LinearGradient>> for Resource {
+//     #[inline]
+//     fn from(value: Vec<LinearGradient>) -> Self {
+//         Self::LinearGradient(GradientList::Multiple(value))
+//     }
+// }
+//
+// impl From<Vec<RadialGradient>> for Resource {
+//     #[inline]
+//     fn from(value: Vec<RadialGradient>) -> Self {
+//         Self::RadialGradient(GradientList::Multiple(value))
+//     }
+// }
+
+// impl From<GradientList<LinearGradient>> for Resource {
+//     fn from(value: GradientList<LinearGradient>) -> Self {
+//         Self::LinearGradient(value)
+//     }
+// }
+
+// impl From<GradientList<RadialGradient>> for Resource {
+//     fn from(value: GradientList<RadialGradient>) -> Self {
+//         Self::RadialGradient(value)
+//     }
+// }
 
 impl From<Pattern> for Resource {
     #[inline]
