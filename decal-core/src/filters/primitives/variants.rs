@@ -1,5 +1,5 @@
 use crate::filters::primitives::{
-    Blend, Blur, ColorMatrix, ComponentTransfer, Composite, DisplacementMap, Flood, Image,
+    Blend, Blur, ColorMatrix, ComponentTransfer, Composite, DisplacementMap, Flood, Image, Merge,
     Turbulence,
 };
 use crate::paint::{Iri, ResourceIri};
@@ -16,6 +16,7 @@ pub enum FilterPrimitive {
     DisplacementMap(DisplacementMap),
     Composite(Composite),
     Blend(Blend),
+    Merge(Merge),
 }
 
 impl Display for FilterPrimitive {
@@ -30,6 +31,7 @@ impl Display for FilterPrimitive {
             Self::DisplacementMap(map) => map.fmt(f),
             Self::Composite(composite) => composite.fmt(f),
             Self::Blend(blend) => blend.fmt(f),
+            Self::Merge(merge) => merge.fmt(f),
         }
     }
 }
@@ -46,6 +48,7 @@ impl ResourceIri for FilterPrimitive {
             Self::DisplacementMap(map) => map.iri(),
             Self::Composite(composite) => composite.iri(),
             Self::Blend(blend) => blend.iri(),
+            Self::Merge(merge) => merge.iri(),
         }
     }
 }
@@ -103,5 +106,11 @@ impl From<Composite> for FilterPrimitive {
 impl From<Blend> for FilterPrimitive {
     fn from(value: Blend) -> Self {
         Self::Blend(value)
+    }
+}
+
+impl From<Merge> for FilterPrimitive {
+    fn from(value: Merge) -> Self {
+        Self::Merge(value)
     }
 }

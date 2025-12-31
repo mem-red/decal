@@ -7,6 +7,7 @@ mod composite;
 mod displacement_map;
 mod flood;
 mod image;
+mod merge;
 mod turbulence;
 mod variants;
 
@@ -19,5 +20,6 @@ pub use composite::*;
 pub use displacement_map::*;
 pub use flood::*;
 pub use image::*;
+pub use merge::*;
 pub use turbulence::*;
 pub use variants::*;

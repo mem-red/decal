@@ -1,5 +1,5 @@
 use crate::filters::primitives::{
-    Blend, Blur, ColorMatrix, DisplacementMap, Flood, PrimitiveBuilder, Turbulence,
+    Blend, Blur, ColorMatrix, DisplacementMap, Flood, Merge, PrimitiveBuilder, Turbulence,
 };
 use crate::filters::primitives::{ComponentTransfer, FilterPrimitive};
 use crate::filters::primitives::{Composite, Image};
@@ -63,6 +63,10 @@ impl<'a> FilterContext {
 
     pub fn blend(&self) -> PrimitiveBuilder<'_, Blend> {
         PrimitiveBuilder::new(self, Blend::new())
+    }
+
+    pub fn merge(&self) -> PrimitiveBuilder<'_, Merge> {
+        PrimitiveBuilder::new(self, Merge::new())
     }
 
     //
