@@ -95,7 +95,7 @@ impl TransferFunctionInner {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
 pub struct TransferFunction(TransferFunctionInner);
 
 impl TransferFunction {
@@ -135,15 +135,24 @@ impl TransferFunction {
             offset: ff32!(offset),
         })
     }
+
+    //
+
+    fn serialize<T>(&self, out: &mut T, element_name: &str) -> std::fmt::Result
+    where
+        T: Write,
+    {
+        self.0.serialize(out, element_name)
+    }
 }
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
 pub struct ComponentTransfer {
     input: Option<FilterInput>,
-    func_r: TransferFunctionInner,
-    func_g: TransferFunctionInner,
-    func_b: TransferFunctionInner,
-    func_a: TransferFunctionInner,
+    func_r: TransferFunction,
+    func_g: TransferFunction,
+    func_b: TransferFunction,
+    func_a: TransferFunction,
     region: FilterRegion,
 }
 
@@ -201,22 +210,22 @@ impl<'a> PrimitiveBuilder<'a, ComponentTransfer> {
     }
 
     pub fn func_r(mut self, func: TransferFunction) -> Self {
-        self.inner.func_r = func.0;
+        self.inner.func_r = func;
         self
     }
 
     pub fn func_g(mut self, func: TransferFunction) -> Self {
-        self.inner.func_g = func.0;
+        self.inner.func_g = func;
         self
     }
 
     pub fn func_b(mut self, func: TransferFunction) -> Self {
-        self.inner.func_b = func.0;
+        self.inner.func_b = func;
         self
     }
 
     pub fn func_a(mut self, func: TransferFunction) -> Self {
-        self.inner.func_a = func.0;
+        self.inner.func_a = func;
         self
     }
 }
