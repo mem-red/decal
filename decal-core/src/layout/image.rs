@@ -9,6 +9,9 @@ pub enum ImageSource {
     Url(String),
     #[display("{0}")]
     DataUri(String),
+    // TODO support raw image data
+    // #[display("{0}")]
+    // Binary(u64, Vec<u8>), // (img_key, data)
     #[display("{0}")]
     Svg(String),
 }
@@ -67,6 +70,14 @@ impl ImageSource {
     {
         ImageSource::DataUri(data_uri.into())
     }
+
+    // TODO
+    // pub fn binary<T>(data: T) -> Self
+    // where
+    //     T: Into<Vec<u8>>,
+    // {
+    //     ImageSource::Binary(0, data.into())
+    // }
 
     pub fn svg<S>(svg: S) -> Self
     where
