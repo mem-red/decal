@@ -4,7 +4,7 @@ use twox_hash::XxHash3_64;
 
 const PREFIX: &'static str = "decal";
 
-#[derive(Debug)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 pub(crate) struct Iri(u64);
 
 pub(crate) trait ResourceIri: Hash {
