@@ -1,5 +1,5 @@
 [workspace]
-members = ["decal-core", "decal-macros"]
+members = ["decal-core", "decal-macros", "decal-core/examples/gh_card"]
 default-members = ["decal-core"]
 resolver = "2"
 
