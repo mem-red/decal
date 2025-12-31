@@ -30,14 +30,14 @@ impl Display for LightSourceInner {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::DistantLight { azimuth, elevation } => {
-                f.write_str(r#"<feDistantLight azimuth="#)?;
+                f.write_str(r#"<feDistantLight azimuth=""#)?;
                 f.write_float(azimuth.get())?;
                 f.write_str(r#"" elevation=""#)?;
                 f.write_float(elevation.get())?;
                 f.write_str(r#"" />"#)
             }
             Self::PointLight { x, y, z } => {
-                f.write_str(r#"<fePointLight x="#)?;
+                f.write_str(r#"<fePointLight x=""#)?;
                 f.write_float(x.get())?;
                 f.write_str(r#"" y=""#)?;
                 f.write_float(y.get())?;
@@ -55,7 +55,7 @@ impl Display for LightSourceInner {
                 specular_exponent,
                 limiting_cone_angle,
             } => {
-                f.write_str(r#"<feSpotLight x="#)?;
+                f.write_str(r#"<feSpotLight x=""#)?;
                 f.write_float(x.get())?;
                 f.write_str(r#"" y=""#)?;
                 f.write_float(y.get())?;
