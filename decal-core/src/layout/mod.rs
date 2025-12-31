@@ -16,4 +16,5 @@ pub use node::*;
 pub use node_id::*;
 pub use options::*;
 pub use text::*;
-pub use typography::*;
+
+pub(crate) use typography::*;
