@@ -1,4 +1,4 @@
-use crate::paint::ResourceIri;
+use crate::paint::{IntoResources, Resource, ResourceIri};
 use crate::primitives::{GradientTransform, GradientUnits, Length, SpreadMethod, Stop};
 use crate::utils::{IsDefault, angle_to_line};
 use std::fmt::{Display, Formatter};
@@ -126,7 +126,7 @@ impl LinearGradient {
         I: IntoIterator<Item = T>,
         T: Into<Stop>,
     {
-        self.stops.extend(stops.into_iter().map(|x| x.into()));
+        self.stops.extend(stops.into_iter().map(Into::into));
         self
     }
 
@@ -188,6 +188,12 @@ impl LinearGradient {
 }
 
 impl ResourceIri for LinearGradient {}
+
+impl IntoResources for LinearGradient {
+    fn into_resources(self) -> Vec<Resource> {
+        vec![self.into()]
+    }
+}
 
 impl Display for LinearGradient {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

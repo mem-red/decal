@@ -75,32 +75,6 @@ impl From<RadialGradient> for Resource {
     }
 }
 
-// impl From<Vec<LinearGradient>> for Resource {
-//     #[inline]
-//     fn from(value: Vec<LinearGradient>) -> Self {
-//         Self::LinearGradient(GradientList::Multiple(value))
-//     }
-// }
-//
-// impl From<Vec<RadialGradient>> for Resource {
-//     #[inline]
-//     fn from(value: Vec<RadialGradient>) -> Self {
-//         Self::RadialGradient(GradientList::Multiple(value))
-//     }
-// }
-
-// impl From<GradientList<LinearGradient>> for Resource {
-//     fn from(value: GradientList<LinearGradient>) -> Self {
-//         Self::LinearGradient(value)
-//     }
-// }
-
-// impl From<GradientList<RadialGradient>> for Resource {
-//     fn from(value: GradientList<RadialGradient>) -> Self {
-//         Self::RadialGradient(value)
-//     }
-// }
-
 impl From<Pattern> for Resource {
     #[inline]
     fn from(value: Pattern) -> Self {

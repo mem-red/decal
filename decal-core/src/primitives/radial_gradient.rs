@@ -1,4 +1,4 @@
-use crate::paint::ResourceIri;
+use crate::paint::{IntoResources, Resource, ResourceIri};
 use crate::primitives::GradientTransform;
 use crate::primitives::Stop;
 use std::fmt::{Display, Formatter};
@@ -16,6 +16,12 @@ impl RadialGradient {
 }
 
 impl ResourceIri for RadialGradient {}
+
+impl IntoResources for RadialGradient {
+    fn into_resources(self) -> Vec<Resource> {
+        vec![self.into()]
+    }
+}
 
 impl Display for RadialGradient {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

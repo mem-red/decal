@@ -28,14 +28,14 @@ impl IntoPaint for Color {
 impl IntoPaint for LinearGradient {
     #[inline]
     fn into_paint(self) -> Option<Paint> {
-        Some(Paint::LinearGradient(self))
+        Some(Paint::LinearGradient(self.into()))
     }
 }
 
 impl IntoPaint for RadialGradient {
     #[inline]
     fn into_paint(self) -> Option<Paint> {
-        Some(Paint::RadialGradient(self))
+        Some(Paint::RadialGradient(self.into()))
     }
 }
 
@@ -43,20 +43,6 @@ impl IntoPaint for Pattern {
     #[inline]
     fn into_paint(self) -> Option<Paint> {
         Some(Paint::Pattern(self))
-    }
-}
-
-impl IntoPaint for f32 {
-    #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::Color(Color::rgba(0, 0, 0, self)))
-    }
-}
-
-impl IntoPaint for f64 {
-    #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::Color(Color::rgba(0, 0, 0, self as f32)))
     }
 }
 
@@ -71,16 +57,6 @@ impl IntoPaint for String {
     #[inline]
     fn into_paint(self) -> Option<Paint> {
         Some(Paint::Color(Color::parse(self.as_str())))
-    }
-}
-
-impl<T> IntoPaint for [T; 1]
-where
-    T: Into<f64> + Copy,
-{
-    #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::Color(Color::rgba(0, 0, 0, self[0].into() as f32)))
     }
 }
 

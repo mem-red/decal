@@ -3,7 +3,7 @@ use crate::primitives::Color;
 use crate::primitives::{LinearGradient, Pattern, RadialGradient};
 use std::fmt::Display;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Default)]
 pub enum Paint {
     #[default]
     None,
