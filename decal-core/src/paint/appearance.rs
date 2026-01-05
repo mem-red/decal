@@ -1,12 +1,12 @@
 use crate::capabilities::CornerRadius;
 use crate::filters::Filter;
-use crate::primitives::{Paint, Transform};
+use crate::primitives::{BlendMode, PaintStack, Transform};
 
 #[derive(Debug, Clone)]
 pub struct Appearance {
-    pub(crate) background: Paint,
-    pub(crate) background_opacity: f32,
-    pub(crate) border: Paint,
+    pub(crate) background: PaintStack,
+    pub(crate) blend_mode: BlendMode,
+    pub(crate) border: PaintStack,
     pub(crate) corner_radius: CornerRadius,
     pub(crate) transform: Transform,
     pub(crate) visible: bool,
@@ -18,7 +18,7 @@ impl Default for Appearance {
     fn default() -> Self {
         Self {
             background: Default::default(),
-            background_opacity: 1.0,
+            blend_mode: Default::default(),
             border: Default::default(),
             corner_radius: Default::default(),
             transform: Default::default(),
