@@ -1,5 +1,5 @@
 use super::Drawable;
-use crate::attributes::{IntoBorder, IntoBorderPair, IntoBorderWidth, IntoPaint};
+use crate::attributes::{IntoBorder, IntoBorderPair, IntoBorderWidth, IntoPaintStack};
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {
@@ -49,9 +49,9 @@ pub trait Border: Drawable {
 
     fn border<T>(mut self, value: T) -> Self
     where
-        T: IntoPaint,
+        T: IntoPaintStack,
     {
-        let border = value.into_paint().unwrap_or(crate::primitives::Paint::None);
+        let border = value.into_paint_stack();
         self.visual_mut().border = border.clone();
         self.add_resources(border);
 

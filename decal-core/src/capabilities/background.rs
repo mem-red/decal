@@ -1,12 +1,12 @@
 use super::Drawable;
-use crate::attributes::IntoPaint;
+use crate::attributes::IntoPaintStack;
 
 pub trait Background: Drawable {
     fn background<T>(mut self, value: T) -> Self
     where
-        T: IntoPaint,
+        T: IntoPaintStack,
     {
-        let background = value.into_paint().unwrap_or(crate::primitives::Paint::None);
+        let background = value.into_paint_stack();
         self.visual_mut().background = background.clone();
         self.add_resources(background);
 
@@ -17,7 +17,7 @@ pub trait Background: Drawable {
 
     fn bg<T>(self, value: T) -> Self
     where
-        T: IntoPaint,
+        T: IntoPaintStack,
     {
         self.background(value)
     }

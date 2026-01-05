@@ -1,90 +1,97 @@
-use crate::primitives::{Color, LinearGradient, Paint, Pattern, RadialGradient};
+use crate::primitives::{
+    Color, LinearGradient, Paint, PaintLayer, PaintStack, Pattern, RadialGradient,
+};
 
 pub trait IntoPaint {
-    fn into_paint(self) -> Option<Paint>;
-}
-
-impl IntoPaint for Option<Paint> {
-    #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        self
-    }
+    fn into_paint(self) -> Paint;
 }
 
 impl IntoPaint for Paint {
     #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(self)
+    fn into_paint(self) -> Paint {
+        self
     }
 }
 
-impl IntoPaint for Color {
+impl<T> IntoPaint for T
+where
+    T: Into<Color>,
+{
     #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::Color(self))
+    fn into_paint(self) -> Paint {
+        Paint::Color(self.into())
     }
 }
 
 impl IntoPaint for LinearGradient {
     #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::LinearGradient(self.into()))
+    fn into_paint(self) -> Paint {
+        Paint::LinearGradient(self.into())
     }
 }
 
 impl IntoPaint for RadialGradient {
     #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::RadialGradient(self.into()))
+    fn into_paint(self) -> Paint {
+        Paint::RadialGradient(self.into())
     }
 }
 
 impl IntoPaint for Pattern {
     #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::Pattern(self))
+    fn into_paint(self) -> Paint {
+        Paint::Pattern(self)
     }
 }
 
-impl IntoPaint for &str {
-    #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::Color(Color::parse(self)))
-    }
+//
+
+pub trait IntoPaintLayer {
+    fn into_layer(self) -> PaintLayer;
 }
 
-impl IntoPaint for String {
-    #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::Color(Color::parse(self.as_str())))
-    }
-}
-
-impl<T> IntoPaint for [T; 3]
+impl<T> IntoPaintLayer for T
 where
-    T: Into<u8> + Copy,
+    T: Into<PaintLayer>,
 {
     #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::Color(Color::rgb(
-            self[0].into(),
-            self[1].into(),
-            self[2].into(),
-        )))
+    fn into_layer(self) -> PaintLayer {
+        self.into()
     }
 }
 
-impl<T> IntoPaint for [T; 4]
+//
+
+pub trait IntoPaintStack {
+    fn into_paint_stack(self) -> PaintStack;
+}
+
+impl<T> IntoPaintStack for T
 where
-    T: Into<f64> + Copy,
+    T: IntoPaintLayer,
 {
     #[inline]
-    fn into_paint(self) -> Option<Paint> {
-        Some(Paint::Color(Color::rgba(
-            self[0].into().clamp(0.0, 255.0) as u8,
-            self[1].into().clamp(0.0, 255.0) as u8,
-            self[2].into().clamp(0.0, 255.0) as u8,
-            self[3].into() as f32,
-        )))
+    fn into_paint_stack(self) -> PaintStack {
+        PaintStack::new(vec![self.into_layer()])
+    }
+}
+
+impl<T, const N: usize> IntoPaintStack for [T; N]
+where
+    T: IntoPaintLayer,
+{
+    #[inline]
+    fn into_paint_stack(self) -> PaintStack {
+        PaintStack::new(self.into_iter().map(IntoPaintLayer::into_layer))
+    }
+}
+
+impl<T> IntoPaintStack for Vec<T>
+where
+    T: IntoPaintLayer,
+{
+    #[inline]
+    fn into_paint_stack(self) -> PaintStack {
+        PaintStack::new(self.into_iter().map(IntoPaintLayer::into_layer))
     }
 }

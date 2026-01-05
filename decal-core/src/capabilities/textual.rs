@@ -8,11 +8,8 @@ pub trait Textual: Drawable {
         T: IntoPaint,
     {
         let color = value.into_paint();
-        self.typography_mut().color = color.clone();
-
-        if let Some(color) = color {
-            self.add_resources(color);
-        }
+        self.typography_mut().color = Some(color.clone());
+        self.add_resources(color);
 
         self
     }
