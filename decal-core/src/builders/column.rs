@@ -76,3 +76,4 @@ impl Textual for Column {}
 impl SelfAlignment for Column {}
 impl Visibility for Column {}
 impl FilterEffects for Column {}
+impl Blendable for Column {}

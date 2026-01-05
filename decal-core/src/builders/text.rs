@@ -70,6 +70,7 @@ impl Textual for Text {}
 impl SelfAlignment for Text {}
 impl Visibility for Text {}
 impl FilterEffects for Text {}
+impl Blendable for Text {}
 
 #[derive(Debug, Clone)]
 pub struct TextSpan {

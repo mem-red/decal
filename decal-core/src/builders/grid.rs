@@ -66,3 +66,4 @@ impl Textual for Grid {}
 impl SelfAlignment for Grid {}
 impl Visibility for Grid {}
 impl FilterEffects for Grid {}
+impl Blendable for Grid {}

@@ -1,5 +1,6 @@
 mod aspect_ratio;
 mod background;
+mod blendable;
 mod border;
 mod clippable;
 mod container_alignment;
@@ -23,6 +24,7 @@ mod visibility;
 
 pub use aspect_ratio::*;
 pub use background::*;
+pub use blendable::*;
 pub use border::*;
 pub use clippable::*;
 pub use container_alignment::*;
