@@ -41,17 +41,6 @@ impl<const AUTO: bool> Length<AUTO, true> {
     {
         Self(LengthInner::Percent(ff32!(value.into() as f32)))
     }
-
-    pub(crate) fn get_percent(&self) -> Option<f32> {
-        self.get_percent_normalized().map(|x| x * 100.0)
-    }
-
-    pub(crate) fn get_percent_normalized(&self) -> Option<f32> {
-        match self.0 {
-            LengthInner::Percent(pc) => Some(pc.get()),
-            _ => None,
-        }
-    }
 }
 
 impl<const AUTO: bool, const PERCENT: bool> Length<AUTO, PERCENT> {
@@ -74,13 +63,6 @@ impl<const AUTO: bool, const PERCENT: bool> Length<AUTO, PERCENT> {
             LengthInner::Pixels(px) => px.get() == 0.0,
             LengthInner::Percent(pc) => pc.get() == 0.0,
             _ => false,
-        }
-    }
-
-    pub(crate) fn get_pixels(&self) -> Option<f32> {
-        match self.0 {
-            LengthInner::Pixels(px) => Some(px.get()),
-            _ => None,
         }
     }
 
