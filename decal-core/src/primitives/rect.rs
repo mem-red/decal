@@ -24,6 +24,11 @@ where
             left,
         }
     }
+
+    #[must_use]
+    pub(crate) const fn tuple(&self) -> (T, T, T, T) {
+        (self.top, self.right, self.bottom, self.left)
+    }
 }
 
 impl<const AUTO: bool, const PERCENT: bool> Default for Rect<Length<AUTO, PERCENT>> {
@@ -59,6 +64,20 @@ impl<const AUTO: bool, const PERCENT: bool> Into<taffy::Rect<taffy::LengthPercen
             right: self.right.into(),
             bottom: self.bottom.into(),
             left: self.left.into(),
+        }
+    }
+}
+
+impl<T> From<taffy::Rect<T>> for Rect<T>
+where
+    T: Copy,
+{
+    fn from(value: taffy::Rect<T>) -> Self {
+        Self {
+            top: value.top,
+            right: value.right,
+            bottom: value.bottom,
+            left: value.left,
         }
     }
 }
