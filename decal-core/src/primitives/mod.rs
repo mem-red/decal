@@ -17,6 +17,7 @@ mod light_source;
 mod linear_gradient;
 mod overflow;
 mod paint;
+mod path;
 mod pattern;
 mod point;
 mod position;
@@ -60,6 +61,7 @@ pub use stop::*;
 pub use transform::*;
 
 pub(crate) use clip_path::*;
+pub(crate) use path::*;
 
 // TODO: re-export under a feature
 pub use color::helpers::*;
