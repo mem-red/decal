@@ -29,7 +29,7 @@ impl Resources {
 impl Display for Resources {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         for resource in &self.resources {
-            write!(f, "{resource}")?;
+            resource.fmt(f)?;
         }
 
         Ok(())
