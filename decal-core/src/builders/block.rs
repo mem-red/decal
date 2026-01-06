@@ -13,7 +13,7 @@ pub struct Block {
     typography: Typography,
     resources: Vec<Resource>,
     //
-    _prev_display: taffy::Display,
+    last_display: taffy::Display,
 }
 
 impl_node_builder! {
@@ -66,10 +66,10 @@ impl Block {
 impl Hideable for Block {
     fn hidden(mut self, value: bool) -> Self {
         self.layout.display = if value {
-            self._prev_display = self.layout.display;
+            self.last_display = self.layout.display;
             taffy::Display::None
         } else {
-            self._prev_display
+            self.last_display
         };
 
         self
