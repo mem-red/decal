@@ -154,7 +154,7 @@ impl Tokenize for Node {
         let node_expr = quote! {
             #node_kind_ident::new(#ctor_args)
                 #(#method_call_tokens)*
-            .build()
+            .finish()
         };
 
         let is_fragment = matches!(mode, TokenGenMode::Partial);

@@ -50,7 +50,7 @@ macro_rules! impl_node_builder {
 
         impl crate::capabilities::Drawable for $node {
             #[inline]
-            fn build(self) -> crate::layout::Node {
+            fn finish(self) -> crate::layout::Node {
                 let $this = self;
                 $build
             }
