@@ -1,17 +1,26 @@
+use crate::builders::RootMeta;
 use crate::layout::text::TextMeta;
-use crate::layout::{FontRegistry, ImageSource, SvgDimensions, TextVectorizeError};
-use crate::layout::{Typography, VectorizeOptions};
-use crate::paint::{Appearance, Resources, compute_scaled_radii};
+use crate::layout::{FontRegistry, ImageSource, RenderContext, SvgDimensions, TextVectorizeError};
+use crate::layout::{ImageMeta, Typography};
+use crate::paint::{Appearance, compute_scaled_radii};
 use crate::paint::{Resource, ResourceIri};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
-use crate::primitives::ClipPath;
-use crate::utils::IsDefault;
-use crate::{builders::RootMeta, prelude::ImageMeta};
+use crate::primitives::{ClipPath, Path, Rect};
+use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
 use std::fmt::Write;
-use std::sync::{Arc, Mutex};
-use taffy::{Cache, Point, Size, prelude::*};
+use strict_num::NormalizedF32;
 use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum VectorizeError {
+    #[error("cannot vectorize a fragment")]
+    NonRootNode,
+    #[error("failed to write to the output stream")]
+    Write(#[from] std::fmt::Error),
+    #[error("failed to vectorize text")]
+    TextVectorize(#[from] TextVectorizeError),
+}
 
 #[derive(Debug, Clone, EnumDisplay)]
 pub(crate) enum NodeKind {
@@ -37,34 +46,22 @@ impl NodeKind {
 #[derive(Debug, Clone)]
 pub struct Node {
     pub(crate) kind: NodeKind,
-    pub(crate) layout: Style,
+    pub(crate) layout: taffy::Style,
     pub(crate) visual: Appearance,
     pub(crate) children: Vec<usize>,
     pub(crate) resources: Vec<Resource>,
     pub(crate) typography: Typography,
     // computed
-    pub(crate) cache: Cache,
-    pub(crate) unrounded_layout: Layout,
-    pub(crate) final_layout: Layout,
+    pub(crate) cache: taffy::Cache,
+    pub(crate) unrounded_layout: taffy::Layout,
+    pub(crate) final_layout: taffy::Layout,
     pub(crate) scaled_radii: ScaledRadii,
-}
-
-#[derive(Debug, Error)]
-pub enum VectorizeError {
-    #[error("cannot vectorize a fragment")]
-    NonRootNode,
-    #[error("failed to write to the output stream")]
-    Write(#[from] std::fmt::Error),
-    #[error("failed to vectorize text")]
-    TextVectorize(#[from] TextVectorizeError),
-    #[error("internal error")]
-    Other,
 }
 
 impl Node {
     pub(crate) fn new(
         kind: NodeKind,
-        layout: Style,
+        layout: taffy::Style,
         visual: Appearance,
         typography: Option<Typography>,
         resources: Vec<Resource>,
@@ -76,9 +73,9 @@ impl Node {
             children: Vec::new(),
             resources,
             typography: typography.unwrap_or(Typography::default()),
-            cache: Cache::new(),
-            unrounded_layout: Layout::with_order(0),
-            final_layout: Layout::with_order(0),
+            cache: taffy::Cache::new(),
+            unrounded_layout: taffy::Layout::with_order(0),
+            final_layout: taffy::Layout::with_order(0),
             scaled_radii: ScaledRadii::default(),
         }
     }
@@ -91,13 +88,240 @@ impl Node {
         );
     }
 
-    pub(crate) fn write_svg_start<T>(
+    fn has_border(&self) -> bool {
+        let taffy::Rect {
+            top,
+            right,
+            bottom,
+            left,
+        } = self.final_layout.border;
+        !self.visual.border.is_none() && (top + right + bottom + left) > 0.0
+    }
+
+    fn has_radius(&self) -> bool {
+        let radius = self.visual.corner_radius;
+        !radius.top_left.is_zero()
+            || !radius.top_right.is_zero()
+            || !radius.bottom_left.is_zero()
+            || !radius.bottom_right.is_zero()
+    }
+
+    fn should_clip(&self) -> (bool, bool) {
+        let clip_x = self.layout.overflow.x == taffy::Overflow::Hidden;
+        let clip_y = self.layout.overflow.y == taffy::Overflow::Hidden;
+        (clip_x, clip_y)
+    }
+
+    fn open_block_group<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
+    where
+        T: Write,
+    {
+        ElementWriter::new(ctx.out, "g")?
+            .attr_if("opacity", self.visual.opacity, self.visual.opacity != 1.0)?
+            .attr_if(
+                "filter",
+                (format_args!("url(#{})", self.visual.filter.iri()),),
+                !self.visual.filter.is_default(),
+            )?
+            .attr_if(
+                "style",
+                (format_args!("mix-blend-mode:{}", self.visual.blend_mode),),
+                !self.visual.blend_mode.is_default(),
+            )?
+            .write(|out| {
+                self.visual.transform.write(
+                    out,
+                    (0.0, 0.0),
+                    (self.final_layout.location.x, self.final_layout.location.y),
+                    (self.final_layout.size.width, self.final_layout.size.height),
+                )
+            })?
+            .open()
+            .map(|_| ())
+            .map_err(Into::into)
+    }
+
+    fn render_block_background<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
+    where
+        T: Write,
+    {
+        if self.visual.background.is_none() {
+            return Ok(());
+        }
+
+        let taffy::Size {
+            width: w,
+            height: h,
+        } = self.final_layout.size;
+        let radius = self.scaled_radii;
+        let layers = self.visual.background.layers();
+
+        if layers.len() == 1 {
+            ElementWriter::new(ctx.out, "path")?
+                .write_attr("d", |out| write_fill_path(out, w, h, radius))?
+                .attr("fill", (&layers[0].paint,))?
+                .attr_if(
+                    "fill-opacity",
+                    layers[0].opacity,
+                    layers[0].opacity != NormalizedF32::ONE,
+                )?
+                .attr_if(
+                    "style",
+                    (format_args!("mix-blend-mode:{}", layers[0].blend_mode),),
+                    !layers[0].blend_mode.is_default(),
+                )?
+                .close()
+        } else {
+            let path = Path::build(|buf| write_fill_path(buf, w, h, radius))?;
+            let path_href = format_args!("#{}", path.iri());
+            ctx.resources.lock().get_or_add_resource(path.into());
+
+            ElementWriter::new(ctx.out, "g")?
+                .attr_if(
+                    "style",
+                    "isolation:isolate",
+                    self.visual.background.needs_isolation(),
+                )?
+                .content(|out| {
+                    layers.iter().try_for_each(|layer| {
+                        ElementWriter::new(out, "use")?
+                            .attr("href", (path_href,))?
+                            .attr("fill", (&layer.paint,))?
+                            .attr_if(
+                                "fill-opacity",
+                                layer.opacity,
+                                layer.opacity != NormalizedF32::ONE,
+                            )?
+                            .attr_if(
+                                "style",
+                                (&format_args!("mix-blend-mode:{}", layer.blend_mode),),
+                                !layer.blend_mode.is_default(),
+                            )?
+                            .close()
+                    })
+                })?
+                .close()
+        }
+        .map_err(Into::into)
+    }
+
+    fn render_block_border<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
+    where
+        T: Write,
+    {
+        if !self.has_border() {
+            return Ok(());
+        }
+
+        let taffy::Size {
+            width: w,
+            height: h,
+        } = self.final_layout.size;
+        let border = Rect::from(self.final_layout.border);
+        let layers = self.visual.border.layers();
+
+        if layers.len() == 1 {
+            ElementWriter::new(ctx.out, "path")?
+                .write_attr("d", |out| {
+                    write_border_path(out, w, h, self.scaled_radii, border)
+                })?
+                .attr("fill", (&layers[0].paint,))?
+                .attr_if(
+                    "fill-opacity",
+                    layers[0].opacity,
+                    layers[0].opacity != NormalizedF32::ONE,
+                )?
+                .attr_if(
+                    "style",
+                    (format_args!("mix-blend-mode:{}", layers[0].blend_mode),),
+                    !layers[0].blend_mode.is_default(),
+                )?
+                .attrs([("fill-rule", "evenodd"), ("clip-rule", "evenodd")])?
+                .close()
+        } else {
+            let path = Path::build(|buf| write_border_path(buf, w, h, self.scaled_radii, border))?;
+            let path_href = format_args!("#{}", path.iri());
+            ctx.resources.lock().get_or_add_resource(path.into());
+
+            ElementWriter::new(ctx.out, "g")?
+                .attr_if(
+                    "style",
+                    "isolation:isolate",
+                    self.visual.border.needs_isolation(),
+                )?
+                .content(|out| {
+                    layers.iter().try_for_each(|layer| {
+                        ElementWriter::new(out, "use")?
+                            .attr("href", (path_href,))?
+                            .attr("fill", (&layer.paint,))?
+                            .attrs([("fill-rule", "evenodd"), ("clip-rule", "evenodd")])?
+                            .attr_if(
+                                "fill-opacity",
+                                layer.opacity,
+                                layer.opacity != NormalizedF32::ONE,
+                            )?
+                            .attr_if(
+                                "style",
+                                (&format_args!("mix-blend-mode:{}", layer.blend_mode),),
+                                !layer.blend_mode.is_default(),
+                            )?
+                            .close()
+                    })
+                })?
+                .close()
+        }
+        .map_err(Into::into)
+    }
+
+    fn open_block_clip<T>(
         &self,
-        out: &mut T,
-        root_size: (f32, f32),
-        fonts: Arc<Mutex<FontRegistry>>,
-        resources: &Mutex<Resources>,
-        options: &VectorizeOptions,
+        ctx: &mut RenderContext<T>,
+        (clip_x, clip_y): (bool, bool),
+    ) -> Result<(), VectorizeError>
+    where
+        T: Write,
+    {
+        if !clip_x && !clip_y {
+            return Ok(());
+        }
+
+        let taffy::Size {
+            width: w,
+            height: h,
+        } = self.final_layout.size;
+        let radius = self.scaled_radii;
+        let border = Rect::from(self.final_layout.border);
+        let clip = ClipPath::build(|out| {
+            ElementWriter::new(out, "path")?
+                .write_attr("d", |out| {
+                    write_clip_path(out, w, h, radius, border, clip_x, clip_y, ctx.root_size)
+                })?
+                .close()
+        })?;
+
+        ElementWriter::new(ctx.out, "g")?
+            .attr("clip-path", (format_args!("url(#{})", clip.iri()),))?
+            .open()?;
+
+        ctx.resources.lock().get_or_add_resource(clip.into());
+
+        Ok(())
+    }
+
+    fn close_block_group<T>(clipped: bool, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
+    where
+        T: Write,
+    {
+        if clipped {
+            ElementWriter::close_tag(ctx.out, "g")?;
+        }
+
+        ElementWriter::close_tag(ctx.out, "g").map_err(Into::into)
+    }
+
+    pub(crate) fn pre_emit<T>(
+        &self,
+        ctx: &mut RenderContext<T>,
     ) -> Result<Option<Vec<Resource>>, VectorizeError>
     where
         T: Write,
@@ -105,24 +329,26 @@ impl Node {
         match &self.kind {
             NodeKind::Root(meta) => {
                 let (w, h) = (meta.width, meta.height);
+                let mut svg = ElementWriter::new(ctx.out, "svg")?
+                    .attr_if(
+                        "xmlns",
+                        "http://www.w3.org/2000/svg",
+                        !ctx.options.omit_svg_xmlns,
+                    )?
+                    .attr("viewBox", (format_args!("0 0 {w} {h}"),))?;
 
-                write!(out, "<svg")?;
-
-                if !options.omit_svg_xmlns {
-                    write!(out, r#" xmlns="http://www.w3.org/2000/svg""#)?;
-                }
-
-                write!(out, r#" viewBox="0 0 {w} {h}""#)?;
-
-                match &options.svg_dimensions {
+                match &ctx.options.svg_dimensions {
                     SvgDimensions::Omit => {}
-                    SvgDimensions::Layout => write!(out, r#" width="{w}" height="{h}""#)?,
+                    SvgDimensions::Layout => {
+                        svg = svg.attrs([("width", w), ("height", h)])?;
+                    }
                     SvgDimensions::Custom { width, height } => {
-                        write!(out, r#" width="{width}" height="{height}""#)?
+                        svg =
+                            svg.attrs([("width", width.as_str()), ("height", height.as_str())])?;
                     }
                 };
 
-                out.write_char('>')?;
+                svg.open()?;
             }
             //
             NodeKind::Block
@@ -130,94 +356,14 @@ impl Node {
             | NodeKind::Column
             | NodeKind::Row
             | NodeKind::Grid => {
-                let Size {
-                    width: w,
-                    height: h,
-                } = self.final_layout.size;
-                let radius = self.scaled_radii;
-                let borders = (
-                    self.final_layout.border.top,
-                    self.final_layout.border.right,
-                    self.final_layout.border.bottom,
-                    self.final_layout.border.left,
-                );
-                let clip_x = self.layout.overflow.x == taffy::Overflow::Hidden;
-                let clip_y = self.layout.overflow.y == taffy::Overflow::Hidden;
-                let use_clip = clip_x || clip_y;
-
-                write!(out, "<g")?;
-
-                if self.visual.opacity != 1.0 {
-                    write!(out, r#" opacity="{}""#, self.visual.opacity)?;
-                }
-
-                if !self.visual.filter.is_default() {
-                    write!(out, r#" filter="url(#{})""#, self.visual.filter.iri())?;
-                }
-
-                self.visual.transform.write(
-                    out,
-                    (0.0, 0.0),
-                    (self.final_layout.location.x, self.final_layout.location.y),
-                    (w, h),
-                )?;
-
-                write!(out, ">")?;
-
-                // background
-                if !self.visual.background.is_none() {
-                    write!(out, r#"<path d=""#)?;
-                    write_fill_path(out, w, h, radius)?;
-                    write!(out, r#"""#)?;
-                    write!(out, r#" fill="{}""#, self.visual.background)?;
-
-                    if self.visual.background_opacity != 1.0 {
-                        write!(out, r#" fill-opacity="{}""#, self.visual.background_opacity)?;
-                    }
-
-                    write!(out, " />")?;
-                }
-
-                // borders
-                if borders.0 + borders.1 + borders.2 + borders.3 > 0.0 {
-                    write!(out, r#"<path d=""#)?;
-                    write_border_path(out, w, h, radius, borders)?;
-                    write!(
-                        out,
-                        r#"" fill="{}" fill-rule="evenodd" clip-rule="evenodd" />"#,
-                        self.visual.border
-                    )?;
-                }
-
-                // clip content
-                if use_clip {
-                    let clip = ClipPath::new({
-                        let mut content = String::new();
-                        write!(content, r#"<path d=""#)?;
-                        write_clip_path(
-                            &mut content,
-                            w,
-                            h,
-                            radius,
-                            borders,
-                            clip_x,
-                            clip_y,
-                            root_size,
-                        )?;
-                        write!(content, r#"" />"#)?;
-                        content
-                    });
-
-                    write!(out, r#"<g clip-path="url(#{})">"#, clip.iri())?;
-                    resources
-                        .lock()
-                        .map_err(|_| VectorizeError::Other)?
-                        .get_or_add_resource(clip.into());
-                }
+                self.open_block_group(ctx)?;
+                self.render_block_background(ctx)?;
+                self.render_block_border(ctx)?;
+                self.open_block_clip(ctx, self.should_clip())?;
             }
             //
             NodeKind::Text(meta) => {
-                let mut fonts = fonts.lock().map_err(|_| VectorizeError::Other)?;
+                let mut fonts = ctx.fonts.lock();
                 let FontRegistry {
                     swash_cache,
                     system,
@@ -225,7 +371,7 @@ impl Node {
                 } = &mut *fonts;
 
                 meta.vectorize_text(
-                    out,
+                    ctx.out,
                     (self.final_layout.location.x, self.final_layout.location.y),
                     &self.visual,
                     swash_cache,
@@ -234,84 +380,50 @@ impl Node {
             }
             //
             NodeKind::Image(meta) => {
-                let Point { x, y } = self.final_layout.location;
-                let Size {
-                    width: w,
-                    height: h,
-                } = self.final_layout.size;
+                let has_radius = self.has_radius();
+
+                self.open_block_group(ctx)?;
+                self.render_block_border(ctx)?;
+                self.open_block_clip(ctx, (has_radius, has_radius))?;
 
                 match &meta.source {
                     ImageSource::Url(_) | ImageSource::DataUri(_) => {
-                        write!(
-                            out,
-                            r#"<image href="{}" x="{x}" y="{y}" width="{w}" height="{h}""#,
-                            meta.source,
-                        )?;
-
-                        if self.visual.opacity != 1.0 {
-                            write!(out, r#" opacity="{}""#, self.visual.opacity)?;
-                        }
-
-                        if !self.visual.filter.is_default() {
-                            write!(out, r#" filter="url(#{})""#, self.visual.filter.iri())?;
-                        }
-
-                        self.visual
-                            .transform
-                            .write(out, (x, y), (0.0, 0.0), (w, h))?;
-
-                        if let Some(cross_origin) = meta.cross_origin {
-                            write!(out, r#" crossorigin="{cross_origin}""#)?;
-                        }
-
-                        write!(out, " />")?;
+                        ElementWriter::new(ctx.out, "image")?
+                            .attr("href", (&meta.source,))?
+                            .attrs([
+                                ("width", self.final_layout.size.width),
+                                ("height", self.final_layout.size.height),
+                            ])?
+                            .attr("crossorigin", meta.cross_origin.map(|x| (x,)))?
+                            .close()?;
                     }
-
                     ImageSource::Svg(svg) => {
-                        write!(out, "<g")?;
-
-                        if self.visual.opacity != 1.0 {
-                            write!(out, r#" opacity="{}""#, self.visual.opacity)?;
-                        }
-
-                        if !self.visual.filter.is_default() {
-                            write!(out, r#" filter="url(#{})""#, self.visual.filter.iri())?;
-                        }
-
-                        self.visual
-                            .transform
-                            .write(out, (0.0, 0.0), (x, y), (w, h))?;
-
-                        write!(out, ">")?;
-
-                        out.write_str(svg)?;
-
-                        write!(out, "</g>")?;
+                        ctx.out.write_str(svg)?;
                     }
                 };
+
+                Self::close_block_group(has_radius, ctx)?;
             }
         };
 
         Ok(None)
     }
 
-    pub(crate) fn write_svg_end<T>(
-        &self,
-        out: &mut T,
-        resources: &Mutex<Resources>,
-    ) -> Result<(), VectorizeError>
+    pub(crate) fn post_emit<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
     where
         T: Write,
     {
         match &self.kind {
             NodeKind::Root(_) => {
-                let resources = resources.lock().map_err(|_| VectorizeError::Other)?;
+                let resources = ctx.resources.lock();
 
                 if !resources.is_empty() {
-                    write!(out, "<defs>{resources}</defs>")?;
+                    ElementWriter::new(ctx.out, "defs")?
+                        .content(|out| out.write_fmt(format_args!("{resources}")))?
+                        .close()?;
                 }
 
-                write!(out, "</svg>")?;
+                ElementWriter::close_tag(ctx.out, "svg")?;
             }
             //
             NodeKind::Block
@@ -319,13 +431,11 @@ impl Node {
             | NodeKind::Column
             | NodeKind::Row
             | NodeKind::Grid => {
-                if self.layout.overflow.x == taffy::Overflow::Hidden
-                    || self.layout.overflow.y == taffy::Overflow::Hidden
-                {
-                    write!(out, "</g>")?; // close clip group
-                }
-
-                write!(out, "</g>")?; // close transform group
+                Self::close_block_group(
+                    self.layout.overflow.x == taffy::Overflow::Hidden
+                        || self.layout.overflow.y == taffy::Overflow::Hidden,
+                    ctx,
+                )?;
             }
             //
             NodeKind::Text(_) | NodeKind::Image(_) => {}

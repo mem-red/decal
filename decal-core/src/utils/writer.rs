@@ -7,37 +7,26 @@ where
 {
     const SPACE: char = ' ';
 
-    fn result_mut(&mut self) -> &mut std::fmt::Result;
-
-    fn str(&mut self, str: &str) -> &mut Self {
-        if self.result_mut().is_ok() {
-            *self.result_mut() = self.out_mut().write_str(str);
-        }
-
-        self
+    fn str(&mut self, str: &str) -> Result<&mut Self, std::fmt::Error> {
+        self.out_mut().write_str(str)?;
+        Ok(self)
     }
 
-    fn char(&mut self, char: char) -> &mut Self {
-        if self.result_mut().is_ok() {
-            *self.result_mut() = self.out_mut().write_char(char);
-        }
-
-        self
+    fn char(&mut self, char: char) -> Result<&mut Self, std::fmt::Error> {
+        self.out_mut().write_char(char)?;
+        Ok(self)
     }
 
-    fn space(&mut self) -> &mut Self {
+    fn space(&mut self) -> Result<&mut Self, std::fmt::Error> {
         self.char(Self::SPACE)
     }
 
-    fn float(&mut self, value: f32) -> &mut Self {
+    fn float(&mut self, value: f32) -> Result<&mut Self, std::fmt::Error> {
         self.float_precise(value, Self::FLOAT_SCALE)
     }
 
-    fn float_precise(&mut self, value: f32, scale: f32) -> &mut Self {
-        if self.result_mut().is_ok() {
-            *self.result_mut() = self.write_float_precise(value, scale);
-        }
-
-        self
+    fn float_precise(&mut self, value: f32, scale: f32) -> Result<&mut Self, std::fmt::Error> {
+        self.write_float_precise(value, scale)?;
+        Ok(self)
     }
 }
