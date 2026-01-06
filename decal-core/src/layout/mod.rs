@@ -1,3 +1,4 @@
+mod context;
 mod decal;
 mod engine;
 mod font;
@@ -17,4 +18,5 @@ pub use node_id::*;
 pub use options::*;
 pub use text::*;
 
+pub(crate) use context::*;
 pub(crate) use typography::*;
