@@ -77,3 +77,4 @@ impl Transformation for Image {}
 impl SelfAlignment for Image {}
 impl Visibility for Image {}
 impl FilterEffects for Image {}
+impl Blendable for Image {}
