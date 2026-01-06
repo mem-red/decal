@@ -1,6 +1,6 @@
 use crate::filters::primitives::{
     Blend, Blur, ColorMatrix, ComponentTransfer, Composite, ConvolveMatrix, DiffuseLighting,
-    DisplacementMap, Flood, Image, Merge, SpecularLighting, Turbulence,
+    DisplacementMap, DropShadow, Flood, Image, Merge, SpecularLighting, Turbulence,
 };
 use crate::paint::{Iri, ResourceIri};
 use std::fmt::{Display, Formatter};
@@ -20,6 +20,7 @@ pub enum FilterPrimitive {
     SpecularLighting(SpecularLighting),
     DiffuseLighting(DiffuseLighting),
     ConvolveMatrix(ConvolveMatrix),
+    DropShadow(DropShadow),
 }
 
 impl Display for FilterPrimitive {
@@ -38,6 +39,7 @@ impl Display for FilterPrimitive {
             Self::SpecularLighting(lighting) => lighting.fmt(f),
             Self::DiffuseLighting(lighting) => lighting.fmt(f),
             Self::ConvolveMatrix(matrix) => matrix.fmt(f),
+            Self::DropShadow(shadow) => shadow.fmt(f),
         }
     }
 }
@@ -58,6 +60,7 @@ impl ResourceIri for FilterPrimitive {
             Self::SpecularLighting(lighting) => lighting.iri(),
             Self::DiffuseLighting(lighting) => lighting.iri(),
             Self::ConvolveMatrix(matrix) => matrix.iri(),
+            Self::DropShadow(shadow) => shadow.iri(),
         }
     }
 }
@@ -139,5 +142,11 @@ impl From<DiffuseLighting> for FilterPrimitive {
 impl From<ConvolveMatrix> for FilterPrimitive {
     fn from(value: ConvolveMatrix) -> Self {
         Self::ConvolveMatrix(value)
+    }
+}
+
+impl From<DropShadow> for FilterPrimitive {
+    fn from(value: DropShadow) -> Self {
+        Self::DropShadow(value)
     }
 }

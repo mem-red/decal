@@ -1,7 +1,7 @@
 use crate::filters::primitives::{
     Blend, Blur, ColorMatrix, ComponentTransfer, Composite, ConvolveMatrix, DiffuseLighting,
-    DisplacementMap, FilterPrimitive, Flood, Image, Merge, PrimitiveBuilder, SpecularLighting,
-    Turbulence,
+    DisplacementMap, DropShadow, FilterPrimitive, Flood, Image, Merge, PrimitiveBuilder,
+    SpecularLighting, Turbulence,
 };
 use crate::paint::{Iri, ResourceIri};
 use crate::primitives::LightSource;
@@ -87,6 +87,10 @@ impl<'a> FilterContext {
 
     pub fn convolve_matrix(&self, kernel_matrix: Vec<f32>) -> PrimitiveBuilder<'_, ConvolveMatrix> {
         PrimitiveBuilder::new(self, ConvolveMatrix::new(kernel_matrix))
+    }
+
+    pub fn drop_shadow(&self) -> PrimitiveBuilder<'_, DropShadow> {
+        PrimitiveBuilder::new(self, DropShadow::new())
     }
 
     //
