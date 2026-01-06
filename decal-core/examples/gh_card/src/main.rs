@@ -9,8 +9,8 @@ fn header(owner: &str, repo: &str) -> Decal {
                 (repo, { weight: FontWeight::Bold })
              })
         }
-            .font_size(80)
-            .line_height(80)
+            .font_size(80.0)
+            .line_height(80.0)
     }
 }
 
@@ -21,14 +21,14 @@ fn statistic(value: &str, label: &str, icon: &str) -> Decal {
                 Image(ImageSource::svg(format!(r##"<svg width="32" height="32" viewBox="0 0 16 16" fill="#6e7681">{icon}</svg>"##)), 32.0, 32.0)
                 Text(value).color(rgb(0x0))
             }
-                .font_size(32)
-                .line_height(32)
+                .font_size(32.0)
+                .line_height(32.0)
                 .align_items(AlignItems::Center)
                 .gap(px(18))
             Text(label)
                 .color(rgb(0x6e7681))
-                .font_size(24)
-                .line_height(24)
+                .font_size(24.0)
+                .line_height(24.0)
                 .margin_left(px(50))
         }
             .gap(px(12))
@@ -47,7 +47,7 @@ fn main() {
     });
 
     let mut gh_card = decal! {
-            Root(1200, 600) {
+            Root(1200.0, 600.0) {
                 Column {
                     Row {
                         Column {
@@ -108,8 +108,8 @@ fn main() {
                     .background(rgb(0xffffff))
                     .size(pc(100))
             }
-                .font_size(32)
-                .line_height(46)
+                .font_size(32.0)
+                .line_height(46.0)
                 .color(rgb(0x2f363d))
                 .font_family("Mona Sans")
                 .text_wrap(TextWrap::Word)

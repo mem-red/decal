@@ -46,21 +46,15 @@ impl Transform {
         self
     }
 
-    pub fn translate_x<T>(mut self, value: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn translate_x(mut self, value: f32) -> Self {
         self.operations
-            .push(TransformOperation::Translate(value.into(), 0.0));
+            .push(TransformOperation::Translate(value, 0.0));
         self
     }
 
-    pub fn translate_y<T>(mut self, value: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn translate_y(mut self, value: f32) -> Self {
         self.operations
-            .push(TransformOperation::Translate(0.0, value.into()));
+            .push(TransformOperation::Translate(0.0, value));
         self
     }
 
@@ -75,55 +69,34 @@ impl Transform {
         self
     }
 
-    pub fn scale_x<T>(mut self, value: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.operations
-            .push(TransformOperation::Scale(value.into(), 1.0));
+    pub fn scale_x(mut self, value: f32) -> Self {
+        self.operations.push(TransformOperation::Scale(value, 1.0));
         self
     }
 
-    pub fn scale_y<T>(mut self, value: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.operations
-            .push(TransformOperation::Scale(1.0, value.into()));
+    pub fn scale_y(mut self, value: f32) -> Self {
+        self.operations.push(TransformOperation::Scale(1.0, value));
         self
     }
 
     //
 
-    pub fn rotate<T>(mut self, angle: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.operations.push(TransformOperation::Rotate(
-            angle.into(),
-            RotationAnchor::Center,
-        ));
+    pub fn rotate(mut self, angle: f32) -> Self {
+        self.operations
+            .push(TransformOperation::Rotate(angle, RotationAnchor::Center));
         self
     }
 
-    pub fn rotate_origin<T>(mut self, angle: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.operations.push(TransformOperation::Rotate(
-            angle.into(),
-            RotationAnchor::Origin,
-        ));
+    pub fn rotate_origin(mut self, angle: f32) -> Self {
+        self.operations
+            .push(TransformOperation::Rotate(angle, RotationAnchor::Origin));
         self
     }
 
-    pub fn rotate_at<T>(mut self, angle: T, x: T, y: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn rotate_at(mut self, angle: f32, x: f32, y: f32) -> Self {
         self.operations.push(TransformOperation::Rotate(
-            angle.into(),
-            RotationAnchor::Point(x.into(), y.into()),
+            angle,
+            RotationAnchor::Point(x, y),
         ));
         self
     }
@@ -139,21 +112,13 @@ impl Transform {
         self
     }
 
-    pub fn skew_x<T>(mut self, angle: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.operations
-            .push(TransformOperation::Skew(angle.into(), 0.0));
+    pub fn skew_x(mut self, angle: f32) -> Self {
+        self.operations.push(TransformOperation::Skew(angle, 0.0));
         self
     }
 
-    pub fn skew_y<T>(mut self, angle: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.operations
-            .push(TransformOperation::Skew(0.0, angle.into()));
+    pub fn skew_y<T>(mut self, angle: f32) -> Self {
+        self.operations.push(TransformOperation::Skew(0.0, angle));
         self
     }
 
@@ -252,28 +217,19 @@ impl IntoFloatPair for f32 {
     }
 }
 
-impl<T> IntoFloatPair for (T, T)
-where
-    T: Into<f32>,
-{
+impl IntoFloatPair for (f32, f32) {
     fn into_float_pair(self) -> (f32, f32) {
         (self.0.into(), self.1.into())
     }
 }
 
-impl<T> IntoFloatPair for [T; 1]
-where
-    T: Into<f32> + Copy,
-{
+impl IntoFloatPair for [f32; 1] {
     fn into_float_pair(self) -> (f32, f32) {
         (self[0].into(), self[0].into())
     }
 }
 
-impl<T> IntoFloatPair for [T; 2]
-where
-    T: Into<f32> + Copy,
-{
+impl IntoFloatPair for [f32; 2] {
     fn into_float_pair(self) -> (f32, f32) {
         (self[0].into(), self[1].into())
     }

@@ -68,20 +68,14 @@ impl Display for LightSourceInner {
 pub struct LightSource(LightSourceInner);
 
 impl LightSource {
-    pub fn distant_light<T>(azimuth: T, elevation: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn distant_light(azimuth: f32, elevation: f32) -> Self {
         Self(LightSourceInner::DistantLight {
             azimuth: ff32!(azimuth),
             elevation: ff32!(elevation),
         })
     }
 
-    pub fn point_light<T>(x: T, y: T, z: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn point_light(x: f32, y: f32, z: f32) -> Self {
         Self(LightSourceInner::PointLight {
             x: ff32!(x),
             y: ff32!(y),

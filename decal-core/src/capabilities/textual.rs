@@ -23,21 +23,19 @@ pub trait Textual: Drawable {
         self
     }
 
-    fn font_size<T, F>(mut self, font_size: T) -> Self
+    fn font_size<T>(mut self, font_size: T) -> Self
     where
-        T: Into<Option<F>>,
-        F: Into<f64>,
+        T: Into<Option<f32>>,
     {
-        self.typography_mut().size = font_size.into().map(|x| x.into() as f32);
+        self.typography_mut().size = font_size.into();
         self
     }
 
-    fn line_height<T, F>(mut self, line_height: T) -> Self
+    fn line_height<T>(mut self, line_height: T) -> Self
     where
-        T: Into<Option<F>>,
-        F: Into<f64>,
+        T: Into<Option<f32>>,
     {
-        self.typography_mut().line_height = line_height.into().map(|x| x.into() as f32);
+        self.typography_mut().line_height = line_height.into();
         self
     }
 
@@ -49,12 +47,11 @@ pub trait Textual: Drawable {
         self
     }
 
-    fn letter_spacing<T, F>(mut self, letter_spacing: T) -> Self
+    fn letter_spacing<T>(mut self, letter_spacing: T) -> Self
     where
-        T: Into<Option<F>>,
-        F: Into<f64>,
+        T: Into<Option<f32>>,
     {
-        self.typography_mut().letter_spacing = letter_spacing.into().map(|x| x.into() as f32);
+        self.typography_mut().letter_spacing = letter_spacing.into();
         self
     }
 

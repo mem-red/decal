@@ -35,14 +35,7 @@ impl_node_builder!(
 );
 
 impl Root {
-    pub fn new<W, H>(width: W, height: H) -> Self
-    where
-        W: Into<f64>,
-        H: Into<f64>,
-    {
-        let width = width.into() as f32;
-        let height = height.into() as f32;
-
+    pub fn new(width: f32, height: f32) -> Self {
         Self {
             meta: RootMeta { width, height },
             layout: Style {

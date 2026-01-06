@@ -88,10 +88,7 @@ impl<'a> PrimitiveBuilder<'a, DisplacementMap> {
         self
     }
 
-    pub fn scale<T>(mut self, scale: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn scale(mut self, scale: f32) -> Self {
         self.inner.scale = ff32!(scale);
         self
     }

@@ -63,18 +63,12 @@ impl GradientTransform {
         self.transform().post_translate(x, y).into()
     }
 
-    pub fn translate_x<T>(self, value: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.transform().post_translate(value.into(), 0.0).into()
+    pub fn translate_x(self, value: f32) -> Self {
+        self.transform().post_translate(value, 0.0).into()
     }
 
-    pub fn translate_y<T>(self, value: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.transform().post_translate(0.0, value.into()).into()
+    pub fn translate_y(self, value: f32) -> Self {
+        self.transform().post_translate(0.0, value).into()
     }
 
     //
@@ -87,36 +81,22 @@ impl GradientTransform {
         self.transform().post_scale(x, y).into()
     }
 
-    pub fn scale_x<T>(self, value: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.transform().post_scale(value.into(), 1.0).into()
+    pub fn scale_x(self, value: f32) -> Self {
+        self.transform().post_scale(value, 1.0).into()
     }
 
-    pub fn scale_y<T>(self, value: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.transform().post_scale(1.0, value.into()).into()
+    pub fn scale_y(self, value: f32) -> Self {
+        self.transform().post_scale(1.0, value).into()
     }
 
     //
 
-    pub fn rotate<T>(self, angle: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.transform().post_rotate(angle.into()).into()
+    pub fn rotate(self, angle: f32) -> Self {
+        self.transform().post_rotate(angle).into()
     }
 
-    pub fn rotate_at<T>(self, angle: T, x: T, y: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.transform()
-            .post_rotate_at(angle.into(), x.into(), y.into())
-            .into()
+    pub fn rotate_at(self, angle: f32, x: f32, y: f32) -> Self {
+        self.transform().post_rotate_at(angle, x, y).into()
     }
 
     //

@@ -94,20 +94,14 @@ impl TransferFunction {
         ))
     }
 
-    pub fn linear<T>(slope: T, intercept: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn linear(slope: f32, intercept: f32) -> Self {
         Self(TransferFunctionInner::Linear {
             slope: ff32!(slope, 1.0),
             intercept: ff32!(intercept),
         })
     }
 
-    pub fn gamma<T>(amplitude: T, exponent: T, offset: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn gamma(amplitude: f32, exponent: f32, offset: f32) -> Self {
         Self(TransferFunctionInner::Gamma {
             amplitude: ff32!(amplitude, 1.0),
             exponent: ff32!(exponent, 1.0),

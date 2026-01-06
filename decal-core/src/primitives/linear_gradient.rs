@@ -24,7 +24,7 @@ impl Default for LinearGradient {
             units: GradientUnits::default(),
             x1: GradientUnit::zero(),
             y1: GradientUnit::zero(),
-            x2: GradientUnit::percent(100),
+            x2: GradientUnit::percent(100.0),
             y2: GradientUnit::zero(),
             spread_method: SpreadMethod::default(),
             transform: GradientTransform::default(),
@@ -37,11 +37,8 @@ impl LinearGradient {
         LinearGradient::default()
     }
 
-    pub fn angle<T>(angle: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        let (x1, y1, x2, y2) = angle_to_line(angle.into());
+    pub fn angle(angle: f32) -> Self {
+        let (x1, y1, x2, y2) = angle_to_line(angle);
         LinearGradient {
             x1: GradientUnit::percent_normalized(x1),
             y1: GradientUnit::percent_normalized(y1),
@@ -54,7 +51,7 @@ impl LinearGradient {
     pub fn top() -> Self {
         Self::new()
             .x1(Length::zero())
-            .y1(Length::percent(100))
+            .y1(Length::percent(100.0))
             .x2(Length::zero())
             .y2(Length::zero())
     }
@@ -68,12 +65,12 @@ impl LinearGradient {
             .x1(Length::zero())
             .y1(Length::zero())
             .x2(Length::zero())
-            .y2(Length::percent(100))
+            .y2(Length::percent(100.0))
     }
 
     pub fn left() -> Self {
         Self::new()
-            .x1(Length::percent(100))
+            .x1(Length::percent(100.0))
             .y1(Length::zero())
             .x2(Length::zero())
             .y2(Length::zero())
@@ -81,8 +78,8 @@ impl LinearGradient {
 
     pub fn top_left() -> Self {
         Self::new()
-            .x1(Length::percent(100))
-            .y1(Length::percent(100))
+            .x1(Length::percent(100.0))
+            .y1(Length::percent(100.0))
             .x2(Length::zero())
             .y2(Length::zero())
     }
@@ -90,25 +87,25 @@ impl LinearGradient {
     pub fn top_right() -> Self {
         Self::new()
             .x1(Length::zero())
-            .y1(Length::percent(100))
-            .x2(Length::percent(100))
+            .y1(Length::percent(100.0))
+            .x2(Length::percent(100.0))
             .y2(Length::zero())
     }
 
     pub fn bottom_left() -> Self {
         Self::new()
-            .x1(Length::percent(100))
+            .x1(Length::percent(100.0))
             .y1(Length::zero())
             .x2(Length::zero())
-            .y2(Length::percent(100))
+            .y2(Length::percent(100.0))
     }
 
     pub fn bottom_right() -> Self {
         Self::new()
             .x1(Length::zero())
             .y1(Length::zero())
-            .x2(Length::percent(100))
-            .y2(Length::percent(100))
+            .x2(Length::percent(100.0))
+            .y2(Length::percent(100.0))
     }
 
     //
@@ -158,7 +155,7 @@ impl LinearGradient {
     where
         T: Into<Option<GradientUnit>>,
     {
-        self.x2 = value.into().unwrap_or(GradientUnit::percent(100));
+        self.x2 = value.into().unwrap_or(GradientUnit::percent(100.0));
         self
     }
 
@@ -201,7 +198,7 @@ impl Display for LinearGradient {
             .attr("id", (self.iri(),))?
             .attr_if("x1", self.x1, !self.x1.is_zero())?
             .attr_if("y1", self.y1, !self.y1.is_zero())?
-            .attr_if("x2", self.x2, self.x2 != GradientUnit::percent(100))?
+            .attr_if("x2", self.x2, self.x2 != GradientUnit::percent(100.0))?
             .attr_if("y2", self.y2, !self.y2.is_zero())?
             .attr_if("gradientUnits", (&self.units,), !self.units.is_default())?
             .attr_if(

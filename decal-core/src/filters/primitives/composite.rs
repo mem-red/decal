@@ -62,10 +62,7 @@ impl CompositeOperator {
         Self(CompositeOperatorInner::Lighter)
     }
 
-    pub fn arithmetic<T>(k1: T, k2: T, k3: T, k4: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn arithmetic(k1: f32, k2: f32, k3: f32, k4: f32) -> Self {
         Self(CompositeOperatorInner::Arithmetic {
             k1: ff32!(k1),
             k2: ff32!(k2),

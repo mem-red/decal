@@ -26,20 +26,13 @@ impl<const PERCENT: bool> Length<true, PERCENT> {
 
 impl<const AUTO: bool> Length<AUTO, true> {
     #[must_use]
-    pub fn percent<T>(value: T) -> Self
-    where
-        T: Into<f64>,
-    {
-        let value = value.into() as f32;
+    pub fn percent(value: f32) -> Self {
         Self(LengthInner::Percent(ff32!(value / 100.0)))
     }
 
     #[must_use]
-    pub fn percent_normalized<T>(value: T) -> Self
-    where
-        T: Into<f64>,
-    {
-        Self(LengthInner::Percent(ff32!(value.into() as f32)))
+    pub fn percent_normalized(value: f32) -> Self {
+        Self(LengthInner::Percent(ff32!(value)))
     }
 }
 
@@ -50,11 +43,8 @@ impl<const AUTO: bool, const PERCENT: bool> Length<AUTO, PERCENT> {
     }
 
     #[must_use]
-    pub fn pixels<T>(value: T) -> Self
-    where
-        T: Into<f64>,
-    {
-        Self(LengthInner::Pixels(ff32!(value.into() as f32)))
+    pub fn pixels(value: f32) -> Self {
+        Self(LengthInner::Pixels(ff32!(value)))
     }
 
     pub(crate) fn is_zero(&self) -> bool {
@@ -138,7 +128,7 @@ pub(super) mod helpers {
     where
         T: Into<f64>,
     {
-        Length::pixels(value)
+        Length::pixels(value.into() as f32)
     }
 
     #[must_use]
@@ -146,7 +136,7 @@ pub(super) mod helpers {
     where
         T: Into<f64>,
     {
-        Length::percent(value)
+        Length::percent(value.into() as f32)
     }
 
     pub trait LengthExtension<const AUTO: bool, const PERCENT: bool>: Sized + Copy {
@@ -161,11 +151,11 @@ pub(super) mod helpers {
         ($($dtype:ty),*) => {
             $(impl<const AUTO: bool, const PERCENT: bool> LengthExtension<AUTO, PERCENT> for $dtype {
                 fn px(self) -> Length<AUTO, PERCENT> {
-                    Length::pixels(self as f64)
+                    Length::pixels(self as f32)
                 }
 
                 fn pc(self) -> Length<AUTO, true> {
-                    Length::percent(self as f64)
+                    Length::percent(self as f32)
                 }
             })*
         };

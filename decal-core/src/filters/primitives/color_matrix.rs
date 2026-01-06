@@ -26,10 +26,7 @@ impl Default for ColorMatrixType {
 }
 
 impl ColorMatrixType {
-    fn matrix<T>(matrix: [[T; 5]; 4]) -> Self
-    where
-        T: Into<f32> + Copy,
-    {
+    fn matrix(matrix: [[f32; 5]; 4]) -> Self {
         let mut ff32_matrix: [[FiniteF32; 5]; 4] = [[FiniteF32::default(); 5]; 4];
 
         for (i, row) in matrix.iter().enumerate() {
@@ -110,10 +107,7 @@ impl<'a> PrimitiveBuilder<'a, ColorMatrix> {
         self
     }
 
-    pub fn matrix<T>(mut self, matrix: [[T; 5]; 4]) -> Self
-    where
-        T: Into<f32> + Copy,
-    {
+    pub fn matrix(mut self, matrix: [[f32; 5]; 4]) -> Self {
         self.inner.kind = ColorMatrixType::matrix(matrix);
         self
     }

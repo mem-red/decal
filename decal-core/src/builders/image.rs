@@ -29,14 +29,10 @@ impl_node_builder! {
 }
 
 impl Image {
-    pub fn new<S, T>(source: S, width: T, height: T) -> Self
+    pub fn new<S>(source: S, width: f32, height: f32) -> Self
     where
         S: Into<ImageSource>,
-        T: Into<f32> + Copy,
     {
-        let width = width.into();
-        let height = height.into();
-
         Self {
             meta: ImageMeta::new(source, width, height),
             layout: Style {
