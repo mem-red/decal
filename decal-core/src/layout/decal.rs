@@ -1,12 +1,15 @@
-use crate::layout::{FontRegistry, ImageCache, ImageOptions, Node, NodeKind, RasterizeOptions};
+use crate::layout::{
+    FontRegistry, ImageCache, ImageOptions, Node, NodeKind, RasterizeOptions, RenderContext,
+};
 use crate::layout::{NodeId, VectorizeError};
 use crate::layout::{Typography, VectorizeOptions};
 use crate::paint::Resources;
+use parking_lot::Mutex;
 use resvg::render;
 use smallvec::SmallVec;
 use std::fmt::Write;
 use std::io::Read;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use taffy::prelude::TaffyMaxContent;
 use taffy::{
     CacheTree, LayoutPartialTree, PrintTree, RoundTree, TraversePartialTree, TraverseTree,
@@ -71,7 +74,8 @@ impl Decal {
         }
 
         // register resources
-        if let Ok(mut resources) = self.resources.lock() {
+        {
+            let mut resources = self.resources.lock();
             for resource in &child.resources {
                 resources.get_or_add_resource(resource.clone());
             }
@@ -104,7 +108,8 @@ impl Decal {
             }
 
             // register resources
-            if let Ok(mut resources) = self.resources.lock() {
+            {
+                let mut resources = self.resources.lock();
                 for resource in &node.resources {
                     resources.get_or_add_resource(resource.clone());
                 }
@@ -127,11 +132,15 @@ impl Decal {
         let mut out = String::new();
         let root = &self.nodes[ROOT_ID];
 
-        self.vectorize_node(
-            &mut out,
-            (root.final_layout.size.width, root.final_layout.size.height),
+        self.emit_node(
+            &mut RenderContext {
+                out: &mut out,
+                fonts: self.fonts.clone(),
+                resources: &self.resources,
+                root_size: (root.final_layout.size.width, root.final_layout.size.height),
+                options,
+            },
             taffy::NodeId::from(ROOT_ID),
-            options,
         )?;
 
         Ok(out)
@@ -244,12 +253,10 @@ impl Decal {
         &mut self.nodes[usize::from(node_id)]
     }
 
-    fn vectorize_node<T>(
+    fn emit_node<T>(
         &self,
-        out: &mut T,
-        root_size: (f32, f32),
+        ctx: &mut RenderContext<T>,
         node_id: taffy::NodeId,
-        options: &VectorizeOptions,
     ) -> Result<(), VectorizeError>
     where
         T: Write,
@@ -258,13 +265,13 @@ impl Decal {
         let node = &self.nodes[node_idx];
 
         if node.visual.visible && !matches!(node.layout.display, taffy::Display::None) {
-            node.write_svg_start(out, root_size, self.fonts.clone(), &self.resources, options)?;
+            node.pre_emit(ctx)?;
 
-            for &child_id in &node.children {
-                self.vectorize_node(out, root_size, taffy::NodeId::from(child_id), options)?;
+            for child_id in &node.children {
+                self.emit_node(ctx, taffy::NodeId::from(*child_id))?;
             }
 
-            node.write_svg_end(out, &self.resources)?;
+            node.post_emit(ctx)?;
         }
 
         Ok(())
@@ -285,10 +292,8 @@ fn fetch_image_cached(
             .is_some_and(|ignore_fn| ignore_fn(href));
 
     if !skip_cache {
-        if let Ok(mut cache) = image_cache.lock() {
-            if let Some(bytes) = cache.get(href).map(|x| x.clone()) {
-                return Some(bytes);
-            }
+        if let Some(bytes) = image_cache.lock().get(href).map(|x| x.clone()) {
+            return Some(bytes);
         }
     }
 
@@ -304,9 +309,7 @@ fn fetch_image_cached(
                 let data = Arc::new(buf);
 
                 if !skip_cache {
-                    if let Ok(mut cache) = image_cache.lock() {
-                        cache.push(href.to_owned(), data.clone());
-                    }
+                    image_cache.lock().push(href.to_owned(), data.clone());
                 }
 
                 return Some(data);

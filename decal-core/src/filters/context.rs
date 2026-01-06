@@ -7,10 +7,11 @@ use crate::filters::primitives::{Composite, Image};
 use crate::paint::{Iri, ResourceIri};
 use crate::primitives::LightSource;
 use hashbrown::HashMap;
-use std::sync::Mutex;
+use parking_lot::Mutex;
 
 #[derive(Debug, Copy, Clone)]
 pub struct PrimitiveNode {
+    #[allow(dead_code)]
     idx: usize,
     iri: Iri,
 }
@@ -80,15 +81,12 @@ impl<'a> FilterContext {
 
     //
 
-    pub(crate) fn primitives(self) -> Vec<FilterPrimitive> {
-        // TODO
-        let inner = self.0.lock().unwrap();
-        inner.primitives.clone()
+    pub(crate) fn into_primitives(self) -> Vec<FilterPrimitive> {
+        self.0.into_inner().primitives
     }
 
     pub(crate) fn get_or_add_primitive(&self, primitive: FilterPrimitive) -> PrimitiveNode {
-        // TODO
-        let mut inner = self.0.lock().unwrap();
+        let mut inner = self.0.lock();
         let iri = primitive.iri();
 
         if let Some(idx) = inner.index_map.get(&primitive) {

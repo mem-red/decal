@@ -1,8 +1,9 @@
 use crate::layout::font::FontRegistry;
 use crate::layout::{Decal, RasterizeError, RasterizeOptions, VectorizeError, VectorizeOptions};
 use lru::LruCache;
+use parking_lot::Mutex;
 use std::num::NonZeroUsize;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use tiny_skia::Pixmap;
 
 pub(crate) type ImageCache = Arc<Mutex<LruCache<String, Arc<Vec<u8>>>>>;
@@ -42,9 +43,7 @@ impl Engine {
     where
         T: Into<Vec<u8>>,
     {
-        if let Ok(mut registry) = self.fonts.lock() {
-            registry.append_font(alias, data);
-        }
+        self.fonts.lock().append_font(alias, data);
     }
 
     pub fn rasterize(
