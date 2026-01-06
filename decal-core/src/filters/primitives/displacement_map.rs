@@ -3,9 +3,9 @@ use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::ff32;
 use crate::paint::ResourceIri;
 use crate::primitives::FilterInput;
-use crate::utils::{FloatWriter, IsDefault};
+use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
-use std::fmt::{Display, Formatter, Write};
+use std::fmt::{Display, Formatter};
 use strict_num::FiniteF32;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default, EnumDisplay)]
@@ -49,32 +49,25 @@ impl HasFilterRegion for DisplacementMap {
 
 impl Display for DisplacementMap {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<feDisplacementMap")?;
-        self.region.fmt(f)?;
-
-        if let Some(input) = self.input {
-            write!(f, r#" in="{input}""#)?;
-        }
-
-        if let Some(map) = self.map {
-            write!(f, r#" in2="{map}""#)?;
-        }
-
-        if self.scale.get() != 0.0 {
-            f.write_str(r#" scale=""#)?;
-            f.write_float(self.scale.get())?;
-            f.write_char('"')?;
-        }
-
-        if !self.x_channel_selector.is_default() {
-            write!(f, r#" xChannelSelector="{}""#, self.x_channel_selector)?;
-        }
-
-        if !self.y_channel_selector.is_default() {
-            write!(f, r#" yChannelSelector="{}""#, self.y_channel_selector)?;
-        }
-
-        write!(f, r#" result="{}" />"#, self.iri())
+        ElementWriter::new(f, "feDisplacementMap")?
+            .write(|out| self.region.fmt(out))?
+            .attrs([
+                ("in", self.input.map(|x| (x,))),
+                ("in2", self.map.map(|x| (x,))),
+            ])?
+            .attr_if("scale", self.scale, self.scale.get() != 0.0)?
+            .attr_if(
+                "xChannelSelector",
+                (self.x_channel_selector,),
+                !self.x_channel_selector.is_default(),
+            )?
+            .attr_if(
+                "yChannelSelector",
+                (self.y_channel_selector,),
+                !self.y_channel_selector.is_default(),
+            )?
+            .attr("result", (self.iri(),))?
+            .close()
     }
 }
 

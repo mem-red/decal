@@ -3,8 +3,8 @@ use crate::filters::primitives::FilterPrimitive;
 use crate::filters::{FilterRegion, FilterRegionConfig, HasFilterRegion};
 use crate::paint::ResourceIri;
 use crate::primitives::{FilterUnits, PrimitiveUnits};
-use crate::utils::IsDefault;
-use std::fmt::{Display, Formatter, Write};
+use crate::utils::{ElementWriter, IsDefault};
+use std::fmt::{Display, Formatter};
 use std::hash::Hash;
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
@@ -24,7 +24,7 @@ impl Filter {
             primitives: {
                 let mut ctx = FilterContext::default();
                 build(&mut ctx);
-                ctx.primitives()
+                ctx.into_primitives()
             },
             ..Default::default()
         }
@@ -45,11 +45,6 @@ impl Filter {
         self.primitive_units = value.into().unwrap_or_default();
         self
     }
-
-    pub fn append(mut self, other: Filter) -> Self {
-        self.primitives.extend(other.primitives);
-        self
-    }
 }
 
 impl HasFilterRegion for Filter {
@@ -64,24 +59,24 @@ impl ResourceIri for Filter {}
 
 impl Display for Filter {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<filter")?;
-        self.region.fmt(f)?;
-        write!(f, r#" id="{}""#, self.iri())?;
-
-        if !self.filter_units.is_default() {
-            write!(f, r#" filterUnits="{}""#, self.filter_units)?;
-        }
-
-        if !self.primitive_units.is_default() {
-            write!(f, r#" primitiveUnits="{}""#, self.primitive_units)?;
-        }
-
-        f.write_char('>')?;
-
-        for primitive in &self.primitives {
-            write!(f, "{primitive}")?;
-        }
-
-        write!(f, r#"</filter>"#)
+        ElementWriter::new(f, "filter")?
+            .write(|out| self.region.fmt(out))?
+            .attr("id", (self.iri(),))?
+            .attr_if(
+                "filterUnits",
+                (&self.filter_units,),
+                !self.filter_units.is_default(),
+            )?
+            .attr_if(
+                "primitiveUnits",
+                (&self.primitive_units,),
+                !self.primitive_units.is_default(),
+            )?
+            .content(|out| {
+                self.primitives
+                    .iter()
+                    .try_for_each(|primitive| primitive.fmt(out))
+            })?
+            .close()
     }
 }

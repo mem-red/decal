@@ -1,6 +1,6 @@
 use crate::paint::{IntoResources, Resource, ResourceIri};
 use crate::primitives::{GradientTransform, GradientUnits, Length, SpreadMethod, Stop};
-use crate::utils::{IsDefault, angle_to_line};
+use crate::utils::{ElementWriter, IsDefault, angle_to_line};
 use std::fmt::{Display, Formatter};
 
 type GradientUnit = Length<false, true>;
@@ -197,44 +197,26 @@ impl IntoResources for LinearGradient {
 
 impl Display for LinearGradient {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, r#"<linearGradient id="{}""#, self.iri())?;
-
-        if !self.x1.is_zero() {
-            write!(f, r#" x1="{}""#, self.x1)?;
-        }
-
-        if !self.y1.is_zero() {
-            write!(f, r#" y1="{}""#, self.y1)?;
-        }
-
-        if self.x2 != GradientUnit::percent(100) {
-            write!(f, r#" x2="{}""#, self.x2)?;
-        }
-
-        if !self.y2.is_zero() {
-            write!(f, r#" y2="{}""#, self.y2)?;
-        }
-
-        if !self.units.is_default() {
-            write!(f, r#" gradientUnits="{}""#, self.units)?;
-        }
-
-        if !self.spread_method.is_default() {
-            write!(f, r#" spreadMethod="{}""#, self.spread_method)?;
-        }
-
-        self.transform.write(f)?;
+        let gradient = ElementWriter::new(f, "linearGradient")?
+            .attr("id", (self.iri(),))?
+            .attr_if("x1", self.x1, !self.x1.is_zero())?
+            .attr_if("y1", self.y1, !self.y1.is_zero())?
+            .attr_if("x2", self.x2, self.x2 != GradientUnit::percent(100))?
+            .attr_if("y2", self.y2, !self.y2.is_zero())?
+            .attr_if("gradientUnits", (&self.units,), !self.units.is_default())?
+            .attr_if(
+                "spreadMethod",
+                (&self.spread_method,),
+                !self.spread_method.is_default(),
+            )?
+            .write(|out| self.transform.write(out))?;
 
         if self.stops.is_empty() {
-            write!(f, " />")
+            gradient.close()
         } else {
-            write!(f, ">")?;
-
-            for stop in &self.stops {
-                write!(f, "{stop}")?;
-            }
-
-            write!(f, r#"</linearGradient>"#)
+            gradient
+                .content(|out| self.stops.iter().try_for_each(|stop| stop.fmt(out)))?
+                .close()
         }
     }
 }

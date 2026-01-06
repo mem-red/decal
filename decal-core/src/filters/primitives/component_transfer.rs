@@ -3,7 +3,7 @@ use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, nf32};
 use crate::paint::ResourceIri;
 use crate::primitives::FilterInput;
-use crate::utils::{FloatWriter, IsDefault};
+use crate::utils::{ElementWriter, FloatWriter, IsDefault, write_spaced};
 use std::fmt::{Display, Formatter, Write};
 use strict_num::{FiniteF32, NormalizedF32};
 
@@ -35,63 +35,42 @@ impl TransferFunctionInner {
             return Ok(());
         }
 
-        write!(out, "<{element_name}")?;
+        let func_el = ElementWriter::new(out, element_name)?;
 
         match self {
             Self::Table(values) => {
-                write!(out, r#" type="table" tableValues=""#)?;
-                let mut first = true;
-
-                for value in values {
-                    if !first {
-                        out.write_char(' ')?;
-                    }
-
-                    out.write_float(value.get())?;
-                    first = false;
-                }
-
-                write!(out, r#"""#)?;
+                func_el
+                    .attr("type", "table")?
+                    .write_attr("tableValues", |out| {
+                        write_spaced(out, values.iter(), |out, value| {
+                            out.write_float(value.get())
+                        })
+                    })
             }
             Self::Discrete(values) => {
-                write!(out, r#" type="discrete" tableValues=""#)?;
-                let mut first = true;
-
-                for value in values {
-                    if !first {
-                        out.write_char(' ')?;
-                    }
-
-                    out.write_float(value.get())?;
-                    first = false;
-                }
-
-                write!(out, r#"""#)?;
+                func_el
+                    .attr("type", "discrete")?
+                    .write_attr("tableValues", |out| {
+                        write_spaced(out, values.iter(), |out, value| {
+                            out.write_float(value.get())
+                        })
+                    })
             }
-            Self::Linear { slope, intercept } => {
-                out.write_str(r#" type="linear" slope=""#)?;
-                out.write_float(slope.get())?;
-                out.write_str(r#"" intercept=""#)?;
-                out.write_float(intercept.get())?;
-                out.write_char('"')?;
-            }
+            Self::Linear { slope, intercept } => func_el
+                .attr("type", "linear")?
+                .attrs([("slope", *slope), ("intercept", *intercept)]),
             Self::Gamma {
                 amplitude,
                 exponent,
                 offset,
-            } => {
-                out.write_str(r#" type="gamma" amplitude=""#)?;
-                out.write_float(amplitude.get())?;
-                out.write_str(r#"" exponent=""#)?;
-                out.write_float(exponent.get())?;
-                out.write_str(r#"" offset=""#)?;
-                out.write_float(offset.get())?;
-                out.write_char('"')?;
-            }
+            } => func_el.attr("type", "gamma")?.attrs([
+                ("amplitude", *amplitude),
+                ("exponent", *exponent),
+                ("offset", *offset),
+            ]),
             _ => unreachable!(),
-        }
-
-        out.write_str(" />")
+        }?
+        .close()
     }
 }
 
@@ -172,21 +151,19 @@ impl HasFilterRegion for ComponentTransfer {
 
 impl Display for ComponentTransfer {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<feComponentTransfer")?;
-        self.region.fmt(f)?;
+        ElementWriter::new(f, "feComponentTransfer")?
+            .write(|out| self.region.fmt(out))?
+            .attr("in", self.input.map(|x| (x,)))?
+            .attr("result", (self.iri(),))?
+            .content(|out| {
+                self.func_r.serialize(out, "feFuncR")?;
+                self.func_g.serialize(out, "feFuncG")?;
+                self.func_b.serialize(out, "feFuncB")?;
+                self.func_a.serialize(out, "feFuncA")?;
 
-        if let Some(input) = self.input {
-            write!(f, r#" in="{input}""#)?;
-        }
-
-        write!(f, r#" result="{}">"#, self.iri())?;
-
-        self.func_r.serialize(f, "feFuncR")?;
-        self.func_g.serialize(f, "feFuncG")?;
-        self.func_b.serialize(f, "feFuncB")?;
-        self.func_a.serialize(f, "feFuncA")?;
-
-        write!(f, "</feComponentTransfer>")
+                Ok(())
+            })?
+            .close()
     }
 }
 

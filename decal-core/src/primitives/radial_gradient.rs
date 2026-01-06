@@ -1,6 +1,7 @@
 use crate::paint::{IntoResources, Resource, ResourceIri};
 use crate::primitives::GradientTransform;
 use crate::primitives::Stop;
+use crate::utils::ElementWriter;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
@@ -25,19 +26,16 @@ impl IntoResources for RadialGradient {
 
 impl Display for RadialGradient {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, r#"<radialGradient id="{}""#, self.iri())?;
-        self.transform.write(f)?;
+        let gradient = ElementWriter::new(f, "radialGradient")?
+            .attr("id", (self.iri(),))?
+            .write(|out| self.transform.write(out))?;
 
         if self.stops.is_empty() {
-            write!(f, " />")
+            gradient.close()
         } else {
-            write!(f, ">")?;
-
-            for stop in &self.stops {
-                write!(f, "{stop}")?;
-            }
-
-            write!(f, r#"</radialGradient>"#)
+            gradient
+                .content(|out| self.stops.iter().try_for_each(|stop| stop.fmt(out)))?
+                .close()
         }
     }
 }

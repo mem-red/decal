@@ -2,6 +2,7 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
 use crate::primitives::FilterInput;
+use crate::utils::ElementWriter;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
@@ -30,15 +31,17 @@ impl Display for Merge {
             return Ok(());
         }
 
-        f.write_str("<feMerge")?;
-        self.region.fmt(f)?;
-        write!(f, r#" result="{}">"#, self.iri())?;
-
-        for node in &self.inputs {
-            write!(f, r#"<feMergeNode in="{node}" />"#)?;
-        }
-
-        f.write_str("</feMerge>")
+        ElementWriter::new(f, "feMerge")?
+            .write(|out| self.region.fmt(out))?
+            .attr("result", (self.iri(),))?
+            .content(|out| {
+                self.inputs.iter().try_for_each(|node| {
+                    ElementWriter::new(out, "feMergeNode")?
+                        .attr("in", (node,))?
+                        .close()
+                })
+            })?
+            .close()
     }
 }
 

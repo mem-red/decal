@@ -4,13 +4,14 @@ use crate::layout::{DEFAULT_FONT_FAMILY, Typography};
 use crate::paint::{Appearance, ResourceIri};
 use crate::primitives::Color;
 use crate::text::{FontStyle, FontWeight};
-use crate::utils::{IsDefault, PathWriter, encode_image};
+use crate::utils::{ElementWriter, IsDefault, PathWriter, encode_image};
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;
 use cosmic_text::{Attrs, Buffer, Command, Family, FontSystem, Metrics, Shaping, SwashCache};
+use parking_lot::Mutex;
 use png::EncodingError;
 use std::fmt::Formatter;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use swash::scale::image::Content;
 use taffy::prelude::*;
 use thiserror::Error;
@@ -66,18 +67,20 @@ impl TextMeta {
             return Ok(());
         };
 
-        write!(out, "<g")?;
-
-        if appearance.opacity != 1.0 {
-            write!(out, r#" opacity="{}""#, appearance.opacity)?;
-        }
-
-        if !appearance.filter.is_default() {
-            write!(out, r#" filter="url(#{})""#, appearance.filter.iri())?;
-        }
-
-        transform.write(out, offset, (0.0, 0.0), (self.width, self.height))?;
-        write!(out, r#">"#)?;
+        ElementWriter::new(out, "g")?
+            .attr_if("opacity", appearance.opacity, appearance.opacity != 1.0)?
+            .attr_if(
+                "filter",
+                (format_args!("url(#{})", appearance.filter.iri()),),
+                !appearance.filter.is_default(),
+            )?
+            .attr_if(
+                "style",
+                (format_args!("mix-blend-mode:{}", appearance.blend_mode),),
+                !appearance.blend_mode.is_default(),
+            )?
+            .write(|out| transform.write(out, offset, (0.0, 0.0), (self.width, self.height)))?
+            .open()?;
 
         for run in buffer.layout_runs() {
             let line_y = run.line_y;
@@ -92,73 +95,79 @@ impl TextMeta {
                     .get_outline_commands(font_system, cache_key)
                     .filter(|x| is_drawable(*x))
                 {
-                    write!(
-                        out,
-                        r#"<path fill="{}" d=""#,
-                        self.spans
-                            .get(glyph.metadata)
-                            .and_then(|span| span.typography.color.clone())
-                            .unwrap_or(DEFAULT_COLOR.into())
-                    )?;
+                    ElementWriter::new(out, "path")?
+                        .attr(
+                            "fill",
+                            (self
+                                .spans
+                                .get(glyph.metadata)
+                                .and_then(|span| span.typography.color.clone())
+                                .unwrap_or(DEFAULT_COLOR.into()),),
+                        )?
+                        .write_attr("d", |out| {
+                            let mut d = PathWriter::new(out);
 
-                    let mut d = PathWriter::new(out);
+                            for command in outline_commands.iter() {
+                                match *command {
+                                    Command::MoveTo(Point { x, y }) => {
+                                        d.move_to(x + glyph_x, line_y + glyph_y - y)?;
+                                    }
+                                    Command::LineTo(Point { x, y }) => {
+                                        d.line_to(x + glyph_x, line_y + glyph_y - y)?;
+                                    }
+                                    Command::CurveTo(
+                                        Point { x: x1, y: y1 },
+                                        Point { x: x2, y: y2 },
+                                        Point { x, y },
+                                    ) => {
+                                        d.curve_to(
+                                            x1 + glyph_x,
+                                            line_y + glyph_y - y1,
+                                            x2 + glyph_x,
+                                            line_y + glyph_y - y2,
+                                            x + glyph_x,
+                                            line_y + glyph_y - y,
+                                        )?;
+                                    }
+                                    Command::QuadTo(Point { x: cx, y: cy }, Point { x, y }) => {
+                                        d.quad_to(
+                                            cx + glyph_x,
+                                            line_y + glyph_y - cy,
+                                            x + glyph_x,
+                                            line_y + glyph_y - y,
+                                        )?;
+                                    }
+                                    Command::Close => d.close()?,
+                                }
+                            }
 
-                    for command in outline_commands.iter() {
-                        match *command {
-                            Command::MoveTo(Point { x, y }) => {
-                                d.move_to(x + glyph_x, line_y + glyph_y - y);
-                            }
-                            Command::LineTo(Point { x, y }) => {
-                                d.line_to(x + glyph_x, line_y + glyph_y - y);
-                            }
-                            Command::CurveTo(
-                                Point { x: x1, y: y1 },
-                                Point { x: x2, y: y2 },
-                                Point { x, y },
-                            ) => {
-                                d.curve_to(
-                                    x1 + glyph_x,
-                                    line_y + glyph_y - y1,
-                                    x2 + glyph_x,
-                                    line_y + glyph_y - y2,
-                                    x + glyph_x,
-                                    line_y + glyph_y - y,
-                                );
-                            }
-                            Command::QuadTo(Point { x: cx, y: cy }, Point { x, y }) => {
-                                d.quad_to(
-                                    cx + glyph_x,
-                                    line_y + glyph_y - cy,
-                                    x + glyph_x,
-                                    line_y + glyph_y - y,
-                                );
-                            }
-                            Command::Close => d.close()?,
-                        }
-                    }
-
-                    write!(out, r#"" />"#)?;
+                            Ok(())
+                        })?
+                        .close()?;
                 } else if let Some(image) = cache.get_image(font_system, cache_key) {
                     // handle emoji/color glyphs
                     if image.content == Content::Color {
-                        let x = glyph_x + image.placement.left as f32;
-                        let y = line_y + glyph_y - image.placement.top as f32;
-                        let w = image.placement.width as f32;
-                        let h = image.placement.height as f32;
-
-                        write!(
-                            out,
-                            r#"<image href="data:image/png;base64,{}" x="{x}" y="{y}" width="{w}" height="{h}" />"#,
-                            BASE64.encode(encode_image(&image)?),
-                        )?;
+                        ElementWriter::new(out, "image")?
+                            .attr(
+                                "href",
+                                (format_args!(
+                                    "data:image/png;base64,{}",
+                                    BASE64.encode(encode_image(&image)?)
+                                ),),
+                            )?
+                            .attrs([
+                                ("x", glyph_x + image.placement.left as f32),
+                                ("y", line_y + glyph_y - image.placement.top as f32),
+                                ("width", image.placement.width as f32),
+                                ("height", image.placement.height as f32),
+                            ])?
+                            .close()?;
                     }
                 }
             }
         }
 
-        write!(out, "</g>")?;
-
-        Ok(())
+        ElementWriter::close_tag(out, "g").map_err(Into::into)
     }
 
     pub(crate) fn measure(
@@ -175,10 +184,7 @@ impl TextMeta {
             return Size { width, height };
         }
 
-        let Ok(mut fonts) = fonts.lock() else {
-            return Size::zero();
-        };
-
+        let mut fonts = fonts.lock();
         self.init_buffer(&mut fonts);
 
         let Some(ref mut buffer) = self.buffer else {

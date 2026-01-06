@@ -3,6 +3,7 @@ use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::nf32;
 use crate::paint::ResourceIri;
 use crate::primitives::Color;
+use crate::utils::ElementWriter;
 use std::fmt::{Display, Formatter};
 use strict_num::NormalizedF32;
 
@@ -39,15 +40,16 @@ impl HasFilterRegion for Flood {
 
 impl Display for Flood {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<feFlood")?;
-        self.region.fmt(f)?;
-        write!(f, r#" flood-color="{}""#, self.color)?;
-
-        if self.opacity != NormalizedF32::ONE {
-            write!(f, r#" flood-opacity="{}""#, self.opacity)?;
-        }
-
-        write!(f, r#" result="{}" />"#, self.iri())
+        ElementWriter::new(f, "feFlood")?
+            .write(|out| self.region.fmt(out))?
+            .attr("flood-color", (self.color,))?
+            .attr_if(
+                "flood-opacity",
+                self.opacity,
+                self.opacity != NormalizedF32::ONE,
+            )?
+            .attr("result", (self.iri(),))?
+            .close()
     }
 }
 

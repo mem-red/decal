@@ -155,18 +155,18 @@ impl GradientTransform {
             return Ok(());
         }
 
-        write!(out, r#" gradientTransform="matrix("#)?;
-        FloatWriter::write_float(out, tf.sx)?;
+        out.write_str(r#" gradientTransform="matrix("#)?;
+        out.write_float(tf.sx)?;
         out.write_char(' ')?;
-        FloatWriter::write_float(out, tf.ky)?;
+        out.write_float(tf.ky)?;
         out.write_char(' ')?;
-        FloatWriter::write_float(out, tf.kx)?;
+        out.write_float(tf.kx)?;
         out.write_char(' ')?;
-        FloatWriter::write_float(out, tf.sy)?;
+        out.write_float(tf.sy)?;
         out.write_char(' ')?;
-        FloatWriter::write_float(out, tf.tx)?;
+        out.write_float(tf.tx)?;
         out.write_char(' ')?;
-        FloatWriter::write_float(out, tf.ty)?;
+        out.write_float(tf.ty)?;
         out.write_str(r#")""#)
     }
 

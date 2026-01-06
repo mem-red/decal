@@ -2,7 +2,7 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
 use crate::primitives::{BlendMode, FilterInput};
-use crate::utils::IsDefault;
+use crate::utils::{ElementWriter, IsDefault};
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
@@ -29,22 +29,15 @@ impl ResourceIri for Blend {}
 
 impl Display for Blend {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<feBlend")?;
-        self.region.fmt(f)?;
-
-        if let Some(input) = self.input {
-            write!(f, r#" in="{input}""#)?;
-        }
-
-        if let Some(input2) = self.input2 {
-            write!(f, r#" in2="{input2}""#)?;
-        }
-
-        if !self.mode.is_default() {
-            write!(f, r#" mode="{}""#, self.mode)?;
-        }
-
-        write!(f, r#" result="{}" />"#, self.iri())
+        ElementWriter::new(f, "feBlend")?
+            .write(|out| self.region.fmt(out))?
+            .attrs([
+                ("in", self.input.map(|x| (x,))),
+                ("in2", self.input2.map(|x| (x,))),
+            ])?
+            .attr_if("mode", (self.mode,), !self.mode.is_default())?
+            .attr("result", (self.iri(),))?
+            .close()
     }
 }
 

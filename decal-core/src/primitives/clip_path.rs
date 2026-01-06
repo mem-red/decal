@@ -14,12 +14,14 @@ impl ResourceIri for ClipPath {}
 
 impl Display for ClipPath {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, r#"<clipPath id="{}""#, self.iri())?;
+        let clip_path = ElementWriter::new(f, "clipPath")?.attr("id", (self.iri(),))?;
 
         if self.0.is_empty() {
-            write!(f, " />")
+            clip_path.close()
         } else {
-            write!(f, r#">{}</clipPath>"#, self.0)
+            clip_path
+                .content(|out| out.write_str(self.0.as_str()))?
+                .close()
         }
     }
 }

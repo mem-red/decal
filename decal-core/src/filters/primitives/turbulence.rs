@@ -2,7 +2,7 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
 use crate::primitives::PositiveF32Pair;
-use crate::utils::IsDefault;
+use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
 use std::fmt::{Display, Formatter};
 
@@ -54,26 +54,14 @@ impl HasFilterRegion for Turbulence {
 
 impl Display for Turbulence {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<feTurbulence")?;
-        self.region.fmt(f)?;
-
-        if !self.kind.is_default() {
-            write!(f, r#" type="{}""#, self.kind)?;
-        }
-
-        if self.seed != 0 {
-            write!(f, r#" seed="{}""#, self.seed)?;
-        }
-
-        if !self.base_freq.is_zero() {
-            write!(f, r#" baseFrequency="{}""#, self.base_freq)?;
-        }
-
-        if self.num_octaves != 1 {
-            write!(f, r#" numOctaves="{}""#, self.num_octaves)?;
-        }
-
-        write!(f, r#" result="{}" />"#, self.iri())
+        ElementWriter::new(f, "feTurbulence")?
+            .write(|out| self.region.fmt(out))?
+            .attr_if("type", (self.kind,), !self.kind.is_default())?
+            .attr_if("seed", (self.seed,), self.seed != 0)?
+            .attr_if("baseFrequency", self.base_freq, !self.base_freq.is_zero())?
+            .attr_if("numOctaves", (self.num_octaves,), self.num_octaves != 1)?
+            .attr("result", (self.iri(),))?
+            .close()
     }
 }
 

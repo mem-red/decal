@@ -2,7 +2,7 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
 use crate::primitives::{EdgeMode, FilterInput, PositiveF32Pair};
-use crate::utils::IsDefault;
+use crate::utils::{ElementWriter, IsDefault};
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
@@ -29,22 +29,17 @@ impl HasFilterRegion for Blur {
 
 impl Display for Blur {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<feGaussianBlur")?;
-        self.region.fmt(f)?;
-
-        if let Some(input) = self.input {
-            write!(f, r#" in="{input}""#)?;
-        }
-
-        if !self.std_deviation.is_zero() {
-            write!(f, r#" stdDeviation="{}""#, self.std_deviation)?;
-        }
-
-        if !self.edge_mode.is_default() {
-            write!(f, r#" edgeMode="{}""#, self.edge_mode)?;
-        }
-
-        write!(f, r#" result="{}" />"#, self.iri())
+        ElementWriter::new(f, "feGaussianBlur")?
+            .write(|out| self.region.fmt(out))?
+            .attr("in", self.input.map(|x| (x,)))?
+            .attr_if(
+                "stdDeviation",
+                self.std_deviation,
+                !self.std_deviation.is_zero(),
+            )?
+            .attr_if("edgeMode", (self.edge_mode,), !self.edge_mode.is_default())?
+            .attr("result", (self.iri(),))?
+            .close()
     }
 }
 

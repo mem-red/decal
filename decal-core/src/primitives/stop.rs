@@ -1,5 +1,6 @@
 use crate::macros::nf32;
 use crate::primitives::Color;
+use crate::utils::ElementWriter;
 use std::fmt::{Display, Formatter};
 use strict_num::NormalizedF32;
 
@@ -25,19 +26,13 @@ impl Stop {
         Stop::default()
     }
 
-    pub fn offset<T>(mut self, offset: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn offset(mut self, offset: f32) -> Self {
         self.offset = nf32!(offset);
         self
     }
 
-    pub fn offset_pct<T>(self, offset: T) -> Self
-    where
-        T: Into<f32>,
-    {
-        self.offset(offset.into() / 100.0);
+    pub fn offset_pct(self, offset: f32) -> Self {
+        self.offset(offset / 100.0);
         self
     }
 
@@ -49,10 +44,7 @@ impl Stop {
         self
     }
 
-    pub fn opacity<T>(mut self, opacity: T) -> Self
-    where
-        T: Into<f32>,
-    {
+    pub fn opacity(mut self, opacity: f32) -> Self {
         self.opacity = nf32!(opacity);
         self
     }
@@ -60,36 +52,32 @@ impl Stop {
 
 impl Display for Stop {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            r#"<stop offset="{}" stop-color="{}""#,
-            self.offset, self.color
-        )?;
-
-        if self.opacity != 1.0 {
-            write!(f, r#" stop-opacity="{}""#, self.opacity)?;
-        }
-
-        write!(f, r#" />"#)?;
-
-        Ok(())
+        ElementWriter::new(f, "stop")?
+            .attr("stop-color", (self.color,))?
+            .attr("offset", self.offset)?
+            .attr_if(
+                "stop-opacity",
+                self.opacity,
+                self.opacity != NormalizedF32::ONE,
+            )?
+            .close()
     }
 }
 
-impl<T> From<(T, Color)> for Stop
-where
-    T: Into<f32>,
-{
-    fn from((offset, color): (T, Color)) -> Self {
+impl From<(f32, Color)> for Stop {
+    fn from((offset, color): (f32, Color)) -> Self {
         Stop::new().offset(offset).color(color)
     }
 }
 
-impl<T> From<(T, Color, T)> for Stop
-where
-    T: Into<f32>,
-{
-    fn from((offset, color, opacity): (T, Color, T)) -> Self {
+impl From<(Color, f32)> for Stop {
+    fn from((color, opacity): (Color, f32)) -> Self {
+        Stop::new().color(color).opacity(opacity)
+    }
+}
+
+impl From<(f32, Color, f32)> for Stop {
+    fn from((offset, color, opacity): (f32, Color, f32)) -> Self {
         Stop::new().offset(offset).color(color).opacity(opacity)
     }
 }

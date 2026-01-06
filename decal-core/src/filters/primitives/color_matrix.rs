@@ -3,10 +3,10 @@ use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, pf32};
 use crate::paint::ResourceIri;
 use crate::primitives::FilterInput;
-use crate::utils::FloatWriter;
-use crate::utils::IsDefault;
+use crate::utils::{ElementWriter, FloatWriter};
+use crate::utils::{IsDefault, write_spaced};
 use enum_display::EnumDisplay;
-use std::fmt::{Display, Formatter, Write};
+use std::fmt::{Display, Formatter};
 use strict_num::{FiniteF32, PositiveF32};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, EnumDisplay)]
@@ -74,47 +74,30 @@ impl HasFilterRegion for ColorMatrix {
 
 impl Display for ColorMatrix {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<feColorMatrix")?;
-        self.region.fmt(f)?;
+        let mut color_matrix = ElementWriter::new(f, "feColorMatrix")?
+            .write(|out| self.region.fmt(out))?
+            .attr("in", self.input.map(|x| (x,)))?;
 
-        match self.kind {
+        color_matrix = match self.kind {
             ColorMatrixType::Matrix(matrix) => {
-                write!(f, r#" type="matrix" values=""#)?;
-                let mut first = true;
-
-                for row in matrix {
-                    for i in row {
-                        if !first {
-                            f.write_char(' ')?;
-                        }
-
-                        f.write_float(i.get())?;
-                        first = false;
-                    }
-                }
-
-                write!(f, r#"""#)?;
+                color_matrix
+                    .attr("type", "matrix")?
+                    .write_attr("values", |out| {
+                        write_spaced(out, matrix.iter().flatten(), |out, value| {
+                            out.write_float(value.get())
+                        })
+                    })
             }
             ColorMatrixType::Saturate(value) => {
-                write!(f, r#" type="saturate" values=""#)?;
-                f.write_float(value.get())?;
-                write!(f, r#"""#)?;
+                color_matrix.attr("type", "saturate")?.attr("values", value)
             }
-            ColorMatrixType::HueRotate(value) => {
-                write!(f, r#" type="hueRotate" values=""#)?;
-                f.write_float(value.get())?;
-                write!(f, r#"""#)?;
-            }
-            ColorMatrixType::LuminanceToAlpha => {
-                write!(f, r#" type="luminanceToAlpha""#)?;
-            }
-        }
+            ColorMatrixType::HueRotate(value) => color_matrix
+                .attr("type", "hueRotate")?
+                .attr("values", value),
+            ColorMatrixType::LuminanceToAlpha => color_matrix.attr("type", "luminanceToAlpha"),
+        }?;
 
-        if let Some(input) = self.input {
-            write!(f, r#" in="{input}""#)?;
-        }
-
-        write!(f, r#" result="{}" />"#, self.iri())
+        color_matrix.attr("result", (self.iri(),))?.close()
     }
 }
 

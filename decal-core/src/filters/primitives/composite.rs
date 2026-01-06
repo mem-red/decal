@@ -3,9 +3,9 @@ use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::ff32;
 use crate::paint::ResourceIri;
 use crate::primitives::FilterInput;
-use crate::utils::{FloatWriter, IsDefault};
+use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
-use std::fmt::{Display, Formatter, Write};
+use std::fmt::{Display, Formatter};
 use strict_num::FiniteF32;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default, EnumDisplay)]
@@ -99,34 +99,19 @@ impl HasFilterRegion for Composite {
 
 impl Display for Composite {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<feComposite")?;
-        self.region.fmt(f)?;
+        let mut composite = ElementWriter::new(f, "feComposite")?
+            .write(|out| self.region.fmt(out))?
+            .attrs([
+                ("in", self.input.map(|x| (x,))),
+                ("in2", self.input2.map(|x| (x,))),
+            ])?
+            .attr_if("operator", (self.operator,), !self.operator.is_default())?;
 
-        if let Some(input) = self.input {
-            write!(f, r#" in="{input}""#)?;
+        if let CompositeOperatorInner::Arithmetic { k1, k2, k3, k4 } = self.operator {
+            composite = composite.attrs([("k1", k1), ("k2", k2), ("k3", k3), ("k4", k4)])?;
         }
 
-        if let Some(input2) = self.input2 {
-            write!(f, r#" in2="{input2}""#)?;
-        }
-
-        if !self.operator.is_default() {
-            write!(f, r#" operator="{}""#, self.operator)?;
-
-            if let CompositeOperatorInner::Arithmetic { k1, k2, k3, k4 } = self.operator {
-                f.write_str(r#" k1=""#)?;
-                f.write_float(k1.get())?;
-                f.write_str(r#"" k2=""#)?;
-                f.write_float(k2.get())?;
-                f.write_str(r#"" k3=""#)?;
-                f.write_float(k3.get())?;
-                f.write_str(r#"" k4=""#)?;
-                f.write_float(k4.get())?;
-                f.write_char('"')?;
-            }
-        }
-
-        write!(f, r#" result="{}" />"#, self.iri())
+        composite.attr("result", (self.iri(),))?.close()
     }
 }
 

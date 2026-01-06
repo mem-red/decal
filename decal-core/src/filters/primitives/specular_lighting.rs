@@ -3,8 +3,8 @@ use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, pf32};
 use crate::paint::ResourceIri;
 use crate::primitives::{Color, FilterInput, LightSource, PositiveF32Pair};
-use crate::utils::FloatWriter;
-use std::fmt::{Display, Formatter, Write};
+use crate::utils::ElementWriter;
+use std::fmt::{Display, Formatter};
 use strict_num::{FiniteF32, PositiveF32};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
@@ -44,42 +44,29 @@ impl ResourceIri for SpecularLighting {}
 
 impl Display for SpecularLighting {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<feSpecularLighting")?;
-        self.region.fmt(f)?;
-
-        if let Some(input) = self.input {
-            write!(f, r#" in="{input}""#)?;
-        }
-
-        if self.surface_scale.get() != 1.0 {
-            f.write_str(r#" surfaceScale=""#)?;
-            f.write_float(self.surface_scale.get())?;
-            f.write_char('"')?;
-        }
-
-        if self.specular_constant.get() != 1.0 {
-            f.write_str(r#" specularConstant=""#)?;
-            f.write_float(self.specular_constant.get())?;
-            f.write_char('"')?;
-        }
-
-        if self.specular_exponent.get() != 1.0 {
-            f.write_str(r#" specularExponent=""#)?;
-            f.write_float(self.specular_exponent.get())?;
-            f.write_char('"')?;
-        }
-
-        if let Some(value) = self.kernel_unit_length {
-            write!(f, r#" kernelUnitLength="{value}""#)?;
-        }
-
-        if let Some(color) = self.lighting_color {
-            write!(f, r#" lighting-color="{color}""#)?;
-        }
-
-        write!(f, r#" result="{}">"#, self.iri())?;
-        self.light_source.fmt(f)?;
-        f.write_str("</feSpecularLighting>")
+        ElementWriter::new(f, "feSpecularLighting")?
+            .write(|out| self.region.fmt(out))?
+            .attr("in", self.input.map(|x| (x,)))?
+            .attr_if(
+                "surfaceScale",
+                self.surface_scale,
+                self.surface_scale.get() != 1.0,
+            )?
+            .attr_if(
+                "specularConstant",
+                self.specular_constant,
+                self.specular_constant.get() != 1.0,
+            )?
+            .attr_if(
+                "specularExponent",
+                self.specular_exponent,
+                self.specular_exponent.get() != 1.0,
+            )?
+            .attr("kernelUnitLength", self.kernel_unit_length.map(|x| (x,)))?
+            .attr("lighting-color", self.lighting_color.map(|x| (x,)))?
+            .attr("result", (self.iri(),))?
+            .content(|out| self.light_source.fmt(out))?
+            .close()
     }
 }
 
