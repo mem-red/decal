@@ -1,6 +1,6 @@
 use crate::filters::primitives::{
     Blend, Blur, ColorMatrix, ComponentTransfer, Composite, ConvolveMatrix, DiffuseLighting,
-    DisplacementMap, DropShadow, FilterPrimitive, Flood, Image, Merge, Morphology,
+    DisplacementMap, DropShadow, FilterPrimitive, Flood, Image, Merge, Morphology, Offset,
     PrimitiveBuilder, SpecularLighting, Turbulence,
 };
 use crate::paint::{Iri, ResourceIri};
@@ -95,6 +95,10 @@ impl<'a> FilterContext {
 
     pub fn morphology(&self) -> PrimitiveBuilder<'_, Morphology> {
         PrimitiveBuilder::new(self, Morphology::new())
+    }
+
+    pub fn offset(&self) -> PrimitiveBuilder<'_, Offset> {
+        PrimitiveBuilder::new(self, Offset::new())
     }
 
     //
