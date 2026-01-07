@@ -14,6 +14,7 @@ mod merge;
 mod morphology;
 mod offset;
 mod specular_lighting;
+mod tile;
 mod turbulence;
 mod variants;
 
@@ -33,5 +34,6 @@ pub use merge::*;
 pub use morphology::*;
 pub use offset::*;
 pub use specular_lighting::*;
+pub use tile::*;
 pub use turbulence::*;
 pub use variants::*;

@@ -1,6 +1,6 @@
 use crate::filters::primitives::{
     Blend, Blur, ColorMatrix, ComponentTransfer, Composite, ConvolveMatrix, DiffuseLighting,
-    DisplacementMap, DropShadow, Flood, Image, Merge, Morphology, Offset, SpecularLighting,
+    DisplacementMap, DropShadow, Flood, Image, Merge, Morphology, Offset, SpecularLighting, Tile,
     Turbulence,
 };
 use crate::paint::{Iri, ResourceIri};
@@ -24,6 +24,7 @@ pub enum FilterPrimitive {
     DropShadow(DropShadow),
     Morphology(Morphology),
     Offset(Offset),
+    Tile(Tile),
 }
 
 impl Display for FilterPrimitive {
@@ -45,6 +46,7 @@ impl Display for FilterPrimitive {
             Self::DropShadow(shadow) => shadow.fmt(f),
             Self::Morphology(morphology) => morphology.fmt(f),
             Self::Offset(offset) => offset.fmt(f),
+            Self::Tile(tile) => tile.fmt(f),
         }
     }
 }
@@ -68,6 +70,7 @@ impl ResourceIri for FilterPrimitive {
             Self::DropShadow(shadow) => shadow.iri(),
             Self::Morphology(morphology) => morphology.iri(),
             Self::Offset(offset) => offset.iri(),
+            Self::Tile(tile) => tile.iri(),
         }
     }
 }
@@ -167,5 +170,11 @@ impl From<Morphology> for FilterPrimitive {
 impl From<Offset> for FilterPrimitive {
     fn from(value: Offset) -> Self {
         Self::Offset(value)
+    }
+}
+
+impl From<Tile> for FilterPrimitive {
+    fn from(value: Tile) -> Self {
+        Self::Tile(value)
     }
 }
