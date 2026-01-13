@@ -206,7 +206,7 @@ impl Display for LinearGradient {
                 (&self.spread_method,),
                 !self.spread_method.is_default(),
             )?
-            .write(|out| self.transform.write(out))?;
+            .write(|out| self.transform.write(out, "gradientTransform"))?;
 
         if self.stops.is_empty() {
             gradient.close()
