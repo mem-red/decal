@@ -8,7 +8,6 @@ use parking_lot::Mutex;
 use resvg::render;
 use smallvec::SmallVec;
 use std::fmt::Write;
-use std::io::Read;
 use std::sync::Arc;
 use taffy::prelude::TaffyMaxContent;
 use taffy::{
@@ -161,27 +160,13 @@ impl Decal {
             text_rendering: options.text_rendering,
             image_rendering: options.image_rendering,
             image_href_resolver: ImageHrefResolver {
-                resolve_string: Box::new(move |href: &str, _opts: &usvg::Options| {
-                    let bytes = fetch_image_cached(image_cache, href, &options.image)?;
-                    let kind = infer::get(&bytes)?;
-
-                    Some(match kind.mime_type() {
-                        "image/png" => ImageKind::PNG(bytes.clone()),
-                        "image/jpeg" => ImageKind::JPEG(bytes.clone()),
-                        "image/webp" => ImageKind::WEBP(bytes.clone()),
-                        "image/gif" => ImageKind::GIF(bytes.clone()),
-                        _ => return None,
-                    })
+                resolve_string: Box::new(move |href: &str, usvg_opts: &usvg::Options| {
+                    fetch_image_cached(image_cache, href, &options.image, usvg_opts)
                 }),
                 ..Default::default()
             },
             ..Default::default()
         };
-
-        if let Some(ref resolve_string) = options.image.href_string_resolver {
-            usvg_options.image_href_resolver.resolve_string =
-                Box::new(move |href: &str, opts: &usvg::Options| resolve_string(href, opts));
-        }
 
         if let Some(ref resolve_data) = options.image.href_data_resolver {
             usvg_options.image_href_resolver.resolve_data = Box::new(
@@ -278,12 +263,23 @@ impl Decal {
     }
 }
 
+fn to_image_kind(data: Arc<Vec<u8>>) -> Option<ImageKind> {
+    match infer::get(&data)?.mime_type() {
+        "image/png" => Some(ImageKind::PNG(data)),
+        "image/jpeg" => Some(ImageKind::JPEG(data)),
+        "image/webp" => Some(ImageKind::WEBP(data)),
+        "image/gif" => Some(ImageKind::GIF(data)),
+        _ => None,
+    }
+}
+
 //noinspection HttpUrlsUsage
 fn fetch_image_cached(
     image_cache: &ImageCache,
     href: &str,
     opts: &ImageOptions,
-) -> Option<Arc<Vec<u8>>> {
+    usvg_opts: &usvg::Options,
+) -> Option<ImageKind> {
     let skip_cache = opts.disable_caching
         || opts.cache_ignore_list.iter().any(|item| item == href)
         || opts
@@ -292,32 +288,31 @@ fn fetch_image_cached(
             .is_some_and(|ignore_fn| ignore_fn(href));
 
     if !skip_cache {
-        if let Some(bytes) = image_cache.lock().get(href).map(|x| x.clone()) {
-            return Some(bytes);
+        if let Some(image) = image_cache.lock().get(href) {
+            return Some(image.clone());
         }
     }
 
-    if let Ok(response) = ureq::get(href).call() {
-        if response.status().is_success() {
-            let mut buf = Vec::new();
-            if response
-                .into_body()
-                .into_reader()
-                .read_to_end(&mut buf)
-                .is_ok()
-            {
-                let data = Arc::new(buf);
+    let image = if let Some(resolve) = &opts.href_string_resolver {
+        resolve(href, usvg_opts)
+    } else {
+        let mut res = ureq::get(href).call().ok()?;
 
-                if !skip_cache {
-                    image_cache.lock().push(href.to_owned(), data.clone());
-                }
+        if !res.status().is_success() {
+            return None;
+        }
 
-                return Some(data);
-            }
+        let buf = res.body_mut().read_to_vec().ok()?;
+        to_image_kind(Arc::new(buf))
+    };
+
+    if !skip_cache {
+        if let Some(kind) = image.clone() {
+            image_cache.lock().push(href.to_string(), kind);
         }
     }
 
-    None
+    image
 }
 
 fn cascade_typography_subtree(nodes: &mut [Node], parent_typography: &Typography) {
