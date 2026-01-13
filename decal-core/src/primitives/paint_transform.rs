@@ -6,8 +6,11 @@ use std::fmt::Write;
 use strict_num::FiniteF32;
 use usvg::Transform;
 
+pub type GradientTransform = PaintTransform;
+pub type PatternTransform = PaintTransform;
+
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
-pub struct GradientTransform {
+pub struct PaintTransform {
     sx: FiniteF32,
     kx: FiniteF32,
     ky: FiniteF32,
@@ -16,9 +19,9 @@ pub struct GradientTransform {
     ty: FiniteF32,
 }
 
-impl Default for GradientTransform {
+impl Default for PaintTransform {
     fn default() -> Self {
-        GradientTransform {
+        PaintTransform {
             sx: ff32!(1.0),
             kx: ff32!(0.0),
             ky: ff32!(0.0),
@@ -29,9 +32,9 @@ impl Default for GradientTransform {
     }
 }
 
-impl From<Transform> for GradientTransform {
+impl From<Transform> for PaintTransform {
     fn from(value: Transform) -> Self {
-        GradientTransform {
+        PaintTransform {
             sx: ff32!(value.sx, 1.0),
             kx: ff32!(value.kx),
             ky: ff32!(value.ky),
@@ -42,9 +45,9 @@ impl From<Transform> for GradientTransform {
     }
 }
 
-impl IsDefault for GradientTransform {}
+impl IsDefault for PaintTransform {}
 
-impl GradientTransform {
+impl PaintTransform {
     pub fn new() -> Self {
         Self::default()
     }
@@ -125,7 +128,7 @@ impl GradientTransform {
 
     //
 
-    pub(crate) fn write<T>(&self, out: &mut T) -> std::fmt::Result
+    pub(crate) fn write<T>(&self, out: &mut T, attr_name: &str) -> std::fmt::Result
     where
         T: Write,
     {
@@ -135,7 +138,9 @@ impl GradientTransform {
             return Ok(());
         }
 
-        out.write_str(r#" gradientTransform="matrix("#)?;
+        out.write_char(' ')?;
+        out.write_str(attr_name)?;
+        out.write_str(r#"="matrix("#)?;
         out.write_float(tf.sx)?;
         out.write_char(' ')?;
         out.write_float(tf.ky)?;
