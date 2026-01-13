@@ -30,6 +30,15 @@ impl Pattern {
         }
     }
 
+    pub(crate) fn build<F>(write_fn: F) -> Result<Self, std::fmt::Error>
+    where
+        F: FnOnce(&mut String) -> std::fmt::Result,
+    {
+        let mut data = String::new();
+        write_fn(&mut data)?;
+        Ok(Pattern::new(data))
+    }
+
     pub fn pattern_units<T>(mut self, value: T) -> Self
     where
         T: Into<Option<PatternUnits>>,
