@@ -6,7 +6,7 @@ use std::fmt::{Display, Formatter};
 pub struct Pattern(String);
 
 impl Pattern {
-    pub(crate) fn new(content: String) -> Self {
+    pub fn new(content: String) -> Self {
         Self(content)
     }
 }
