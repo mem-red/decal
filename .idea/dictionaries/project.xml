@@ -2,6 +2,7 @@
   <dictionary name="project">
     <words>
       <w>crossorigin</w>
+      <w>usvg</w>
     </words>
   </dictionary>
 </component>
