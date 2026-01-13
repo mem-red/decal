@@ -4,6 +4,8 @@ use crate::primitives::Stop;
 use crate::utils::ElementWriter;
 use std::fmt::{Display, Formatter};
 
+// TODO
+
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
 pub struct RadialGradient {
     stops: Vec<Stop>,
@@ -28,7 +30,7 @@ impl Display for RadialGradient {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let gradient = ElementWriter::new(f, "radialGradient")?
             .attr("id", (self.iri(),))?
-            .write(|out| self.transform.write(out))?;
+            .write(|out| self.transform.write(out, "gradientTransform"))?;
 
         if self.stops.is_empty() {
             gradient.close()
