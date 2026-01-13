@@ -38,7 +38,7 @@ impl IntoResources for Paint {
             Paint::None | Paint::Color(_) => Vec::new(),
             Paint::LinearGradient(value) => value.into_resources(),
             Paint::RadialGradient(value) => value.into_resources(),
-            Paint::Pattern(value) => value.into_resources(),
+            Paint::Image(value) | Paint::Pattern(value) => value.into_resources(),
         }
     }
 }

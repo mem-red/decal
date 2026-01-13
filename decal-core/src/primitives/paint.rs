@@ -1,18 +1,19 @@
 use crate::attributes::IntoPaint;
 use crate::macros::nf32;
 use crate::paint::{IntoResources, Resource, ResourceIri};
-use crate::primitives::{BlendMode, Color};
+use crate::primitives::{BlendMode, Color, PatternUnits};
 use crate::primitives::{LinearGradient, Pattern, RadialGradient};
-use crate::utils::IsDefault;
+use crate::utils::{ElementWriter, IsDefault};
+use quick_xml::escape::escape;
 use std::fmt::Display;
 use strict_num::NormalizedF32;
 
-#[derive(Debug, Clone, Eq, PartialEq, Default)]
+#[derive(Debug, Clone, Default)]
 pub enum Paint {
     #[default]
     None,
     Color(Color),
-    // Image(), TODO
+    Image(Pattern),
     LinearGradient(LinearGradient),
     RadialGradient(RadialGradient),
     Pattern(Pattern),
@@ -25,6 +26,21 @@ impl Paint {
 
     pub const fn color(color: Color) -> Self {
         Self::Color(color)
+    }
+
+    // TODO add image position and other properties (maybe an image paint builder)
+    pub fn image(href: &str, width: f32, height: f32) -> Self {
+        let pattern = match Pattern::build(|out| {
+            ElementWriter::new(out, "image")?
+                .attr("href", escape(href).as_ref())?
+                .attrs([("width", width), ("height", height)])?
+                .close()
+        }) {
+            Ok(builder) => builder.pattern_units(PatternUnits::ObjectBoundingBox),
+            _ => return Self::none(),
+        };
+
+        Self::Image(pattern)
     }
 
     pub const fn linear_gradient(linear_gradient: LinearGradient) -> Self {
@@ -52,7 +68,7 @@ impl Display for Paint {
             Paint::Color(color) => color.fmt(f),
             Paint::LinearGradient(gradient) => write!(f, "url(#{})", gradient.iri()),
             Paint::RadialGradient(gradient) => write!(f, "url(#{})", gradient.iri()),
-            Paint::Pattern(pattern) => write!(f, "url(#{})", pattern.iri()),
+            Paint::Image(pattern) | Paint::Pattern(pattern) => write!(f, "url(#{})", pattern.iri()),
         }
     }
 }
@@ -87,7 +103,7 @@ impl From<Pattern> for Paint {
 
 //
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct PaintLayer {
     pub(crate) paint: Paint,
     pub(crate) blend_mode: BlendMode,
@@ -135,7 +151,7 @@ where
 
 //
 
-#[derive(Debug, Clone, Eq, PartialEq, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct PaintStack(Vec<PaintLayer>);
 
 impl PaintStack {
