@@ -5,8 +5,9 @@ use parking_lot::Mutex;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use tiny_skia::Pixmap;
+use usvg::ImageKind;
 
-pub(crate) type ImageCache = Arc<Mutex<LruCache<String, Arc<Vec<u8>>>>>;
+pub(crate) type ImageCache = Arc<Mutex<LruCache<String, ImageKind>>>;
 
 const DEFAULT_IMAGE_CACHE_CAP: NonZeroUsize = NonZeroUsize::new(128).expect("128 is non-zero");
 
