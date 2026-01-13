@@ -2,8 +2,8 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::ff32;
 use crate::paint::ResourceIri;
-use crate::primitives::{EdgeMode, FilterInput, PositiveF32Pair};
-use crate::utils::{ElementWriter, IsDefault};
+use crate::primitives::{FilterInput, PositiveF32Pair};
+use crate::utils::ElementWriter;
 use std::fmt::{Display, Formatter};
 use strict_num::FiniteF32;
 
