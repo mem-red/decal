@@ -1,30 +1,6 @@
 use crate::primitives::{Length, Rect};
 
 type BorderWidth = Length<false, true>;
-
-pub trait IntoBorderWidth {
-    fn into_border_width(self) -> Option<BorderWidth>;
-}
-
-impl IntoBorderWidth for Option<BorderWidth> {
-    #[inline]
-    fn into_border_width(self) -> Option<BorderWidth> {
-        self
-    }
-}
-
-impl<T> IntoBorderWidth for T
-where
-    T: Into<BorderWidth> + Copy,
-{
-    #[inline]
-    fn into_border_width(self) -> Option<BorderWidth> {
-        Some(self.into())
-    }
-}
-
-//
-
 type Border = Rect<BorderWidth>;
 
 pub trait IntoBorder {

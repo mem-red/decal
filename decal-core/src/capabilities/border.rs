@@ -1,13 +1,15 @@
 use super::Drawable;
-use crate::attributes::{IntoBorder, IntoBorderPair, IntoBorderWidth, IntoPaintStack};
+use crate::attributes::{IntoBorder, IntoBorderPair, IntoPaintStack};
+use crate::primitives::IntoOptionalLength;
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {
         fn $method<T>(mut self, value: T) -> Self
         where
-            T: IntoBorderWidth,
+            T: IntoOptionalLength<false, true>,
         {
-            self.layout_mut().border.$field = value.into_border_width().unwrap_or_default().into();
+            self.layout_mut().border.$field =
+                value.into_optional_length().unwrap_or_default().into();
             self
         }
     };

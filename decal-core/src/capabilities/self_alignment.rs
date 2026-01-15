@@ -1,5 +1,5 @@
 use super::Drawable;
-use crate::primitives::{AlignSelf, JustifySelf, Length};
+use crate::primitives::{AlignSelf, IntoOptionalLength, JustifySelf};
 
 pub trait SelfAlignment: Drawable {
     fn align_self<T>(mut self, value: T) -> Self
@@ -20,10 +20,10 @@ pub trait SelfAlignment: Drawable {
 
     fn flex_basis<T>(mut self, value: T) -> Self
     where
-        T: Into<Option<Length>>,
+        T: IntoOptionalLength,
     {
         self.layout_mut().flex_basis = value
-            .into()
+            .into_optional_length()
             .map(Into::into)
             .unwrap_or(taffy::Dimension::auto());
         self

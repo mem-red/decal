@@ -1,28 +1,5 @@
 use crate::primitives::{Length, Size};
 
-pub trait IntoDimension {
-    fn into_dimension(self) -> Option<Length>;
-}
-
-impl IntoDimension for Option<Length> {
-    #[inline]
-    fn into_dimension(self) -> Option<Length> {
-        self
-    }
-}
-
-impl<T> IntoDimension for T
-where
-    T: Into<Length> + Copy,
-{
-    #[inline]
-    fn into_dimension(self) -> Option<Length> {
-        Some(self.into())
-    }
-}
-
-//
-
 type Dimensions = Size<Length>;
 
 pub trait IntoDimensions {

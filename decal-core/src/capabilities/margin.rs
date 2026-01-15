@@ -1,13 +1,15 @@
 use super::Drawable;
-use crate::attributes::{IntoMargin, IntoMarginPair, IntoMarginValue};
+use crate::attributes::{IntoMargin, IntoMarginPair};
+use crate::primitives::IntoOptionalLength;
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {
         fn $method<T>(mut self, value: T) -> Self
         where
-            T: IntoMarginValue,
+            T: IntoOptionalLength,
         {
-            self.layout_mut().margin.$field = value.into_margin_value().unwrap_or_default().into();
+            self.layout_mut().margin.$field =
+                value.into_optional_length().unwrap_or_default().into();
             self
         }
     };

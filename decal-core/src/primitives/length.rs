@@ -109,6 +109,31 @@ impl<const AUTO: bool, const PERCENT: bool> Into<taffy::Dimension> for Length<AU
     }
 }
 
+//
+
+pub trait IntoOptionalLength<const AUTO: bool = true, const PERCENT: bool = true> {
+    fn into_optional_length(self) -> Option<Length<AUTO, PERCENT>>;
+}
+
+impl<const AUTO: bool, const PERCENT: bool> IntoOptionalLength<AUTO, PERCENT>
+    for Option<Length<AUTO, PERCENT>>
+{
+    fn into_optional_length(self) -> Option<Length<AUTO, PERCENT>> {
+        self
+    }
+}
+
+impl<const AUTO: bool, const PERCENT: bool, T> IntoOptionalLength<AUTO, PERCENT> for T
+where
+    T: Into<Length<AUTO, PERCENT>> + Copy,
+{
+    fn into_optional_length(self) -> Option<Length<AUTO, PERCENT>> {
+        Some(self.into())
+    }
+}
+
+//
+
 pub(super) mod helpers {
     use super::Length;
 

@@ -1,7 +1,8 @@
 use crate::paint::ResourceIri;
 use crate::prelude::Length;
 use crate::primitives::{
-    PatternContentUnits, PatternTransform, PatternUnits, PreserveAspectRatio, ViewBox,
+    IntoOptionalLength, PatternContentUnits, PatternTransform, PatternUnits, PreserveAspectRatio,
+    ViewBox,
 };
 use crate::utils::{ElementWriter, IsDefault};
 use std::fmt::{Display, Formatter};
@@ -57,33 +58,33 @@ impl Pattern {
 
     pub fn x<T>(mut self, value: T) -> Self
     where
-        T: Into<Option<PatternUnit>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.x = value.into().unwrap_or_default();
+        self.x = value.into_optional_length().unwrap_or_default();
         self
     }
 
     pub fn y<T>(mut self, value: T) -> Self
     where
-        T: Into<Option<PatternUnit>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.y = value.into().unwrap_or_default();
+        self.y = value.into_optional_length().unwrap_or_default();
         self
     }
 
     pub fn width<T>(mut self, value: T) -> Self
     where
-        T: Into<Option<PatternUnit>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.width = value.into().unwrap_or_default();
+        self.width = value.into_optional_length().unwrap_or_default();
         self
     }
 
     pub fn height<T>(mut self, value: T) -> Self
     where
-        T: Into<Option<PatternUnit>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.height = value.into().unwrap_or_default();
+        self.height = value.into_optional_length().unwrap_or_default();
         self
     }
 

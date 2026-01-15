@@ -1,14 +1,15 @@
 use super::Drawable;
-use crate::attributes::{IntoDimension, IntoDimensions};
+use crate::attributes::IntoDimensions;
+use crate::primitives::IntoOptionalLength;
 
 macro_rules! impl_dimension {
     ($method:ident, $taffy_method:ident, $taffy_field:ident) => {
         fn $method<T>(mut self, value: T) -> Self
         where
-            T: IntoDimension,
+            T: IntoOptionalLength,
         {
             self.layout_mut().$taffy_method.$taffy_field = value
-                .into_dimension()
+                .into_optional_length()
                 .map_or(taffy::Dimension::auto(), |inner| inner.into());
             self
         }

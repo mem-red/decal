@@ -1,4 +1,4 @@
-use crate::primitives::Length;
+use crate::primitives::{IntoOptionalLength, Length};
 use crate::utils::IsDefault;
 use std::fmt::{Display, Formatter};
 
@@ -24,36 +24,38 @@ mod private {
 
 pub(crate) use private::*;
 
+//
+
 pub trait FilterRegionConfig: private::HasFilterRegion {
     fn x<T>(mut self, x: T) -> Self
     where
-        T: Into<Option<Length<false, true>>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.region_mut().x = x.into();
+        self.region_mut().x = x.into_optional_length();
         self
     }
 
     fn y<T>(mut self, y: T) -> Self
     where
-        T: Into<Option<Length<false, true>>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.region_mut().y = y.into();
+        self.region_mut().y = y.into_optional_length();
         self
     }
 
     fn width<T>(mut self, width: T) -> Self
     where
-        T: Into<Option<Length<false, true>>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.region_mut().width = width.into();
+        self.region_mut().width = width.into_optional_length();
         self
     }
 
     fn height<T>(mut self, height: T) -> Self
     where
-        T: Into<Option<Length<false, true>>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.region_mut().height = height.into();
+        self.region_mut().height = height.into_optional_length();
         self
     }
 }

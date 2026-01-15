@@ -1,30 +1,6 @@
 use crate::primitives::{Length, Rect};
 
 type PaddingValue = Length<false, true>;
-
-pub trait IntoPaddingValue {
-    fn into_padding_value(self) -> Option<PaddingValue>;
-}
-
-impl IntoPaddingValue for Option<PaddingValue> {
-    #[inline]
-    fn into_padding_value(self) -> Option<PaddingValue> {
-        self
-    }
-}
-
-impl<T> IntoPaddingValue for T
-where
-    T: Into<PaddingValue> + Copy,
-{
-    #[inline]
-    fn into_padding_value(self) -> Option<PaddingValue> {
-        Some(self.into())
-    }
-}
-
-//
-
 type Padding = Rect<PaddingValue>;
 
 pub trait IntoPadding {

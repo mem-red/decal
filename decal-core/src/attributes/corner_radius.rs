@@ -2,30 +2,6 @@ use crate::prelude::Length;
 use crate::primitives::Corner;
 
 type CornerRadii = Length<false, true>;
-
-pub trait IntoCornerRadii {
-    fn into_corner_radii(self) -> Option<CornerRadii>;
-}
-
-impl IntoCornerRadii for Option<CornerRadii> {
-    #[inline]
-    fn into_corner_radii(self) -> Option<CornerRadii> {
-        self
-    }
-}
-
-impl<T> IntoCornerRadii for T
-where
-    T: Into<CornerRadii> + Copy,
-{
-    #[inline]
-    fn into_corner_radii(self) -> Option<CornerRadii> {
-        Some(self.into())
-    }
-}
-
-//
-
 pub type CornerRadius = Corner<CornerRadii>;
 
 pub trait IntoCornerRadius {

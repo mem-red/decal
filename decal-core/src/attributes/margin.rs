@@ -1,28 +1,5 @@
 use crate::primitives::{Length, Rect};
 
-pub trait IntoMarginValue {
-    fn into_margin_value(self) -> Option<Length>;
-}
-
-impl IntoMarginValue for Option<Length> {
-    #[inline]
-    fn into_margin_value(self) -> Option<Length> {
-        self
-    }
-}
-
-impl<T> IntoMarginValue for T
-where
-    T: Into<Length> + Copy,
-{
-    #[inline]
-    fn into_margin_value(self) -> Option<Length> {
-        Some(self.into())
-    }
-}
-
-//
-
 type Margin = Rect<Length>;
 
 pub trait IntoMargin {

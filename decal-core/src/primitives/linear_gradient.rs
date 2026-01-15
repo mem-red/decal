@@ -1,5 +1,7 @@
 use crate::paint::{IntoResources, Resource, ResourceIri};
-use crate::primitives::{GradientTransform, GradientUnits, Length, SpreadMethod, Stop};
+use crate::primitives::{
+    GradientTransform, GradientUnits, IntoOptionalLength, Length, SpreadMethod, Stop,
+};
 use crate::utils::{ElementWriter, IsDefault, angle_to_line};
 use std::fmt::{Display, Formatter};
 
@@ -137,33 +139,35 @@ impl LinearGradient {
 
     pub fn x1<T>(mut self, value: T) -> Self
     where
-        T: Into<Option<GradientUnit>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.x1 = value.into().unwrap_or_default();
+        self.x1 = value.into_optional_length().unwrap_or_default();
         self
     }
 
     pub fn y1<T>(mut self, value: T) -> Self
     where
-        T: Into<Option<GradientUnit>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.y1 = value.into().unwrap_or_default();
+        self.y1 = value.into_optional_length().unwrap_or_default();
         self
     }
 
     pub fn x2<T>(mut self, value: T) -> Self
     where
-        T: Into<Option<GradientUnit>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.x2 = value.into().unwrap_or(GradientUnit::percent(100.0));
+        self.x2 = value
+            .into_optional_length()
+            .unwrap_or(GradientUnit::percent(100.0));
         self
     }
 
     pub fn y2<T>(mut self, value: T) -> Self
     where
-        T: Into<Option<GradientUnit>>,
+        T: IntoOptionalLength<false, true>,
     {
-        self.y2 = value.into().unwrap_or_default();
+        self.y2 = value.into_optional_length().unwrap_or_default();
         self
     }
 
