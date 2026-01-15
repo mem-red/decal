@@ -30,7 +30,6 @@ impl Display for ViewBox {
         f.write_char(' ')?;
         f.write_float(self.width.get())?;
         f.write_char(' ')?;
-        f.write_float(self.height.get())?;
-        f.write_char(' ')
+        f.write_float(self.height.get())
     }
 }
