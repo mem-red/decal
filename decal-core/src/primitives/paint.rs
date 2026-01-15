@@ -1,10 +1,10 @@
-use crate::attributes::IntoPaint;
+use crate::layout::ImageSource;
 use crate::macros::nf32;
 use crate::paint::{IntoResources, Resource, ResourceIri};
-use crate::primitives::{BlendMode, Color, PatternUnits};
+use crate::prelude::Length;
+use crate::primitives::{BlendMode, Color, CrossOrigin, PatternContentUnits, PatternUnits};
 use crate::primitives::{LinearGradient, Pattern, RadialGradient};
 use crate::utils::{ElementWriter, IsDefault};
-use quick_xml::escape::escape;
 use std::fmt::Display;
 use strict_num::NormalizedF32;
 
@@ -28,19 +28,11 @@ impl Paint {
         Self::Color(color)
     }
 
-    // TODO add image position and other properties (maybe an image paint builder)
-    pub fn image(href: &str, width: f32, height: f32) -> Self {
-        let pattern = match Pattern::build(|out| {
-            ElementWriter::new(out, "image")?
-                .attr("href", escape(href).as_ref())?
-                .attrs([("width", width), ("height", height)])?
-                .close()
-        }) {
-            Ok(builder) => builder.pattern_units(PatternUnits::ObjectBoundingBox),
-            _ => return Self::none(),
-        };
-
-        Self::Image(pattern)
+    pub fn image(image: ImagePaint) -> Self {
+        image
+            .into_pattern()
+            .map(Self::Image)
+            .unwrap_or(Self::none())
     }
 
     pub const fn linear_gradient(linear_gradient: LinearGradient) -> Self {
@@ -73,31 +65,186 @@ impl Display for Paint {
     }
 }
 
+//
+
+#[derive(Debug, Clone)]
+pub struct ImagePaint {
+    source: ImageSource,
+    x: NormalizedF32,
+    y: NormalizedF32,
+    width: NormalizedF32,
+    height: NormalizedF32,
+    cross_origin: Option<CrossOrigin>,
+}
+
+impl Default for ImagePaint {
+    fn default() -> Self {
+        Self {
+            source: Default::default(),
+            x: nf32!(0.5),
+            y: nf32!(0.5),
+            width: NormalizedF32::ONE,
+            height: NormalizedF32::ONE,
+            cross_origin: None,
+        }
+    }
+}
+
+impl ImagePaint {
+    pub fn new<S>(source: S) -> Self
+    where
+        S: Into<ImageSource>,
+    {
+        Self {
+            source: source.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn x(mut self, x: f32) -> Self {
+        self.x = nf32!(x);
+        self
+    }
+
+    pub fn y(mut self, y: f32) -> Self {
+        self.y = nf32!(y);
+        self
+    }
+
+    pub fn width(mut self, width: f32) -> Self {
+        self.width = nf32!(width);
+        self
+    }
+
+    pub fn height(mut self, height: f32) -> Self {
+        self.height = nf32!(height);
+        self
+    }
+
+    pub fn cross_origin<T>(mut self, value: T) -> Self
+    where
+        T: Into<Option<CrossOrigin>>,
+    {
+        self.cross_origin = value.into();
+        self
+    }
+
+    //
+
+    pub fn top_left(mut self) -> Self {
+        self.x = nf32!(0.0);
+        self.y = nf32!(0.0);
+        self
+    }
+
+    pub fn top_center(mut self) -> Self {
+        self.x = nf32!(0.5);
+        self.y = nf32!(0.0);
+        self
+    }
+
+    pub fn top_right(mut self) -> Self {
+        self.x = nf32!(1.0);
+        self.y = nf32!(0.0);
+        self
+    }
+
+    pub fn middle_left(mut self) -> Self {
+        self.x = nf32!(0.0);
+        self.y = nf32!(0.5);
+        self
+    }
+
+    pub fn center(mut self) -> Self {
+        self.x = nf32!(0.5);
+        self.y = nf32!(0.5);
+        self
+    }
+
+    pub fn middle_right(mut self) -> Self {
+        self.x = nf32!(1.0);
+        self.y = nf32!(0.5);
+        self
+    }
+
+    pub fn bottom_left(mut self) -> Self {
+        self.x = nf32!(0.0);
+        self.y = nf32!(1.0);
+        self
+    }
+
+    pub fn bottom_center(mut self) -> Self {
+        self.x = nf32!(0.5);
+        self.y = nf32!(1.0);
+        self
+    }
+
+    pub fn bottom_right(mut self) -> Self {
+        self.x = nf32!(1.0);
+        self.y = nf32!(1.0);
+        self
+    }
+
+    //
+
+    fn into_pattern(self) -> Option<Pattern> {
+        Pattern::build(|out| {
+            ElementWriter::new(out, "image")?
+                .attr("href", (self.source,))?
+                .attr("preserveAspectRatio", "none")?
+                .attrs([
+                    ("x", (1.0 - self.width.get()) * self.x.get()),
+                    ("y", (1.0 - self.height.get()) * self.y.get()),
+                    ("width", self.width.get()),
+                    ("height", self.height.get()),
+                ])?
+                .attr("crossorigin", self.cross_origin.map(|x| (x,)))?
+                .close()
+        })
+        .map(|pat| {
+            pat.pattern_units(PatternUnits::ObjectBoundingBox)
+                .pattern_content_units(PatternContentUnits::ObjectBoundingBox)
+                .width(Length::units(1.0))
+                .height(Length::units(1.0))
+        })
+        .ok()
+    }
+}
+
+//
+
 impl From<Color> for Paint {
     #[inline]
     fn from(value: Color) -> Self {
-        Paint::Color(value)
+        Paint::color(value)
     }
 }
 
 impl From<LinearGradient> for Paint {
     #[inline]
     fn from(value: LinearGradient) -> Self {
-        Paint::LinearGradient(value)
+        Paint::linear_gradient(value)
     }
 }
 
 impl From<RadialGradient> for Paint {
     #[inline]
     fn from(value: RadialGradient) -> Self {
-        Paint::RadialGradient(value)
+        Paint::radial_gradient(value)
     }
 }
 
 impl From<Pattern> for Paint {
     #[inline]
     fn from(value: Pattern) -> Self {
-        Paint::Pattern(value)
+        Paint::pattern(value)
+    }
+}
+
+impl From<ImagePaint> for Paint {
+    #[inline]
+    fn from(value: ImagePaint) -> Self {
+        Paint::image(value)
     }
 }
 
@@ -138,12 +285,12 @@ impl PaintLayer {
 
 impl<T> From<T> for PaintLayer
 where
-    T: IntoPaint,
+    T: Into<Paint>,
 {
     #[inline]
     fn from(value: T) -> Self {
         Self {
-            paint: value.into_paint(),
+            paint: value.into(),
             ..Default::default()
         }
     }
