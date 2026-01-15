@@ -89,18 +89,18 @@ impl ImageSource {
 
 impl Default for ImageSource {
     fn default() -> Self {
-        ImageSource::Url("".to_string())
+        ImageSource::url("")
     }
 }
 
 impl From<String> for ImageSource {
     fn from(value: String) -> Self {
-        ImageSource::Url(escape(value).to_string())
+        ImageSource::url(value)
     }
 }
 
 impl From<&str> for ImageSource {
     fn from(value: &str) -> Self {
-        ImageSource::Url(escape(value).to_string())
+        ImageSource::url(value)
     }
 }
