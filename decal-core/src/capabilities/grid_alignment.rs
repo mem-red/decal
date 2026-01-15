@@ -6,7 +6,7 @@ pub trait GridAlignment: Drawable {
     where
         T: Into<Option<JustifyItems>>,
     {
-        self.layout_mut().justify_items = value.into().map(|x| x.into());
+        self.layout_mut().justify_items = value.into().map(Into::into);
         self
     }
 }

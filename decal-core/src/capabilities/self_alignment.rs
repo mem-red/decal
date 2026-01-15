@@ -6,7 +6,7 @@ pub trait SelfAlignment: Drawable {
     where
         T: Into<Option<AlignSelf>>,
     {
-        self.layout_mut().align_self = value.into().map(|x| x.into());
+        self.layout_mut().align_self = value.into().map(Into::into);
         self
     }
 
@@ -14,7 +14,7 @@ pub trait SelfAlignment: Drawable {
     where
         T: Into<Option<JustifySelf>>,
     {
-        self.layout_mut().justify_self = value.into().map(|x| x.into());
+        self.layout_mut().justify_self = value.into().map(Into::into);
         self
     }
 
@@ -24,7 +24,7 @@ pub trait SelfAlignment: Drawable {
     {
         self.layout_mut().flex_basis = value
             .into()
-            .map(|x| x.into())
+            .map(Into::into)
             .unwrap_or(taffy::Dimension::auto());
         self
     }

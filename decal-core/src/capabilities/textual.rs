@@ -19,7 +19,7 @@ pub trait Textual: Drawable {
         T: Into<Option<S>>,
         S: Into<String>,
     {
-        self.typography_mut().family = family.into().map(|s| s.into());
+        self.typography_mut().family = family.into().map(Into::into);
         self
     }
 
