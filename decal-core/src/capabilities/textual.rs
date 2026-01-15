@@ -1,16 +1,15 @@
 use super::Drawable;
-use crate::attributes::IntoPaint;
+use crate::primitives::Paint;
 use crate::text::{FontStyle, FontWeight, TextAlign, TextWrap};
 
 pub trait Textual: Drawable {
     fn color<T>(mut self, value: T) -> Self
     where
-        T: IntoPaint,
+        T: Into<Paint>,
     {
-        let color = value.into_paint();
+        let color = value.into();
         self.typography_mut().color = Some(color.clone());
         self.add_resources(color);
-
         self
     }
 
