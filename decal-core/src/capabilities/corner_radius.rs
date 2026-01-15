@@ -1,17 +1,13 @@
 use super::Drawable;
-use crate::attributes::IntoCornerRadius;
-use crate::primitives::{Corner, Length};
-
-pub(crate) type CornerRadii = Length<false, true>;
-pub type CornerRadius = Corner<CornerRadii>;
+use crate::attributes::{IntoCornerRadii, IntoCornerRadius};
 
 macro_rules! impl_corner {
     ($method:ident, $field:ident) => {
         fn $method<T>(mut self, value: T) -> Self
         where
-            T: Into<Option<CornerRadii>>,
+            T: IntoCornerRadii,
         {
-            self.visual_mut().corner_radius.$field = value.into().unwrap_or_default();
+            self.visual_mut().corner_radius.$field = value.into_corner_radii().unwrap_or_default();
             self
         }
     };

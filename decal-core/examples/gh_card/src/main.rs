@@ -24,14 +24,14 @@ fn statistic(value: &str, label: &str, icon: &str) -> Decal {
                 .font_size(32.0)
                 .line_height(32.0)
                 .align_items(AlignItems::Center)
-                .gap(px(18))
+                .gap(18)
             Text(label)
                 .color(rgb(0x6e7681))
                 .font_size(24.0)
                 .line_height(24.0)
-                .margin_left(px(50))
+                .margin_left(50)
         }
-            .gap(px(12))
+            .gap(12)
     }
 }
 
@@ -55,12 +55,12 @@ fn main() {
                             Text("F' - A flight software and embedded systems framework")
                                 .color(rgb(0x6e7681))
                         }
-                            .gap(px(48))
-                            .width(pc(70))
+                            .gap(48)
+                            .width(pct(70))
                         Image("https://avatars.githubusercontent.com/u/848102?s=200", 200.0, 200.0)
                     }
                         .justify_content(JustifyContent::SpaceBetween)
-                        .gap(px(64))
+                        .gap(64)
                         .flex_grow(1.0)
 
                     Row {
@@ -83,30 +83,30 @@ fn main() {
                             .flex_grow(1.0)
 
                     }
-                        .gap(px(46))
+                        .gap(46)
                         .align_items(AlignItems::Center)
                         .justify_content(JustifyContent::SpaceBetween)
 
                     // Languages
                     Row {
-                        Block {}.background(rgb(0xf34b7d)).width(pc(61.2))
-                        Block {}.background(rgb(0xe34c25)).width(pc(17.5))
-                        Block {}.background(rgb(0x3572a5)).width(pc(8.9))
-                        Block {}.background(rgb(0x3d6118)).width(pc(5.1))
-                        Block {}.background(rgb(0xb07219)).width(pc(3.2))
-                        Block {}.background(rgb(0xecdebe)).width(pc(2.1))
-                        Block {}.background(rgb(0x555555)).width(pc(1.3))
-                        Block {}.background(rgb(0xf0e05a)).width(pc(0.7))
+                        Block {}.background(rgb(0xf34b7d)).width(pct(61.2))
+                        Block {}.background(rgb(0xe34c25)).width(pct(17.5))
+                        Block {}.background(rgb(0x3572a5)).width(pct(8.9))
+                        Block {}.background(rgb(0x3d6118)).width(pct(5.1))
+                        Block {}.background(rgb(0xb07219)).width(pct(3.2))
+                        Block {}.background(rgb(0xecdebe)).width(pct(2.1))
+                        Block {}.background(rgb(0x555555)).width(pct(1.3))
+                        Block {}.background(rgb(0xf0e05a)).width(pct(0.7))
                     }
-                        .height(px(24))
-                        .margin_x(px(-80))
-                        .margin_bottom(px(-80))
+                        .height(24)
+                        .margin_x(-80)
+                        .margin_bottom(-80)
                 }
-                    .padding(px(80))
+                    .padding(80)
                     .align_items(AlignItems::Stretch)
-                    .gap(px(52))
+                    .gap(52)
                     .background(rgb(0xffffff))
-                    .size(pc(100))
+                    .size(pct(100))
             }
                 .font_size(32.0)
                 .line_height(46.0)

@@ -1,13 +1,14 @@
 use super::Drawable;
-use crate::attributes::{IntoPadding, IntoPaddingPair, IntoPaddingSize};
+use crate::attributes::{IntoPadding, IntoPaddingPair, IntoPaddingValue};
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {
         fn $method<T>(mut self, value: T) -> Self
         where
-            T: IntoPaddingSize,
+            T: IntoPaddingValue,
         {
-            self.layout_mut().padding.$field = value.into_padding_size().unwrap_or_default().into();
+            self.layout_mut().padding.$field =
+                value.into_padding_value().unwrap_or_default().into();
             self
         }
     };

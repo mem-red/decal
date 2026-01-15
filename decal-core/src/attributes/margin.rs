@@ -1,5 +1,28 @@
 use crate::primitives::{Length, Rect};
 
+pub trait IntoMarginValue {
+    fn into_margin_value(self) -> Option<Length>;
+}
+
+impl IntoMarginValue for Option<Length> {
+    #[inline]
+    fn into_margin_value(self) -> Option<Length> {
+        self
+    }
+}
+
+impl<T> IntoMarginValue for T
+where
+    T: Into<Length> + Copy,
+{
+    #[inline]
+    fn into_margin_value(self) -> Option<Length> {
+        Some(self.into())
+    }
+}
+
+//
+
 type Margin = Rect<Length>;
 
 pub trait IntoMargin {
@@ -20,87 +43,113 @@ impl IntoMargin for Margin {
     }
 }
 
-impl IntoMargin for Length {
+impl<T> IntoMargin for T
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_margin(self) -> Option<Margin> {
         Some(Rect {
-            top: self,
-            right: self,
-            bottom: self,
-            left: self,
+            top: self.into(),
+            right: self.into(),
+            bottom: self.into(),
+            left: self.into(),
         })
     }
 }
 
-impl IntoMargin for [Length; 1] {
+impl<T> IntoMargin for [T; 1]
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_margin(self) -> Option<Margin> {
         Some(Rect {
-            top: self[0],
-            right: self[0],
-            bottom: self[0],
-            left: self[0],
+            top: self[0].into(),
+            right: self[0].into(),
+            bottom: self[0].into(),
+            left: self[0].into(),
         })
     }
 }
 
-impl IntoMargin for [Length; 2] {
+impl<T> IntoMargin for [T; 2]
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_margin(self) -> Option<Margin> {
         Some(Rect {
-            top: self[0],
-            right: self[1],
-            bottom: self[0],
-            left: self[1],
+            top: self[0].into(),
+            right: self[1].into(),
+            bottom: self[0].into(),
+            left: self[1].into(),
         })
     }
 }
 
-impl IntoMargin for [Length; 3] {
+impl<T> IntoMargin for [T; 3]
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_margin(self) -> Option<Margin> {
         Some(Rect {
-            top: self[0],
-            right: self[1],
-            bottom: self[2],
-            left: self[1],
+            top: self[0].into(),
+            right: self[1].into(),
+            bottom: self[2].into(),
+            left: self[1].into(),
         })
     }
 }
 
-impl IntoMargin for [Length; 4] {
+impl<T> IntoMargin for [T; 4]
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_margin(self) -> Option<Margin> {
         Some(Rect {
-            top: self[0],
-            right: self[1],
-            bottom: self[2],
-            left: self[3],
+            top: self[0].into(),
+            right: self[1].into(),
+            bottom: self[2].into(),
+            left: self[3].into(),
         })
     }
 }
+
+//
 
 pub trait IntoMarginPair {
     fn into_margin_pair(self) -> Option<(Length, Length)>;
 }
 
-impl IntoMarginPair for Length {
+impl<T> IntoMarginPair for T
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_margin_pair(self) -> Option<(Length, Length)> {
-        Some((self, self))
+        Some((self.into(), self.into()))
     }
 }
 
-impl IntoMarginPair for [Length; 1] {
+impl<T> IntoMarginPair for [T; 1]
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_margin_pair(self) -> Option<(Length, Length)> {
-        Some((self[0], self[0]))
+        Some((self[0].into(), self[0].into()))
     }
 }
 
-impl IntoMarginPair for [Length; 2] {
+impl<T> IntoMarginPair for [T; 2]
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_margin_pair(self) -> Option<(Length, Length)> {
-        Some((self[0], self[1]))
+        Some((self[0].into(), self[1].into()))
     }
 }

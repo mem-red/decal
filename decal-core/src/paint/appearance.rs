@@ -1,4 +1,4 @@
-use crate::capabilities::CornerRadius;
+use crate::attributes::CornerRadius;
 use crate::filters::Filter;
 use crate::primitives::{BlendMode, PaintStack, Transform};
 

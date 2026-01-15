@@ -6,7 +6,7 @@ pub trait ContainerAlignment: Drawable {
     where
         T: Into<Option<AlignItems>>,
     {
-        self.layout_mut().align_items = value.into().map(|x| x.into());
+        self.layout_mut().align_items = value.into().map(Into::into);
         self
     }
 
@@ -14,7 +14,7 @@ pub trait ContainerAlignment: Drawable {
     where
         T: Into<Option<AlignContent>>,
     {
-        self.layout_mut().align_content = value.into().map(|x| x.into());
+        self.layout_mut().align_content = value.into().map(Into::into);
         self
     }
 
@@ -22,7 +22,7 @@ pub trait ContainerAlignment: Drawable {
     where
         T: Into<Option<JustifyContent>>,
     {
-        self.layout_mut().justify_content = value.into().map(|x| x.into());
+        self.layout_mut().justify_content = value.into().map(Into::into);
         self
     }
 }

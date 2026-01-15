@@ -1,5 +1,32 @@
-use crate::capabilities::{CornerRadii, CornerRadius};
+use crate::prelude::Length;
 use crate::primitives::Corner;
+
+type CornerRadii = Length<false, true>;
+
+pub trait IntoCornerRadii {
+    fn into_corner_radii(self) -> Option<CornerRadii>;
+}
+
+impl IntoCornerRadii for Option<CornerRadii> {
+    #[inline]
+    fn into_corner_radii(self) -> Option<CornerRadii> {
+        self
+    }
+}
+
+impl<T> IntoCornerRadii for T
+where
+    T: Into<CornerRadii> + Copy,
+{
+    #[inline]
+    fn into_corner_radii(self) -> Option<CornerRadii> {
+        Some(self.into())
+    }
+}
+
+//
+
+pub type CornerRadius = Corner<CornerRadii>;
 
 pub trait IntoCornerRadius {
     fn into_corner_radius(self) -> Option<CornerRadius>;
@@ -19,62 +46,77 @@ impl IntoCornerRadius for CornerRadius {
     }
 }
 
-impl IntoCornerRadius for CornerRadii {
+impl<T> IntoCornerRadius for T
+where
+    T: Into<CornerRadii> + Copy,
+{
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {
-            top_left: self,
-            top_right: self,
-            bottom_right: self,
-            bottom_left: self,
+            top_left: self.into(),
+            top_right: self.into(),
+            bottom_right: self.into(),
+            bottom_left: self.into(),
         })
     }
 }
 
-impl IntoCornerRadius for [CornerRadii; 1] {
+impl<T> IntoCornerRadius for [T; 1]
+where
+    T: Into<CornerRadii> + Copy,
+{
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {
-            top_left: self[0],
-            top_right: self[0],
-            bottom_right: self[0],
-            bottom_left: self[0],
+            top_left: self[0].into(),
+            top_right: self[0].into(),
+            bottom_right: self[0].into(),
+            bottom_left: self[0].into(),
         })
     }
 }
 
-impl IntoCornerRadius for [CornerRadii; 2] {
+impl<T> IntoCornerRadius for [T; 2]
+where
+    T: Into<CornerRadii> + Copy,
+{
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {
-            top_left: self[0],
-            top_right: self[1],
-            bottom_right: self[0],
-            bottom_left: self[1],
+            top_left: self[0].into(),
+            top_right: self[1].into(),
+            bottom_right: self[0].into(),
+            bottom_left: self[1].into(),
         })
     }
 }
 
-impl IntoCornerRadius for [CornerRadii; 3] {
+impl<T> IntoCornerRadius for [T; 3]
+where
+    T: Into<CornerRadii> + Copy,
+{
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {
-            top_left: self[0],
-            top_right: self[1],
-            bottom_right: self[2],
-            bottom_left: self[1],
+            top_left: self[0].into(),
+            top_right: self[1].into(),
+            bottom_right: self[2].into(),
+            bottom_left: self[1].into(),
         })
     }
 }
 
-impl IntoCornerRadius for [CornerRadii; 4] {
+impl<T> IntoCornerRadius for [T; 4]
+where
+    T: Into<CornerRadii> + Copy,
+{
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {
-            top_left: self[0],
-            top_right: self[1],
-            bottom_right: self[2],
-            bottom_left: self[3],
+            top_left: self[0].into(),
+            top_right: self[1].into(),
+            bottom_right: self[2].into(),
+            bottom_left: self[3].into(),
         })
     }
 }

@@ -1,4 +1,4 @@
-use crate::capabilities::CornerRadius;
+use crate::attributes::CornerRadius;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub(crate) struct ScaledRadii {

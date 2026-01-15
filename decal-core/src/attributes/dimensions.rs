@@ -1,5 +1,28 @@
 use crate::primitives::{Length, Size};
 
+pub trait IntoDimension {
+    fn into_dimension(self) -> Option<Length>;
+}
+
+impl IntoDimension for Option<Length> {
+    #[inline]
+    fn into_dimension(self) -> Option<Length> {
+        self
+    }
+}
+
+impl<T> IntoDimension for T
+where
+    T: Into<Length> + Copy,
+{
+    #[inline]
+    fn into_dimension(self) -> Option<Length> {
+        Some(self.into())
+    }
+}
+
+//
+
 type Dimensions = Size<Length>;
 
 pub trait IntoDimensions {
@@ -20,32 +43,41 @@ impl IntoDimensions for Dimensions {
     }
 }
 
-impl IntoDimensions for Length {
+impl<T> IntoDimensions for T
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_dimensions(self) -> Option<Dimensions> {
         Some(Size {
-            width: self,
-            height: self,
+            width: self.into(),
+            height: self.into(),
         })
     }
 }
 
-impl IntoDimensions for [Length; 1] {
+impl<T> IntoDimensions for [T; 1]
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_dimensions(self) -> Option<Dimensions> {
         Some(Size {
-            width: self[0],
-            height: self[0],
+            width: self[0].into(),
+            height: self[0].into(),
         })
     }
 }
 
-impl IntoDimensions for [Length; 2] {
+impl<T> IntoDimensions for [T; 2]
+where
+    T: Into<Length> + Copy,
+{
     #[inline]
     fn into_dimensions(self) -> Option<Dimensions> {
         Some(Size {
-            width: self[0],
-            height: self[1],
+            width: self[0].into(),
+            height: self[1].into(),
         })
     }
 }

@@ -21,32 +21,41 @@ impl IntoGap for Gap {
     }
 }
 
-impl IntoGap for GapSize {
+impl<T> IntoGap for T
+where
+    T: Into<GapSize> + Copy,
+{
     #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(Size {
-            width: self,
-            height: self,
+            width: self.into(),
+            height: self.into(),
         })
     }
 }
 
-impl IntoGap for [GapSize; 1] {
+impl<T> IntoGap for [T; 1]
+where
+    T: Into<GapSize> + Copy,
+{
     #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(Size {
-            width: self[0],
-            height: self[0],
+            width: self[0].into(),
+            height: self[0].into(),
         })
     }
 }
 
-impl IntoGap for [GapSize; 2] {
+impl<T> IntoGap for [T; 2]
+where
+    T: Into<GapSize> + Copy,
+{
     #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(Size {
-            width: self[0],
-            height: self[1],
+            width: self[0].into(),
+            height: self[1].into(),
         })
     }
 }

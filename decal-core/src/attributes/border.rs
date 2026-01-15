@@ -13,12 +13,17 @@ impl IntoBorderWidth for Option<BorderWidth> {
     }
 }
 
-impl IntoBorderWidth for BorderWidth {
+impl<T> IntoBorderWidth for T
+where
+    T: Into<BorderWidth> + Copy,
+{
     #[inline]
     fn into_border_width(self) -> Option<BorderWidth> {
-        Some(self)
+        Some(self.into())
     }
 }
+
+//
 
 type Border = Rect<BorderWidth>;
 
@@ -40,65 +45,82 @@ impl IntoBorder for Border {
     }
 }
 
-impl IntoBorder for BorderWidth {
+impl<T> IntoBorder for T
+where
+    T: Into<BorderWidth> + Copy,
+{
     #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Rect {
-            top: self,
-            right: self,
-            bottom: self,
-            left: self,
+            top: self.into(),
+            right: self.into(),
+            bottom: self.into(),
+            left: self.into(),
         })
     }
 }
 
-impl IntoBorder for [BorderWidth; 1] {
+impl<T> IntoBorder for [T; 1]
+where
+    T: Into<BorderWidth> + Copy,
+{
     #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Rect {
-            top: self[0],
-            right: self[0],
-            bottom: self[0],
-            left: self[0],
+            top: self[0].into(),
+            right: self[0].into(),
+            bottom: self[0].into(),
+            left: self[0].into(),
         })
     }
 }
 
-impl IntoBorder for [BorderWidth; 2] {
+impl<T> IntoBorder for [T; 2]
+where
+    T: Into<BorderWidth> + Copy,
+{
     #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Rect {
-            top: self[0],
-            right: self[1],
-            bottom: self[0],
-            left: self[1],
+            top: self[0].into(),
+            right: self[1].into(),
+            bottom: self[0].into(),
+            left: self[1].into(),
         })
     }
 }
 
-impl IntoBorder for [BorderWidth; 3] {
+impl<T> IntoBorder for [T; 3]
+where
+    T: Into<BorderWidth> + Copy,
+{
     #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Rect {
-            top: self[0],
-            right: self[1],
-            bottom: self[2],
-            left: self[1],
+            top: self[0].into(),
+            right: self[1].into(),
+            bottom: self[2].into(),
+            left: self[1].into(),
         })
     }
 }
 
-impl IntoBorder for [BorderWidth; 4] {
+impl<T> IntoBorder for [T; 4]
+where
+    T: Into<BorderWidth> + Copy,
+{
     #[inline]
     fn into_border(self) -> Option<Border> {
         Some(Rect {
-            top: self[0],
-            right: self[1],
-            bottom: self[2],
-            left: self[3],
+            top: self[0].into(),
+            right: self[1].into(),
+            bottom: self[2].into(),
+            left: self[3].into(),
         })
     }
 }
+
+//
 
 type BorderPair = (BorderWidth, BorderWidth);
 
@@ -106,23 +128,32 @@ pub trait IntoBorderPair {
     fn into_border_pair(self) -> Option<BorderPair>;
 }
 
-impl IntoBorderPair for BorderWidth {
+impl<T> IntoBorderPair for T
+where
+    T: Into<BorderWidth> + Copy,
+{
     #[inline]
     fn into_border_pair(self) -> Option<BorderPair> {
-        Some((self, self))
+        Some((self.into(), self.into()))
     }
 }
 
-impl IntoBorderPair for [BorderWidth; 1] {
+impl<T> IntoBorderPair for [T; 1]
+where
+    T: Into<BorderWidth> + Copy,
+{
     #[inline]
     fn into_border_pair(self) -> Option<BorderPair> {
-        Some((self[0], self[0]))
+        Some((self[0].into(), self[0].into()))
     }
 }
 
-impl IntoBorderPair for [BorderWidth; 2] {
+impl<T> IntoBorderPair for [T; 2]
+where
+    T: Into<BorderWidth> + Copy,
+{
     #[inline]
     fn into_border_pair(self) -> Option<BorderPair> {
-        Some((self[0], self[1]))
+        Some((self[0].into(), self[1].into()))
     }
 }

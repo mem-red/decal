@@ -1,26 +1,31 @@
 use crate::primitives::{Length, Rect};
 
-type PaddingSize = Length<false, true>;
+type PaddingValue = Length<false, true>;
 
-pub trait IntoPaddingSize {
-    fn into_padding_size(self) -> Option<PaddingSize>;
+pub trait IntoPaddingValue {
+    fn into_padding_value(self) -> Option<PaddingValue>;
 }
 
-impl IntoPaddingSize for Option<PaddingSize> {
+impl IntoPaddingValue for Option<PaddingValue> {
     #[inline]
-    fn into_padding_size(self) -> Option<PaddingSize> {
+    fn into_padding_value(self) -> Option<PaddingValue> {
         self
     }
 }
 
-impl IntoPaddingSize for PaddingSize {
+impl<T> IntoPaddingValue for T
+where
+    T: Into<PaddingValue> + Copy,
+{
     #[inline]
-    fn into_padding_size(self) -> Option<PaddingSize> {
-        Some(self)
+    fn into_padding_value(self) -> Option<PaddingValue> {
+        Some(self.into())
     }
 }
 
-type Padding = Rect<PaddingSize>;
+//
+
+type Padding = Rect<PaddingValue>;
 
 pub trait IntoPadding {
     fn into_padding(self) -> Option<Padding>;
@@ -40,89 +45,115 @@ impl IntoPadding for Padding {
     }
 }
 
-impl IntoPadding for PaddingSize {
+impl<T> IntoPadding for T
+where
+    T: Into<PaddingValue> + Copy,
+{
     #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Rect {
-            top: self,
-            right: self,
-            bottom: self,
-            left: self,
+            top: self.into(),
+            right: self.into(),
+            bottom: self.into(),
+            left: self.into(),
         })
     }
 }
 
-impl IntoPadding for [PaddingSize; 1] {
+impl<T> IntoPadding for [T; 1]
+where
+    T: Into<PaddingValue> + Copy,
+{
     #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Rect {
-            top: self[0],
-            right: self[0],
-            bottom: self[0],
-            left: self[0],
+            top: self[0].into(),
+            right: self[0].into(),
+            bottom: self[0].into(),
+            left: self[0].into(),
         })
     }
 }
 
-impl IntoPadding for [PaddingSize; 2] {
+impl<T> IntoPadding for [T; 2]
+where
+    T: Into<PaddingValue> + Copy,
+{
     #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Rect {
-            top: self[0],
-            right: self[1],
-            bottom: self[0],
-            left: self[1],
+            top: self[0].into(),
+            right: self[1].into(),
+            bottom: self[0].into(),
+            left: self[1].into(),
         })
     }
 }
 
-impl IntoPadding for [PaddingSize; 3] {
+impl<T> IntoPadding for [T; 3]
+where
+    T: Into<PaddingValue> + Copy,
+{
     #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Rect {
-            top: self[0],
-            right: self[1],
-            bottom: self[2],
-            left: self[1],
+            top: self[0].into(),
+            right: self[1].into(),
+            bottom: self[2].into(),
+            left: self[1].into(),
         })
     }
 }
 
-impl IntoPadding for [PaddingSize; 4] {
+impl<T> IntoPadding for [T; 4]
+where
+    T: Into<PaddingValue> + Copy,
+{
     #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Rect {
-            top: self[0],
-            right: self[1],
-            bottom: self[2],
-            left: self[3],
+            top: self[0].into(),
+            right: self[1].into(),
+            bottom: self[2].into(),
+            left: self[3].into(),
         })
     }
 }
 
-type PaddingPair = (PaddingSize, PaddingSize);
+//
+
+type PaddingPair = (PaddingValue, PaddingValue);
 
 pub trait IntoPaddingPair {
     fn into_padding_pair(self) -> Option<PaddingPair>;
 }
 
-impl IntoPaddingPair for PaddingSize {
+impl<T> IntoPaddingPair for T
+where
+    T: Into<PaddingValue> + Copy,
+{
     #[inline]
     fn into_padding_pair(self) -> Option<PaddingPair> {
-        Some((self, self))
+        Some((self.into(), self.into()))
     }
 }
 
-impl IntoPaddingPair for [PaddingSize; 1] {
+impl<T> IntoPaddingPair for [T; 1]
+where
+    T: Into<PaddingValue> + Copy,
+{
     #[inline]
     fn into_padding_pair(self) -> Option<PaddingPair> {
-        Some((self[0], self[0]))
+        Some((self[0].into(), self[0].into()))
     }
 }
 
-impl IntoPaddingPair for [PaddingSize; 2] {
+impl<T> IntoPaddingPair for [T; 2]
+where
+    T: Into<PaddingValue> + Copy,
+{
     #[inline]
     fn into_padding_pair(self) -> Option<PaddingPair> {
-        Some((self[0], self[1]))
+        Some((self[0].into(), self[1].into()))
     }
 }

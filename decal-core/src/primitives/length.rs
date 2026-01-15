@@ -10,7 +10,7 @@ enum LengthInner {
     #[default]
     Zero,
     Auto,
-    Pixels(FiniteF32),
+    Absolute(FiniteF32),
     Percent(FiniteF32),
 }
 
@@ -43,23 +43,22 @@ impl<const AUTO: bool, const PERCENT: bool> Length<AUTO, PERCENT> {
     }
 
     #[must_use]
-    pub fn pixels(value: f32) -> Self {
-        Self(LengthInner::Pixels(ff32!(value)))
+    pub fn units(value: f32) -> Self {
+        Self(LengthInner::Absolute(ff32!(value)))
     }
 
     pub(crate) fn is_zero(&self) -> bool {
         match self.0 {
             LengthInner::Zero => true,
-            LengthInner::Pixels(px) => px.get() == 0.0,
-            LengthInner::Percent(pc) => pc.get() == 0.0,
+            LengthInner::Absolute(value) | LengthInner::Percent(value) => value.get() == 0.0,
             _ => false,
         }
     }
 
     pub(crate) fn resolve_abs(&self, full: f32) -> Option<f32> {
         match self.0 {
-            LengthInner::Pixels(px) => Some(px.get()),
-            LengthInner::Percent(pc) => Some(pc.get() * full),
+            LengthInner::Absolute(value) => Some(value.get()),
+            LengthInner::Percent(value) => Some(value.get() * full),
             _ => None,
         }
     }
@@ -70,9 +69,9 @@ impl<const AUTO: bool, const PERCENT: bool> Display for Length<AUTO, PERCENT> {
         match self.0 {
             LengthInner::Zero => f.write_char('0'),
             LengthInner::Auto => f.write_str("auto"),
-            LengthInner::Pixels(px) => f.write_float(px.get()),
-            LengthInner::Percent(pc) => {
-                f.write_float(pc.get() * 100.0)?;
+            LengthInner::Absolute(value) => f.write_float(value.get()),
+            LengthInner::Percent(value) => {
+                f.write_float(value.get() * 100.0)?;
                 f.write_char('%')
             }
         }
@@ -83,7 +82,7 @@ impl<const PERCENT: bool> Into<taffy::LengthPercentage> for Length<false, PERCEN
     fn into(self) -> taffy::LengthPercentage {
         match self.0 {
             LengthInner::Zero => taffy::LengthPercentage::ZERO,
-            LengthInner::Pixels(value) => taffy::LengthPercentage::length(value.get()),
+            LengthInner::Absolute(value) => taffy::LengthPercentage::length(value.get()),
             LengthInner::Percent(value) => taffy::LengthPercentage::percent(value.get()),
             LengthInner::Auto => unreachable!(),
         }
@@ -97,7 +96,7 @@ impl<const AUTO: bool, const PERCENT: bool> Into<taffy::LengthPercentageAuto>
         match self.0 {
             LengthInner::Auto => taffy::LengthPercentageAuto::AUTO,
             LengthInner::Zero => taffy::LengthPercentageAuto::ZERO,
-            LengthInner::Pixels(value) => taffy::LengthPercentageAuto::length(value.get()),
+            LengthInner::Absolute(value) => taffy::LengthPercentageAuto::length(value.get()),
             LengthInner::Percent(value) => taffy::LengthPercentageAuto::percent(value.get()),
         }
     }
@@ -124,15 +123,15 @@ pub(super) mod helpers {
     }
 
     #[must_use]
-    pub fn px<T, const AUTO: bool, const PERCENT: bool>(value: T) -> Length<AUTO, PERCENT>
+    pub fn units<T, const AUTO: bool, const PERCENT: bool>(value: T) -> Length<AUTO, PERCENT>
     where
         T: Into<f64>,
     {
-        Length::pixels(value.into() as f32)
+        Length::units(value.into() as f32)
     }
 
     #[must_use]
-    pub fn pc<T, const AUTO: bool>(value: T) -> Length<AUTO, true>
+    pub fn pct<T, const AUTO: bool>(value: T) -> Length<AUTO, true>
     where
         T: Into<f64>,
     {
@@ -141,21 +140,26 @@ pub(super) mod helpers {
 
     pub trait LengthExtension<const AUTO: bool, const PERCENT: bool>: Sized + Copy {
         #[must_use]
-        fn px(self) -> Length<AUTO, PERCENT>;
+        fn units(self) -> Length<AUTO, PERCENT>;
 
         #[must_use]
-        fn pc(self) -> Length<AUTO, true>;
+        fn pct(self) -> Length<AUTO, true>;
     }
 
     macro_rules! impl_length_ext {
         ($($dtype:ty),*) => {
             $(impl<const AUTO: bool, const PERCENT: bool> LengthExtension<AUTO, PERCENT> for $dtype {
-                fn px(self) -> Length<AUTO, PERCENT> {
-                    Length::pixels(self as f32)
+                fn units(self) -> Length<AUTO, PERCENT> {
+                    Length::units(self as f32)
                 }
-
-                fn pc(self) -> Length<AUTO, true> {
+                fn pct(self) -> Length<AUTO, true> {
                     Length::percent(self as f32)
+                }
+            }
+
+            impl<const AUTO: bool, const PERCENT: bool> From<$dtype> for Length<AUTO, PERCENT> {
+                fn from(value: $dtype) -> Self {
+                    Self::units(value as f32)
                 }
             })*
         };

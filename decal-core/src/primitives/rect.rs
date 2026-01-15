@@ -68,11 +68,8 @@ impl<const AUTO: bool, const PERCENT: bool> Into<taffy::Rect<taffy::LengthPercen
     }
 }
 
-impl<T> From<taffy::Rect<T>> for Rect<T>
-where
-    T: Copy,
-{
-    fn from(value: taffy::Rect<T>) -> Self {
+impl From<taffy::Rect<f32>> for Rect<f32> {
+    fn from(value: taffy::Rect<f32>) -> Self {
         Self {
             top: value.top,
             right: value.right,
