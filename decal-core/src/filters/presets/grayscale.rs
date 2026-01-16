@@ -3,8 +3,9 @@ use crate::filters::Filter;
 // https://www.w3.org/TR/filter-effects-1/#grayscaleEquivalent
 
 pub fn grayscale(amount: f32) -> Filter {
+    let x = 1.0 - amount.clamp(0.0, 1.0);
+
     Filter::new(|ctx| {
-        let x = 1.0 - amount.clamp(0.0, 1.0);
         ctx.color_matrix()
             .matrix([
                 [
