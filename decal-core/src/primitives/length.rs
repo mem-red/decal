@@ -132,6 +132,18 @@ where
     }
 }
 
+macro_rules! impl_into_unit_length {
+    ($($dtype:ty),*) => {
+        $(impl<const AUTO: bool, const PERCENT: bool> From<$dtype> for Length<AUTO, PERCENT> {
+            fn from(value: $dtype) -> Self {
+                Self::units(value as f32)
+            }
+        })*
+    };
+}
+
+impl_into_unit_length!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f32, f64);
+
 //
 
 pub(super) mod helpers {
@@ -179,12 +191,6 @@ pub(super) mod helpers {
                 }
                 fn pct(self) -> Length<AUTO, true> {
                     Length::percent(self as f32)
-                }
-            }
-
-            impl<const AUTO: bool, const PERCENT: bool> From<$dtype> for Length<AUTO, PERCENT> {
-                fn from(value: $dtype) -> Self {
-                    Self::units(value as f32)
                 }
             })*
         };
