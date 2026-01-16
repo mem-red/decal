@@ -9,7 +9,6 @@ pub trait Background: Drawable {
         let background = value.into_paint_stack();
         self.visual_mut().background = background.clone();
         self.add_resources(background);
-
         self
     }
 
