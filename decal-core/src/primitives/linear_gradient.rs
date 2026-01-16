@@ -11,13 +11,13 @@ type GradientUnit = Length<false, true>;
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct LinearGradient {
-    stops: Vec<Stop>,
-    units: GradientUnits,
     x1: GradientUnit,
     y1: GradientUnit,
     #[default(GradientUnit::percent(100.0))]
     x2: GradientUnit,
     y2: GradientUnit,
+    stops: Vec<Stop>,
+    units: GradientUnits,
     spread_method: SpreadMethod,
     transform: GradientTransform,
     #[default(ColorInterpolation::SRgb)]
