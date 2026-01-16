@@ -27,51 +27,39 @@ pub enum FilterPrimitive {
     Tile(Tile),
 }
 
+macro_rules! delegate_primitive {
+    ($this:expr, $method:ident($($arg:expr),*)) => {
+        match $this {
+            Self::Flood(x) => x.$method($($arg),*),
+            Self::Image(x) => x.$method($($arg),*),
+            Self::GaussianBlur(x) => x.$method($($arg),*),
+            Self::Turbulence(x) => x.$method($($arg),*),
+            Self::ColorMatrix(x) => x.$method($($arg),*),
+            Self::ComponentTransfer(x) => x.$method($($arg),*),
+            Self::DisplacementMap(x) => x.$method($($arg),*),
+            Self::Composite(x) => x.$method($($arg),*),
+            Self::Blend(x) => x.$method($($arg),*),
+            Self::Merge(x) => x.$method($($arg),*),
+            Self::SpecularLighting(x) => x.$method($($arg),*),
+            Self::DiffuseLighting(x) => x.$method($($arg),*),
+            Self::ConvolveMatrix(x) => x.$method($($arg),*),
+            Self::DropShadow(x) => x.$method($($arg),*),
+            Self::Morphology(x) => x.$method($($arg),*),
+            Self::Offset(x) => x.$method($($arg),*),
+            Self::Tile(x) => x.$method($($arg),*),
+        }
+    };
+}
+
 impl Display for FilterPrimitive {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Flood(flood) => flood.fmt(f),
-            Self::Image(image) => image.fmt(f),
-            Self::GaussianBlur(blur) => blur.fmt(f),
-            Self::Turbulence(turbulence) => turbulence.fmt(f),
-            Self::ColorMatrix(matrix) => matrix.fmt(f),
-            Self::ComponentTransfer(component_transfer) => component_transfer.fmt(f),
-            Self::DisplacementMap(map) => map.fmt(f),
-            Self::Composite(composite) => composite.fmt(f),
-            Self::Blend(blend) => blend.fmt(f),
-            Self::Merge(merge) => merge.fmt(f),
-            Self::SpecularLighting(lighting) => lighting.fmt(f),
-            Self::DiffuseLighting(lighting) => lighting.fmt(f),
-            Self::ConvolveMatrix(matrix) => matrix.fmt(f),
-            Self::DropShadow(shadow) => shadow.fmt(f),
-            Self::Morphology(morphology) => morphology.fmt(f),
-            Self::Offset(offset) => offset.fmt(f),
-            Self::Tile(tile) => tile.fmt(f),
-        }
+        delegate_primitive!(self, fmt(f))
     }
 }
 
 impl ResourceIri for FilterPrimitive {
     fn iri(&self) -> Iri {
-        match self {
-            Self::Flood(flood) => flood.iri(),
-            Self::Image(image) => image.iri(),
-            Self::GaussianBlur(blur) => blur.iri(),
-            Self::Turbulence(turbulence) => turbulence.iri(),
-            Self::ColorMatrix(matrix) => matrix.iri(),
-            Self::ComponentTransfer(component_transfer) => component_transfer.iri(),
-            Self::DisplacementMap(map) => map.iri(),
-            Self::Composite(composite) => composite.iri(),
-            Self::Blend(blend) => blend.iri(),
-            Self::Merge(merge) => merge.iri(),
-            Self::SpecularLighting(lighting) => lighting.iri(),
-            Self::DiffuseLighting(lighting) => lighting.iri(),
-            Self::ConvolveMatrix(matrix) => matrix.iri(),
-            Self::DropShadow(shadow) => shadow.iri(),
-            Self::Morphology(morphology) => morphology.iri(),
-            Self::Offset(offset) => offset.iri(),
-            Self::Tile(tile) => tile.iri(),
-        }
+        delegate_primitive!(self, iri())
     }
 }
 
