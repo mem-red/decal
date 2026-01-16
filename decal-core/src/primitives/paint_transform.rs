@@ -2,6 +2,7 @@ use crate::macros::ff32;
 use crate::primitives::IntoFloatPair;
 use crate::utils::FloatWriter;
 use crate::utils::IsDefault;
+use smart_default::SmartDefault;
 use std::fmt::Write;
 use strict_num::FiniteF32;
 use usvg::Transform;
@@ -9,27 +10,16 @@ use usvg::Transform;
 pub type GradientTransform = PaintTransform;
 pub type PatternTransform = PaintTransform;
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct PaintTransform {
+    #[default(ff32!(1.0))]
     sx: FiniteF32,
     kx: FiniteF32,
     ky: FiniteF32,
+    #[default(ff32!(1.0))]
     sy: FiniteF32,
     tx: FiniteF32,
     ty: FiniteF32,
-}
-
-impl Default for PaintTransform {
-    fn default() -> Self {
-        PaintTransform {
-            sx: ff32!(1.0),
-            kx: ff32!(0.0),
-            ky: ff32!(0.0),
-            sy: ff32!(1.0),
-            tx: ff32!(0.0),
-            ty: ff32!(0.0),
-        }
-    }
 }
 
 impl From<Transform> for PaintTransform {

@@ -5,6 +5,7 @@ use crate::prelude::Length;
 use crate::primitives::{BlendMode, Color, CrossOrigin, PatternContentUnits, PatternUnits};
 use crate::primitives::{LinearGradient, Pattern, RadialGradient};
 use crate::utils::{ElementWriter, IsDefault};
+use smart_default::SmartDefault;
 use std::fmt::Display;
 use strict_num::NormalizedF32;
 
@@ -67,27 +68,18 @@ impl Display for Paint {
 
 //
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, SmartDefault)]
 pub struct ImagePaint {
     source: ImageSource,
+    #[default(nf32!(0.5))]
     x: NormalizedF32,
+    #[default(nf32!(0.5))]
     y: NormalizedF32,
+    #[default(NormalizedF32::ONE)]
     width: NormalizedF32,
+    #[default(NormalizedF32::ONE)]
     height: NormalizedF32,
     cross_origin: Option<CrossOrigin>,
-}
-
-impl Default for ImagePaint {
-    fn default() -> Self {
-        Self {
-            source: Default::default(),
-            x: nf32!(0.5),
-            y: nf32!(0.5),
-            width: NormalizedF32::ONE,
-            height: NormalizedF32::ONE,
-            cross_origin: None,
-        }
-    }
 }
 
 impl ImagePaint {
@@ -250,21 +242,12 @@ impl From<ImagePaint> for Paint {
 
 //
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, SmartDefault)]
 pub struct PaintLayer {
     pub(crate) paint: Paint,
     pub(crate) blend_mode: BlendMode,
+    #[default(NormalizedF32::ONE)]
     pub(crate) opacity: NormalizedF32,
-}
-
-impl Default for PaintLayer {
-    fn default() -> Self {
-        Self {
-            paint: Default::default(),
-            blend_mode: Default::default(),
-            opacity: NormalizedF32::ONE,
-        }
-    }
 }
 
 impl PaintLayer {

@@ -1,31 +1,23 @@
 use cosmic_text::fontdb::{ID, Source};
 use cosmic_text::{FontSystem, SwashCache};
 use hashbrown::HashMap;
+use smart_default::SmartDefault;
 use std::sync::Arc;
 
 pub(crate) const DEFAULT_FONT_FAMILY: &'static str = "sans-serif";
 pub(crate) const BASE_FONT_SIZE: f32 = 16.0;
 pub(crate) const BASE_LINE_HEIGHT: f32 = 22.0;
 
-#[derive(Debug)]
+#[derive(Debug, SmartDefault)]
 pub struct FontRegistry {
+    #[default(FontSystem::new())]
     pub(crate) system: FontSystem,
     pub(crate) aliases: HashMap<String, Vec<ID>>,
     pub(crate) alias_cache: HashMap<String, String>,
+    #[default(SwashCache::new())]
     pub(crate) swash_cache: SwashCache,
+    #[default(DEFAULT_FONT_FAMILY)]
     pub(crate) default_family: &'static str,
-}
-
-impl Default for FontRegistry {
-    fn default() -> Self {
-        Self {
-            system: FontSystem::new(),
-            aliases: HashMap::new(),
-            alias_cache: HashMap::new(),
-            swash_cache: SwashCache::new(),
-            default_family: DEFAULT_FONT_FAMILY,
-        }
-    }
 }
 
 impl FontRegistry {

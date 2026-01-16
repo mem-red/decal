@@ -1,24 +1,17 @@
 use crate::macros::nf32;
 use crate::primitives::Color;
 use crate::utils::ElementWriter;
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 use strict_num::NormalizedF32;
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Stop {
+    #[default(NormalizedF32::ZERO)]
     offset: NormalizedF32,
     color: Color,
+    #[default(NormalizedF32::ONE)]
     opacity: NormalizedF32,
-}
-
-impl Default for Stop {
-    fn default() -> Self {
-        Stop {
-            offset: NormalizedF32::ZERO,
-            color: Color::default(),
-            opacity: NormalizedF32::ONE,
-        }
-    }
 }
 
 impl Stop {

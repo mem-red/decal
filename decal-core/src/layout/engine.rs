@@ -2,6 +2,7 @@ use crate::layout::font::FontRegistry;
 use crate::layout::{Decal, RasterizeError, RasterizeOptions, VectorizeError, VectorizeOptions};
 use lru::LruCache;
 use parking_lot::Mutex;
+use smart_default::SmartDefault;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use tiny_skia::Pixmap;
@@ -11,19 +12,11 @@ pub(crate) type ImageCache = Arc<Mutex<LruCache<String, ImageKind>>>;
 
 const DEFAULT_IMAGE_CACHE_CAP: NonZeroUsize = NonZeroUsize::new(128).expect("128 is non-zero");
 
-#[derive(Debug)]
+#[derive(Debug, SmartDefault)]
 pub struct EngineOptions {
     pub fonts: FontRegistry,
+    #[default(DEFAULT_IMAGE_CACHE_CAP)]
     pub image_cache_capacity: NonZeroUsize,
-}
-
-impl Default for EngineOptions {
-    fn default() -> Self {
-        Self {
-            fonts: FontRegistry::default(),
-            image_cache_capacity: DEFAULT_IMAGE_CACHE_CAP,
-        }
-    }
 }
 
 #[derive(Debug)]
