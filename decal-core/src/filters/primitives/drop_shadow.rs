@@ -1,13 +1,14 @@
 use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::macros::ff32;
+use crate::macros::{ff32, nf32};
 use crate::paint::ResourceIri;
+use crate::primitives::Color;
 use crate::primitives::ColorInterpolation;
 use crate::primitives::{FilterInput, PositiveF32Pair};
 use crate::utils::ElementWriter;
 use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
-use strict_num::FiniteF32;
+use strict_num::{FiniteF32, NormalizedF32};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct DropShadow {
@@ -18,6 +19,8 @@ pub struct DropShadow {
     dy: FiniteF32,
     #[default(2.0.into())]
     std_deviation: PositiveF32Pair,
+    flood_color: Option<Color>,
+    flood_opacity: Option<NormalizedF32>,
     region: FilterRegion,
     #[default(ColorInterpolation::LinearRgb)]
     color_interpolation: ColorInterpolation,
@@ -49,6 +52,8 @@ impl Display for DropShadow {
                 self.std_deviation,
                 self.std_deviation != PositiveF32Pair::from(2.0),
             )?
+            .attr("flood-color", self.flood_color.map(|x| (x,)))?
+            .attr("flood-opacity", self.flood_opacity)?
             .attr_if(
                 "color-interpolation-filters",
                 (&self.color_interpolation,),
@@ -83,6 +88,22 @@ impl<'a> PrimitiveBuilder<'a, DropShadow> {
         T: Into<PositiveF32Pair>,
     {
         self.inner.std_deviation = std_deviation.into();
+        self
+    }
+
+    pub fn flood_color<T>(mut self, color: T) -> Self
+    where
+        T: Into<Option<Color>>,
+    {
+        self.inner.flood_color = color.into();
+        self
+    }
+
+    pub fn flood_opacity<T>(mut self, opacity: T) -> Self
+    where
+        T: Into<Option<f32>>,
+    {
+        self.inner.flood_opacity = opacity.into().map(|x| nf32!(x));
         self
     }
 
