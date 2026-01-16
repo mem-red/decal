@@ -19,14 +19,14 @@ fn statistic(value: &str, label: &str, icon: &str) -> Decal {
         Column {
             Row {
                 Image(ImageSource::svg(format!(r##"<svg width="32" height="32" viewBox="0 0 16 16" fill="#6e7681">{icon}</svg>"##)), 32.0, 32.0)
-                Text(value).color(rgb(0x0))
+                Text(value).color(hex(0x0))
             }
                 .font_size(32.0)
                 .line_height(32.0)
                 .align_items(AlignItems::Center)
                 .gap(18)
             Text(label)
-                .color(rgb(0x6e7681))
+                .color(hex(0x6e7681))
                 .font_size(24.0)
                 .line_height(24.0)
                 .margin_left(50)
@@ -53,7 +53,7 @@ fn main() {
                         Column {
                             Fragment(header("nasa", "fprime"))
                             Text("F' - A flight software and embedded systems framework")
-                                .color(rgb(0x6e7681))
+                                .color(hex(0x6e7681))
                         }
                             .gap(48)
                             .width(pct(70))
@@ -89,14 +89,14 @@ fn main() {
 
                     // Languages
                     Row {
-                        Block {}.background(rgb(0xf34b7d)).width(pct(61.2))
-                        Block {}.background(rgb(0xe34c25)).width(pct(17.5))
-                        Block {}.background(rgb(0x3572a5)).width(pct(8.9))
-                        Block {}.background(rgb(0x3d6118)).width(pct(5.1))
-                        Block {}.background(rgb(0xb07219)).width(pct(3.2))
-                        Block {}.background(rgb(0xecdebe)).width(pct(2.1))
-                        Block {}.background(rgb(0x555555)).width(pct(1.3))
-                        Block {}.background(rgb(0xf0e05a)).width(pct(0.7))
+                        Block {}.background(hex(0xf34b7d)).width(pct(61.2))
+                        Block {}.background(hex(0xe34c25)).width(pct(17.5))
+                        Block {}.background(hex(0x3572a5)).width(pct(8.9))
+                        Block {}.background(hex(0x3d6118)).width(pct(5.1))
+                        Block {}.background(hex(0xb07219)).width(pct(3.2))
+                        Block {}.background(hex(0xecdebe)).width(pct(2.1))
+                        Block {}.background(hex(0x555555)).width(pct(1.3))
+                        Block {}.background(hex(0xf0e05a)).width(pct(0.7))
                     }
                         .height(24)
                         .margin_x(-80)
@@ -105,12 +105,12 @@ fn main() {
                     .padding(80)
                     .align_items(AlignItems::Stretch)
                     .gap(52)
-                    .background(rgb(0xffffff))
+                    .background(hex(0xffffff))
                     .size(pct(100))
             }
                 .font_size(32.0)
                 .line_height(46.0)
-                .color(rgb(0x2f363d))
+                .color(hex(0x2f363d))
                 .font_family("Mona Sans")
                 .text_wrap(TextWrap::Word)
     };

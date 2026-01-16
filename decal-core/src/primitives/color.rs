@@ -105,12 +105,20 @@ impl From<String> for Color {
 pub(super) mod helpers {
     use super::Color;
 
-    pub const fn rgb(hex: u32) -> Color {
+    pub const fn rgb(r: u8, g: u8, b: u8) -> Color {
+        Color::rgb(r, g, b)
+    }
+
+    pub const fn rgba(r: u8, g: u8, b: u8, a: f32) -> Color {
+        Color::rgba(r, g, b, a)
+    }
+
+    pub const fn hex(hex: u32) -> Color {
         let [_, r, g, b] = hex.to_be_bytes();
         Color::rgb(r, g, b)
     }
 
-    pub const fn rgba(hex: u32) -> Color {
+    pub const fn hexa(hex: u32) -> Color {
         let [r, g, b, a] = hex.to_be_bytes();
         Color { r, g, b, a }
     }
