@@ -105,21 +105,53 @@ impl From<String> for Color {
 pub(super) mod helpers {
     use super::Color;
 
-    pub const fn rgb(r: u8, g: u8, b: u8) -> Color {
-        Color::rgb(r, g, b)
+    pub trait IntoRgb {
+        fn into_rgb(self) -> Color;
     }
 
-    pub const fn rgba(r: u8, g: u8, b: u8, a: f32) -> Color {
-        Color::rgba(r, g, b, a)
+    impl IntoRgb for u32 {
+        fn into_rgb(self) -> Color {
+            let [_, r, g, b] = self.to_be_bytes();
+            Color::rgb(r, g, b)
+        }
     }
 
-    pub const fn hex(hex: u32) -> Color {
-        let [_, r, g, b] = hex.to_be_bytes();
-        Color::rgb(r, g, b)
+    impl IntoRgb for (u8, u8, u8) {
+        fn into_rgb(self) -> Color {
+            Color::rgb(self.0, self.1, self.2)
+        }
     }
 
-    pub const fn hexa(hex: u32) -> Color {
-        let [r, g, b, a] = hex.to_be_bytes();
-        Color { r, g, b, a }
+    pub fn rgb<T>(value: T) -> Color
+    where
+        T: IntoRgb,
+    {
+        value.into_rgb()
+    }
+
+    //
+
+    pub trait IntoRgba {
+        fn into_rgba(self) -> Color;
+    }
+
+    impl IntoRgba for u32 {
+        fn into_rgba(self) -> Color {
+            let [r, g, b, a] = self.to_be_bytes();
+            Color { r, g, b, a }
+        }
+    }
+
+    impl IntoRgba for (u8, u8, u8, f32) {
+        fn into_rgba(self) -> Color {
+            Color::rgba(self.0, self.1, self.2, self.3)
+        }
+    }
+
+    pub fn rgba<T>(value: T) -> Color
+    where
+        T: IntoRgba,
+    {
+        value.into_rgba()
     }
 }
