@@ -1,17 +1,21 @@
 mod blur;
 mod brightness;
 mod contrast;
+mod drop_shadow;
 mod grayscale;
 mod hue_rotate;
 mod invert;
 mod opacity;
+mod saturate;
 mod sepia;
 
 pub use blur::*;
 pub use brightness::*;
 pub use contrast::*;
+pub use drop_shadow::*;
 pub use grayscale::*;
 pub use hue_rotate::*;
 pub use invert::*;
 pub use opacity::*;
+pub use saturate::*;
 pub use sepia::*;
