@@ -6,7 +6,7 @@ use crate::filters::primitives::TransferFunction;
 pub fn opacity(amount: f32) -> Filter {
     Filter::new(|ctx| {
         ctx.component_transfer()
-            .func_a(TransferFunction::table(vec![0.0, amount.clamp(1.0, 0.0)]))
+            .func_a(TransferFunction::table(vec![0.0, amount]))
             .finish();
     })
 }
