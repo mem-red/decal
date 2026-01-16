@@ -1,7 +1,7 @@
 use crate::filters::primitives::{
-    Blend, Blur, ColorMatrix, ComponentTransfer, Composite, ConvolveMatrix, DiffuseLighting,
-    DisplacementMap, DropShadow, Flood, Image, Merge, Morphology, Offset, SpecularLighting, Tile,
-    Turbulence,
+    Blend, ColorMatrix, ComponentTransfer, Composite, ConvolveMatrix, DiffuseLighting,
+    DisplacementMap, DropShadow, Flood, GaussianBlur, Image, Merge, Morphology, Offset,
+    SpecularLighting, Tile, Turbulence,
 };
 use crate::paint::{Iri, ResourceIri};
 use std::fmt::{Display, Formatter};
@@ -10,7 +10,7 @@ use std::fmt::{Display, Formatter};
 pub enum FilterPrimitive {
     Flood(Flood),
     Image(Image),
-    Blur(Blur),
+    GaussianBlur(GaussianBlur),
     Turbulence(Turbulence),
     ColorMatrix(ColorMatrix),
     ComponentTransfer(ComponentTransfer),
@@ -32,7 +32,7 @@ impl Display for FilterPrimitive {
         match self {
             Self::Flood(flood) => flood.fmt(f),
             Self::Image(image) => image.fmt(f),
-            Self::Blur(blur) => blur.fmt(f),
+            Self::GaussianBlur(blur) => blur.fmt(f),
             Self::Turbulence(turbulence) => turbulence.fmt(f),
             Self::ColorMatrix(matrix) => matrix.fmt(f),
             Self::ComponentTransfer(component_transfer) => component_transfer.fmt(f),
@@ -56,7 +56,7 @@ impl ResourceIri for FilterPrimitive {
         match self {
             Self::Flood(flood) => flood.iri(),
             Self::Image(image) => image.iri(),
-            Self::Blur(blur) => blur.iri(),
+            Self::GaussianBlur(blur) => blur.iri(),
             Self::Turbulence(turbulence) => turbulence.iri(),
             Self::ColorMatrix(matrix) => matrix.iri(),
             Self::ComponentTransfer(component_transfer) => component_transfer.iri(),
@@ -89,9 +89,9 @@ impl From<Image> for FilterPrimitive {
     }
 }
 
-impl From<Blur> for FilterPrimitive {
-    fn from(value: Blur) -> Self {
-        Self::Blur(value)
+impl From<GaussianBlur> for FilterPrimitive {
+    fn from(value: GaussianBlur) -> Self {
+        Self::GaussianBlur(value)
     }
 }
 

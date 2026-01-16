@@ -1,7 +1,7 @@
 use crate::filters::primitives::{
-    Blend, Blur, ColorMatrix, ComponentTransfer, Composite, ConvolveMatrix, DiffuseLighting,
-    DisplacementMap, DropShadow, FilterPrimitive, Flood, Image, Merge, Morphology, Offset,
-    PrimitiveBuilder, SpecularLighting, Tile, Turbulence,
+    Blend, ColorMatrix, ComponentTransfer, Composite, ConvolveMatrix, DiffuseLighting,
+    DisplacementMap, DropShadow, FilterPrimitive, Flood, GaussianBlur, Image, Merge, Morphology,
+    Offset, PrimitiveBuilder, SpecularLighting, Tile, Turbulence,
 };
 use crate::paint::{Iri, ResourceIri};
 use crate::primitives::LightSource;
@@ -39,8 +39,8 @@ impl<'a> FilterContext {
         PrimitiveBuilder::new(self, Image::new(href))
     }
 
-    pub fn blur(&self) -> PrimitiveBuilder<'_, Blur> {
-        PrimitiveBuilder::new(self, Blur::new())
+    pub fn gaussian_blur(&self) -> PrimitiveBuilder<'_, GaussianBlur> {
+        PrimitiveBuilder::new(self, GaussianBlur::new())
     }
 
     pub fn turbulence(&self) -> PrimitiveBuilder<'_, Turbulence> {

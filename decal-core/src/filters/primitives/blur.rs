@@ -8,7 +8,7 @@ use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
-pub struct Blur {
+pub struct GaussianBlur {
     input: Option<FilterInput>,
     std_deviation: PositiveF32Pair,
     edge_mode: EdgeMode,
@@ -17,21 +17,21 @@ pub struct Blur {
     color_interpolation: ColorInterpolation,
 }
 
-impl Blur {
+impl GaussianBlur {
     pub(crate) fn new() -> Self {
-        Blur::default()
+        GaussianBlur::default()
     }
 }
 
-impl ResourceIri for Blur {}
+impl ResourceIri for GaussianBlur {}
 
-impl HasFilterRegion for Blur {
+impl HasFilterRegion for GaussianBlur {
     fn region_mut(&mut self) -> &mut FilterRegion {
         &mut self.region
     }
 }
 
-impl Display for Blur {
+impl Display for GaussianBlur {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         ElementWriter::new(f, "feGaussianBlur")?
             .write(|out| self.region.fmt(out))?
@@ -52,7 +52,7 @@ impl Display for Blur {
     }
 }
 
-impl<'a> PrimitiveBuilder<'a, Blur> {
+impl<'a> PrimitiveBuilder<'a, GaussianBlur> {
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
