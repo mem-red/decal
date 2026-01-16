@@ -1,6 +1,7 @@
 use crate::macros::ff32;
 use crate::utils::FloatWriter;
 use std::fmt::{Display, Formatter, Write};
+use std::ops::{Add, Sub};
 use strict_num::FiniteF32;
 use taffy::prelude::{TaffyAuto, TaffyZero};
 
@@ -12,6 +13,17 @@ enum LengthInner {
     Auto,
     Absolute(FiniteF32),
     Percent(FiniteF32),
+}
+
+impl LengthInner {
+    fn negate(self) -> Self {
+        match self {
+            LengthInner::Zero => self,
+            LengthInner::Auto => self,
+            LengthInner::Absolute(x) => Self::Absolute(ff32!(-x.get())),
+            LengthInner::Percent(x) => Self::Percent(ff32!(-x.get())),
+        }
+    }
 }
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Copy, Default)]
@@ -50,7 +62,7 @@ impl<const AUTO: bool, const PERCENT: bool> Length<AUTO, PERCENT> {
     pub(crate) fn is_zero(&self) -> bool {
         match self.0 {
             LengthInner::Zero => true,
-            LengthInner::Absolute(value) | LengthInner::Percent(value) => value.get() == 0.0,
+            LengthInner::Absolute(x) | LengthInner::Percent(x) => x.get() == 0.0,
             _ => false,
         }
     }
@@ -60,6 +72,32 @@ impl<const AUTO: bool, const PERCENT: bool> Length<AUTO, PERCENT> {
             LengthInner::Absolute(value) => Some(value.get()),
             LengthInner::Percent(value) => Some(value.get() * full),
             _ => None,
+        }
+    }
+}
+
+impl Add for Length<false, false> {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        match (self.0, rhs.0) {
+            (LengthInner::Zero, b) => Self(b),
+            (a, LengthInner::Zero) => Self(a),
+            (LengthInner::Absolute(a), LengthInner::Absolute(b)) => Self::units(a.get() + b.get()),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl Sub for Length<false, false> {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        match (self.0, rhs.0) {
+            (LengthInner::Zero, b) => Self(b.negate()),
+            (a, LengthInner::Zero) => Self(a),
+            (LengthInner::Absolute(a), LengthInner::Absolute(b)) => Self::units(a.get() - b.get()),
+            _ => unreachable!(),
         }
     }
 }
