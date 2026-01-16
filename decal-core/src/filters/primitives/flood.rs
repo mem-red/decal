@@ -23,13 +23,13 @@ impl Flood {
     }
 }
 
-impl ResourceIri for Flood {}
-
 impl HasFilterRegion for Flood {
     fn region_mut(&mut self) -> &mut FilterRegion {
         &mut self.region
     }
 }
+
+impl ResourceIri for Flood {}
 
 impl Display for Flood {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

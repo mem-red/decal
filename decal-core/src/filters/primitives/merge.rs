@@ -1,7 +1,7 @@
 use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
-use crate::prelude::ColorInterpolation;
+use crate::primitives::ColorInterpolation;
 use crate::primitives::FilterInput;
 use crate::utils::ElementWriter;
 use smart_default::SmartDefault;

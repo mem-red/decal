@@ -1,7 +1,7 @@
 use crate::layout::ImageSource;
 use crate::macros::nf32;
 use crate::paint::{IntoResources, Resource, ResourceIri};
-use crate::prelude::Length;
+use crate::primitives::Length;
 use crate::primitives::{BlendMode, Color, CrossOrigin, PatternContentUnits, PatternUnits};
 use crate::primitives::{LinearGradient, Pattern, RadialGradient};
 use crate::utils::{ElementWriter, IsDefault};

@@ -1,7 +1,7 @@
 use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
-use crate::prelude::ColorInterpolation;
+use crate::primitives::ColorInterpolation;
 use crate::primitives::PositiveF32Pair;
 use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
@@ -37,13 +37,13 @@ impl Turbulence {
     }
 }
 
-impl ResourceIri for Turbulence {}
-
 impl HasFilterRegion for Turbulence {
     fn region_mut(&mut self) -> &mut FilterRegion {
         &mut self.region
     }
 }
+
+impl ResourceIri for Turbulence {}
 
 impl Display for Turbulence {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

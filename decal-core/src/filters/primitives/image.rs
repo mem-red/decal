@@ -22,13 +22,13 @@ impl Image {
     }
 }
 
-impl ResourceIri for Image {}
-
 impl HasFilterRegion for Image {
     fn region_mut(&mut self) -> &mut FilterRegion {
         &mut self.region
     }
 }
+
+impl ResourceIri for Image {}
 
 impl Display for Image {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

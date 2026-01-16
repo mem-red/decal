@@ -1,5 +1,5 @@
 use crate::paint::ResourceIri;
-use crate::prelude::Length;
+use crate::primitives::Length;
 use crate::primitives::{
     IntoOptionalLength, PatternContentUnits, PatternTransform, PatternUnits, PreserveAspectRatio,
     ViewBox,

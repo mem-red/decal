@@ -2,7 +2,7 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, pf32};
 use crate::paint::ResourceIri;
-use crate::prelude::ColorInterpolation;
+use crate::primitives::ColorInterpolation;
 use crate::primitives::{Color, FilterInput, LightSource, PositiveF32Pair};
 use crate::utils::ElementWriter;
 use std::fmt::{Display, Formatter};

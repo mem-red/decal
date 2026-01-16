@@ -2,8 +2,8 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::ff32;
 use crate::paint::ResourceIri;
-use crate::prelude::{ColorInterpolation, FilterInput};
 use crate::primitives::EdgeMode;
+use crate::primitives::{ColorInterpolation, FilterInput};
 use crate::utils::{ElementWriter, FloatWriter, IsDefault, write_spaced};
 use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
@@ -71,13 +71,13 @@ impl ConvolveMatrix {
     }
 }
 
-impl ResourceIri for ConvolveMatrix {}
-
 impl HasFilterRegion for ConvolveMatrix {
     fn region_mut(&mut self) -> &mut FilterRegion {
         &mut self.region
     }
 }
+
+impl ResourceIri for ConvolveMatrix {}
 
 impl Display for ConvolveMatrix {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

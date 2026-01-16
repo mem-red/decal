@@ -21,13 +21,13 @@ impl Offset {
     }
 }
 
-impl ResourceIri for Offset {}
-
 impl HasFilterRegion for Offset {
     fn region_mut(&mut self) -> &mut FilterRegion {
         &mut self.region
     }
 }
+
+impl ResourceIri for Offset {}
 
 impl Display for Offset {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

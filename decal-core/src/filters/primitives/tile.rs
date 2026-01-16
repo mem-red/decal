@@ -17,13 +17,13 @@ impl Tile {
     }
 }
 
-impl ResourceIri for Tile {}
-
 impl HasFilterRegion for Tile {
     fn region_mut(&mut self) -> &mut FilterRegion {
         &mut self.region
     }
 }
+
+impl ResourceIri for Tile {}
 
 impl Display for Tile {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

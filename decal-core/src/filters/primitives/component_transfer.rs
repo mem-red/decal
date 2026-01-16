@@ -2,7 +2,7 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, nf32};
 use crate::paint::ResourceIri;
-use crate::prelude::ColorInterpolation;
+use crate::primitives::ColorInterpolation;
 use crate::primitives::FilterInput;
 use crate::utils::{ElementWriter, FloatWriter, IsDefault, write_spaced};
 use smart_default::SmartDefault;
@@ -139,13 +139,13 @@ impl ComponentTransfer {
     }
 }
 
-impl ResourceIri for ComponentTransfer {}
-
 impl HasFilterRegion for ComponentTransfer {
     fn region_mut(&mut self) -> &mut FilterRegion {
         &mut self.region
     }
 }
+
+impl ResourceIri for ComponentTransfer {}
 
 impl Display for ComponentTransfer {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

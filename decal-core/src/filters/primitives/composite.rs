@@ -2,7 +2,7 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::ff32;
 use crate::paint::ResourceIri;
-use crate::prelude::ColorInterpolation;
+use crate::primitives::ColorInterpolation;
 use crate::primitives::FilterInput;
 use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
@@ -90,13 +90,13 @@ impl Composite {
     }
 }
 
-impl ResourceIri for Composite {}
-
 impl HasFilterRegion for Composite {
     fn region_mut(&mut self) -> &mut FilterRegion {
         &mut self.region
     }
 }
+
+impl ResourceIri for Composite {}
 
 impl Display for Composite {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

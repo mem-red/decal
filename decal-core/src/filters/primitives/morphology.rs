@@ -1,7 +1,7 @@
 use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
-use crate::prelude::ColorInterpolation;
+use crate::primitives::ColorInterpolation;
 use crate::primitives::{FilterInput, PositiveF32Pair};
 use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
@@ -35,13 +35,13 @@ impl Morphology {
     }
 }
 
-impl ResourceIri for Morphology {}
-
 impl HasFilterRegion for Morphology {
     fn region_mut(&mut self) -> &mut FilterRegion {
         &mut self.region
     }
 }
+
+impl ResourceIri for Morphology {}
 
 impl Display for Morphology {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

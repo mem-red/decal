@@ -1,7 +1,7 @@
 use crate::paint::{IntoResources, Resource, ResourceIri};
-use crate::prelude::{ColorInterpolation, GradientUnits, IntoOptionalLength, Length};
 use crate::primitives::GradientTransform;
 use crate::primitives::Stop;
+use crate::primitives::{ColorInterpolation, GradientUnits, IntoOptionalLength, Length};
 use crate::utils::{ElementWriter, IsDefault};
 use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
