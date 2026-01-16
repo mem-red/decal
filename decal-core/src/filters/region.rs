@@ -1,17 +1,23 @@
 use crate::primitives::IntoOptionalLength;
+use crate::primitives::Length;
 use crate::utils::IsDefault;
 use std::fmt::{Display, Formatter};
 
 mod private {
-    use crate::prelude::Length;
+    use crate::primitives::Length;
     use crate::utils::IsDefault;
+    use smart_default::SmartDefault;
 
-    #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
+    #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
     pub struct FilterRegion {
-        pub(super) x: Option<Length<false, true>>,
-        pub(super) y: Option<Length<false, true>>,
-        pub(super) width: Option<Length<false, true>>,
-        pub(super) height: Option<Length<false, true>>,
+        #[default(Length::percent(-10.0))]
+        pub(super) x: Length<false, true>,
+        #[default(Length::percent(-10.0))]
+        pub(super) y: Length<false, true>,
+        #[default(Length::percent(120.0))]
+        pub(super) width: Length<false, true>,
+        #[default(Length::percent(120.0))]
+        pub(super) height: Length<false, true>,
     }
 
     impl IsDefault for FilterRegion {}
@@ -24,14 +30,12 @@ mod private {
 
 pub(crate) use private::*;
 
-//
-
 pub trait FilterRegionConfig: private::HasFilterRegion {
     fn x<T>(mut self, x: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
     {
-        self.region_mut().x = x.into_optional_length();
+        self.region_mut().x = x.into_optional_length().unwrap_or(Length::percent(-10.0));
         self
     }
 
@@ -39,7 +43,7 @@ pub trait FilterRegionConfig: private::HasFilterRegion {
     where
         T: IntoOptionalLength<false, true>,
     {
-        self.region_mut().y = y.into_optional_length();
+        self.region_mut().y = y.into_optional_length().unwrap_or(Length::percent(-10.0));
         self
     }
 
@@ -47,7 +51,9 @@ pub trait FilterRegionConfig: private::HasFilterRegion {
     where
         T: IntoOptionalLength<false, true>,
     {
-        self.region_mut().width = width.into_optional_length();
+        self.region_mut().width = width
+            .into_optional_length()
+            .unwrap_or(Length::percent(120.0));
         self
     }
 
@@ -55,7 +61,9 @@ pub trait FilterRegionConfig: private::HasFilterRegion {
     where
         T: IntoOptionalLength<false, true>,
     {
-        self.region_mut().height = height.into_optional_length();
+        self.region_mut().height = height
+            .into_optional_length()
+            .unwrap_or(Length::percent(120.0));
         self
     }
 }
@@ -66,20 +74,20 @@ impl Display for FilterRegion {
             return Ok(());
         }
 
-        if let Some(x) = self.x {
-            write!(f, r#" x="{x}""#)?;
+        if self.x != Length::percent(-10.0) {
+            write!(f, r#" x="{}""#, self.x)?;
         }
 
-        if let Some(y) = self.y {
-            write!(f, r#" y="{y}""#)?;
+        if self.y != Length::percent(-10.0) {
+            write!(f, r#" y="{}""#, self.y)?;
         }
 
-        if let Some(width) = self.width {
-            write!(f, r#" width="{width}""#)?;
+        if self.width != Length::percent(120.0) {
+            write!(f, r#" width="{}""#, self.width)?;
         }
 
-        if let Some(height) = self.height {
-            write!(f, r#" height="{height}""#)?;
+        if self.height != Length::percent(120.0) {
+            write!(f, r#" height="{}""#, self.height)?;
         }
 
         Ok(())
