@@ -8,6 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/decal-macros/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/decal-core/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/decal-core/examples/gh_card/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/decal-core/examples/gradients/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/decal-macros/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>

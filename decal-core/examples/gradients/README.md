@@ -1,0 +1,1 @@
+![Gradients](./output.png)
