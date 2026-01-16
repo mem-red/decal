@@ -2,6 +2,7 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, pf32};
 use crate::paint::ResourceIri;
+use crate::prelude::ColorInterpolation;
 use crate::primitives::{Color, FilterInput, LightSource, PositiveF32Pair};
 use crate::utils::ElementWriter;
 use std::fmt::{Display, Formatter};
@@ -17,6 +18,7 @@ pub struct SpecularLighting {
     specular_exponent: PositiveF32,
     kernel_unit_length: Option<PositiveF32Pair>,
     region: FilterRegion,
+    color_interpolation: ColorInterpolation,
 }
 
 impl SpecularLighting {
@@ -30,6 +32,7 @@ impl SpecularLighting {
             specular_exponent: pf32!(1.0),
             kernel_unit_length: None,
             region: Default::default(),
+            color_interpolation: ColorInterpolation::LinearRgb,
         }
     }
 }
@@ -64,6 +67,11 @@ impl Display for SpecularLighting {
             )?
             .attr("kernelUnitLength", self.kernel_unit_length.map(|x| (x,)))?
             .attr("lighting-color", self.lighting_color.map(|x| (x,)))?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
             .attr("result", (self.iri(),))?
             .content(|out| self.light_source.fmt(out))?
             .close()
@@ -107,6 +115,11 @@ impl<'a> PrimitiveBuilder<'a, SpecularLighting> {
         T: Into<Option<PositiveF32Pair>>,
     {
         self.inner.kernel_unit_length = value.into();
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

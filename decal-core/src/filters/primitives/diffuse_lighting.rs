@@ -2,6 +2,7 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, pf32};
 use crate::paint::ResourceIri;
+use crate::prelude::ColorInterpolation;
 use crate::primitives::{Color, FilterInput, LightSource};
 use crate::utils::ElementWriter;
 use std::fmt::{Display, Formatter};
@@ -15,6 +16,7 @@ pub struct DiffuseLighting {
     surface_scale: FiniteF32,
     diffuse_constant: PositiveF32,
     region: FilterRegion,
+    color_interpolation: ColorInterpolation,
 }
 
 impl DiffuseLighting {
@@ -26,6 +28,7 @@ impl DiffuseLighting {
             surface_scale: ff32!(1.0),
             diffuse_constant: pf32!(1.0),
             region: Default::default(),
+            color_interpolation: ColorInterpolation::LinearRgb,
         }
     }
 }
@@ -54,6 +57,11 @@ impl Display for DiffuseLighting {
                 self.diffuse_constant.get() != 1.0,
             )?
             .attr("lighting-color", self.lighting_color.map(|x| (x,)))?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
             .attr("result", (self.iri(),))?
             .content(|out| self.light_source.fmt(out))?
             .close()
@@ -84,6 +92,11 @@ impl<'a> PrimitiveBuilder<'a, DiffuseLighting> {
 
     pub fn diffuse_constant(mut self, constant: f32) -> Self {
         self.inner.diffuse_constant = pf32!(constant);
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

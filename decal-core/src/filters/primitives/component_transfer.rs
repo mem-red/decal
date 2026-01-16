@@ -2,8 +2,10 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, nf32};
 use crate::paint::ResourceIri;
+use crate::prelude::ColorInterpolation;
 use crate::primitives::FilterInput;
 use crate::utils::{ElementWriter, FloatWriter, IsDefault, write_spaced};
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter, Write};
 use strict_num::{FiniteF32, NormalizedF32};
 
@@ -119,7 +121,7 @@ impl TransferFunction {
     }
 }
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct ComponentTransfer {
     input: Option<FilterInput>,
     func_r: TransferFunction,
@@ -127,6 +129,8 @@ pub struct ComponentTransfer {
     func_b: TransferFunction,
     func_a: TransferFunction,
     region: FilterRegion,
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl ComponentTransfer {
@@ -148,13 +152,17 @@ impl Display for ComponentTransfer {
         ElementWriter::new(f, "feComponentTransfer")?
             .write(|out| self.region.fmt(out))?
             .attr("in", self.input.map(|x| (x,)))?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
             .attr("result", (self.iri(),))?
             .content(|out| {
                 self.func_r.serialize(out, "feFuncR")?;
                 self.func_g.serialize(out, "feFuncG")?;
                 self.func_b.serialize(out, "feFuncB")?;
                 self.func_a.serialize(out, "feFuncA")?;
-
                 Ok(())
             })?
             .close()
@@ -197,6 +205,11 @@ impl<'a> PrimitiveBuilder<'a, ComponentTransfer> {
 
     pub fn func_a(mut self, func: TransferFunction) -> Self {
         self.inner.func_a = func;
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

@@ -4,24 +4,17 @@ use crate::macros::nf32;
 use crate::paint::ResourceIri;
 use crate::primitives::Color;
 use crate::utils::ElementWriter;
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 use strict_num::NormalizedF32;
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Flood {
+    #[default(Color::rgb(0, 0, 0))]
     color: Color,
+    #[default(NormalizedF32::ONE)]
     opacity: NormalizedF32,
     region: FilterRegion,
-}
-
-impl Default for Flood {
-    fn default() -> Self {
-        Flood {
-            color: Color::rgb(0, 0, 0),
-            opacity: NormalizedF32::ONE,
-            region: Default::default(),
-        }
-    }
 }
 
 impl Flood {

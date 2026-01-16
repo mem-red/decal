@@ -1,9 +1,11 @@
 use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
+use crate::prelude::ColorInterpolation;
 use crate::primitives::{FilterInput, PositiveF32Pair};
 use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default, EnumDisplay)]
@@ -17,12 +19,14 @@ pub enum MorphologyOperator {
 
 impl IsDefault for MorphologyOperator {}
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Morphology {
     input: Option<FilterInput>,
     operator: MorphologyOperator,
     radius: PositiveF32Pair,
     region: FilterRegion,
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl Morphology {
@@ -46,6 +50,11 @@ impl Display for Morphology {
             .attr("in", self.input.map(|x| (x,)))?
             .attr_if("operator", (self.operator,), !self.operator.is_default())?
             .attr_if("radius", (self.radius,), !self.radius.is_zero())?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
             .attr("result", (self.iri(),))?
             .close()
     }
@@ -70,6 +79,11 @@ impl<'a> PrimitiveBuilder<'a, Morphology> {
         T: Into<PositiveF32Pair>,
     {
         self.inner.radius = radius.into();
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

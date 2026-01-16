@@ -1,16 +1,19 @@
 use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
-use crate::primitives::{BlendMode, FilterInput};
+use crate::primitives::{BlendMode, ColorInterpolation, FilterInput};
 use crate::utils::{ElementWriter, IsDefault};
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Blend {
     input: Option<FilterInput>,
     input2: Option<FilterInput>,
     mode: BlendMode,
     region: FilterRegion,
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl Blend {
@@ -36,6 +39,11 @@ impl Display for Blend {
                 ("in2", self.input2.map(|x| (x,))),
             ])?
             .attr_if("mode", (self.mode,), !self.mode.is_default())?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
             .attr("result", (self.iri(),))?
             .close()
     }
@@ -60,6 +68,11 @@ impl<'a> PrimitiveBuilder<'a, Blend> {
 
     pub fn mode(mut self, mode: BlendMode) -> Self {
         self.inner.mode = mode;
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

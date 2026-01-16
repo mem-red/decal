@@ -1,9 +1,11 @@
 use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
+use crate::prelude::ColorInterpolation;
 use crate::primitives::PositiveF32Pair;
 use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default, EnumDisplay)]
@@ -17,25 +19,16 @@ pub enum TurbulenceType {
 
 impl IsDefault for TurbulenceType {}
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Turbulence {
     base_freq: PositiveF32Pair,
+    #[default(1)]
     num_octaves: u64,
     seed: u64,
     kind: TurbulenceType,
     region: FilterRegion,
-}
-
-impl Default for Turbulence {
-    fn default() -> Self {
-        Self {
-            base_freq: Default::default(),
-            num_octaves: 1,
-            seed: 0,
-            kind: Default::default(),
-            region: Default::default(),
-        }
-    }
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl Turbulence {
@@ -60,6 +53,11 @@ impl Display for Turbulence {
             .attr_if("seed", (self.seed,), self.seed != 0)?
             .attr_if("baseFrequency", self.base_freq, !self.base_freq.is_zero())?
             .attr_if("numOctaves", (self.num_octaves,), self.num_octaves != 1)?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
             .attr("result", (self.iri(),))?
             .close()
     }
@@ -91,6 +89,11 @@ impl<'a> PrimitiveBuilder<'a, Turbulence> {
 
     pub fn fractal_noise(mut self) -> Self {
         self.inner.kind = TurbulenceType::FractalNoise;
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

@@ -2,10 +2,12 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::{ff32, pf32};
 use crate::paint::ResourceIri;
+use crate::prelude::ColorInterpolation;
 use crate::primitives::FilterInput;
 use crate::utils::{ElementWriter, FloatWriter};
 use crate::utils::{IsDefault, write_spaced};
 use enum_display::EnumDisplay;
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 use strict_num::{FiniteF32, PositiveF32};
 
@@ -48,11 +50,13 @@ impl ColorMatrixType {
     }
 }
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct ColorMatrix {
     input: Option<FilterInput>,
     kind: ColorMatrixType,
     region: FilterRegion,
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl ColorMatrix {
@@ -94,7 +98,14 @@ impl Display for ColorMatrix {
             ColorMatrixType::LuminanceToAlpha => color_matrix.attr("type", "luminanceToAlpha"),
         }?;
 
-        color_matrix.attr("result", (self.iri(),))?.close()
+        color_matrix
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
+            .attr("result", (self.iri(),))?
+            .close()
     }
 }
 
@@ -129,6 +140,11 @@ impl<'a> PrimitiveBuilder<'a, ColorMatrix> {
 
     pub fn identity(mut self) -> Self {
         self.inner.kind = ColorMatrixType::identity();
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

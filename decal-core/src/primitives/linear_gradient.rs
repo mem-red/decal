@@ -1,37 +1,27 @@
 use crate::paint::{IntoResources, Resource, ResourceIri};
 use crate::primitives::{
-    GradientTransform, GradientUnits, IntoOptionalLength, Length, SpreadMethod, Stop,
+    ColorInterpolation, GradientTransform, GradientUnits, IntoOptionalLength, Length, SpreadMethod,
+    Stop,
 };
 use crate::utils::{ElementWriter, IsDefault, angle_to_line};
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 
 type GradientUnit = Length<false, true>;
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct LinearGradient {
     stops: Vec<Stop>,
     units: GradientUnits,
     x1: GradientUnit,
     y1: GradientUnit,
+    #[default(GradientUnit::percent(100.0))]
     x2: GradientUnit,
     y2: GradientUnit,
     spread_method: SpreadMethod,
     transform: GradientTransform,
-}
-
-impl Default for LinearGradient {
-    fn default() -> Self {
-        LinearGradient {
-            stops: Vec::new(),
-            units: GradientUnits::default(),
-            x1: GradientUnit::zero(),
-            y1: GradientUnit::zero(),
-            x2: GradientUnit::percent(100.0),
-            y2: GradientUnit::zero(),
-            spread_method: SpreadMethod::default(),
-            transform: GradientTransform::default(),
-        }
-    }
+    #[default(ColorInterpolation::SRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl LinearGradient {
@@ -186,6 +176,14 @@ impl LinearGradient {
         self.transform = value.into().unwrap_or_default();
         self
     }
+
+    pub fn color_interpolation<T>(mut self, value: T) -> Self
+    where
+        T: Into<Option<ColorInterpolation>>,
+    {
+        self.color_interpolation = value.into().unwrap_or(ColorInterpolation::SRgb);
+        self
+    }
 }
 
 impl ResourceIri for LinearGradient {}
@@ -209,6 +207,11 @@ impl Display for LinearGradient {
                 "spreadMethod",
                 (&self.spread_method,),
                 !self.spread_method.is_default(),
+            )?
+            .attr_if(
+                "color-interpolation",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::SRgb,
             )?
             .write(|out| self.transform.write(out, "gradientTransform"))?;
 

@@ -2,9 +2,11 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::ff32;
 use crate::paint::ResourceIri;
+use crate::prelude::ColorInterpolation;
 use crate::primitives::FilterInput;
 use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 use strict_num::FiniteF32;
 
@@ -23,7 +25,7 @@ pub enum ChannelSelector {
 
 impl IsDefault for ChannelSelector {}
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct DisplacementMap {
     input: Option<FilterInput>,
     map: Option<FilterInput>,
@@ -31,6 +33,8 @@ pub struct DisplacementMap {
     x_channel_selector: ChannelSelector,
     y_channel_selector: ChannelSelector,
     region: FilterRegion,
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl DisplacementMap {
@@ -66,6 +70,11 @@ impl Display for DisplacementMap {
                 (self.y_channel_selector,),
                 !self.y_channel_selector.is_default(),
             )?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
             .attr("result", (self.iri(),))?
             .close()
     }
@@ -100,6 +109,11 @@ impl<'a> PrimitiveBuilder<'a, DisplacementMap> {
 
     pub fn y_channel(mut self, channel_selector: ChannelSelector) -> Self {
         self.inner.y_channel_selector = channel_selector;
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

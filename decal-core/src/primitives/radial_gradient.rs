@@ -1,15 +1,18 @@
 use crate::paint::{IntoResources, Resource, ResourceIri};
+use crate::prelude::ColorInterpolation;
 use crate::primitives::GradientTransform;
 use crate::primitives::Stop;
 use crate::utils::ElementWriter;
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 
 // TODO
-
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct RadialGradient {
     stops: Vec<Stop>,
     transform: GradientTransform,
+    #[default(ColorInterpolation::SRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl RadialGradient {
@@ -30,6 +33,11 @@ impl Display for RadialGradient {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let gradient = ElementWriter::new(f, "radialGradient")?
             .attr("id", (self.iri(),))?
+            .attr_if(
+                "color-interpolation",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::SRgb,
+            )?
             .write(|out| self.transform.write(out, "gradientTransform"))?;
 
         if self.stops.is_empty() {

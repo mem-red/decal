@@ -1,14 +1,18 @@
 use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
+use crate::prelude::ColorInterpolation;
 use crate::primitives::FilterInput;
 use crate::utils::ElementWriter;
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct Merge {
     inputs: Vec<FilterInput>,
     region: FilterRegion,
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl Merge {
@@ -33,6 +37,11 @@ impl Display for Merge {
 
         ElementWriter::new(f, "feMerge")?
             .write(|out| self.region.fmt(out))?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
             .attr("result", (self.iri(),))?
             .content(|out| {
                 self.inputs.iter().try_for_each(|node| {
@@ -60,6 +69,11 @@ impl<'a> PrimitiveBuilder<'a, Merge> {
         T: Into<FilterInput>,
     {
         self.inner.inputs.extend(inputs.into_iter().map(Into::into));
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

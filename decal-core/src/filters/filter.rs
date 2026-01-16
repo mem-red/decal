@@ -2,17 +2,20 @@ use crate::filters::context::FilterContext;
 use crate::filters::primitives::FilterPrimitive;
 use crate::filters::{FilterRegion, FilterRegionConfig, HasFilterRegion};
 use crate::paint::ResourceIri;
-use crate::primitives::{FilterUnits, PrimitiveUnits};
+use crate::primitives::{ColorInterpolation, FilterUnits, PrimitiveUnits};
 use crate::utils::{ElementWriter, IsDefault};
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 use std::hash::Hash;
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct Filter {
     filter_units: FilterUnits,
     primitive_units: PrimitiveUnits,
     primitives: Vec<FilterPrimitive>,
     region: FilterRegion,
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl Filter {
@@ -71,6 +74,11 @@ impl Display for Filter {
                 "primitiveUnits",
                 (&self.primitive_units,),
                 !self.primitive_units.is_default(),
+            )?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
             )?
             .content(|out| {
                 self.primitives

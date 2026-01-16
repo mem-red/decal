@@ -2,9 +2,11 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::ff32;
 use crate::paint::ResourceIri;
+use crate::prelude::ColorInterpolation;
 use crate::primitives::FilterInput;
 use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 use strict_num::FiniteF32;
 
@@ -72,12 +74,14 @@ impl CompositeOperator {
     }
 }
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Composite {
     input: Option<FilterInput>,
     input2: Option<FilterInput>,
     operator: CompositeOperatorInner,
     region: FilterRegion,
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl Composite {
@@ -108,7 +112,14 @@ impl Display for Composite {
             composite = composite.attrs([("k1", k1), ("k2", k2), ("k3", k3), ("k4", k4)])?;
         }
 
-        composite.attr("result", (self.iri(),))?.close()
+        composite
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
+            .attr("result", (self.iri(),))?
+            .close()
     }
 }
 
@@ -131,6 +142,11 @@ impl<'a> PrimitiveBuilder<'a, Composite> {
 
     pub fn operator(mut self, operator: CompositeOperator) -> Self {
         self.inner.operator = operator.0;
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

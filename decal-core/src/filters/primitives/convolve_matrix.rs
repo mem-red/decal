@@ -2,9 +2,10 @@ use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::macros::ff32;
 use crate::paint::ResourceIri;
-use crate::prelude::FilterInput;
+use crate::prelude::{ColorInterpolation, FilterInput};
 use crate::primitives::EdgeMode;
 use crate::utils::{ElementWriter, FloatWriter, IsDefault, write_spaced};
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 use strict_num::FiniteF32;
 
@@ -45,7 +46,7 @@ impl Display for Order {
 
 //
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct ConvolveMatrix {
     input: Option<FilterInput>,
     order: Order,
@@ -57,6 +58,8 @@ pub struct ConvolveMatrix {
     edge_mode: EdgeMode,
     preserve_alpha: bool,
     region: FilterRegion,
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl ConvolveMatrix {
@@ -95,6 +98,11 @@ impl Display for ConvolveMatrix {
             ])?
             .attr_if("edgeMode", (self.edge_mode,), !self.edge_mode.is_default())?
             .attr_if("preserveAlpha", "true", self.preserve_alpha)?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
             .attr("result", (self.iri(),))?
             .close()
     }
@@ -153,6 +161,11 @@ impl<'a> PrimitiveBuilder<'a, ConvolveMatrix> {
 
     pub fn preserve_alpha(mut self, value: bool) -> Self {
         self.inner.preserve_alpha = value;
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }

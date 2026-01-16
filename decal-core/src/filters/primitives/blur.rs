@@ -1,16 +1,20 @@
 use crate::filters::primitives::PrimitiveBuilder;
 use crate::filters::{FilterRegion, HasFilterRegion};
 use crate::paint::ResourceIri;
+use crate::prelude::ColorInterpolation;
 use crate::primitives::{EdgeMode, FilterInput, PositiveF32Pair};
 use crate::utils::{ElementWriter, IsDefault};
+use smart_default::SmartDefault;
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Blur {
     input: Option<FilterInput>,
     std_deviation: PositiveF32Pair,
     edge_mode: EdgeMode,
     region: FilterRegion,
+    #[default(ColorInterpolation::LinearRgb)]
+    color_interpolation: ColorInterpolation,
 }
 
 impl Blur {
@@ -38,6 +42,11 @@ impl Display for Blur {
                 !self.std_deviation.is_zero(),
             )?
             .attr_if("edgeMode", (self.edge_mode,), !self.edge_mode.is_default())?
+            .attr_if(
+                "color-interpolation-filters",
+                (&self.color_interpolation,),
+                self.color_interpolation != ColorInterpolation::LinearRgb,
+            )?
             .attr("result", (self.iri(),))?
             .close()
     }
@@ -62,6 +71,11 @@ impl<'a> PrimitiveBuilder<'a, Blur> {
 
     pub fn edge_mode(mut self, edge_mode: EdgeMode) -> Self {
         self.inner.edge_mode = edge_mode;
+        self
+    }
+
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.inner.color_interpolation = value;
         self
     }
 }
