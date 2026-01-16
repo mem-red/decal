@@ -1,4 +1,5 @@
 mod blur;
+mod brightness;
 mod grayscale;
 mod hue_rotate;
 mod invert;
@@ -6,6 +7,7 @@ mod opacity;
 mod sepia;
 
 pub use blur::*;
+pub use brightness::*;
 pub use grayscale::*;
 pub use hue_rotate::*;
 pub use invert::*;
