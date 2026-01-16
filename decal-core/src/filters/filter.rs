@@ -48,6 +48,18 @@ impl Filter {
         self.primitive_units = value.into().unwrap_or_default();
         self
     }
+
+    //
+
+    fn append(mut self, next: Filter) -> Self {
+        self.filter_units = next.filter_units;
+        self.primitive_units = next.primitive_units;
+        self.region = next.region;
+        self.color_interpolation = next.color_interpolation;
+        self.primitives.extend(next.primitives);
+
+        self
+    }
 }
 
 impl HasFilterRegion for Filter {
@@ -86,5 +98,23 @@ impl Display for Filter {
                     .try_for_each(|primitive| primitive.fmt(out))
             })?
             .close()
+    }
+}
+
+//
+
+impl From<Vec<Filter>> for Filter {
+    fn from(value: Vec<Filter>) -> Self {
+        value
+            .into_iter()
+            .fold(Filter::default(), |acc, next| acc.append(next))
+    }
+}
+
+impl<const N: usize> From<[Filter; N]> for Filter {
+    fn from(value: [Filter; N]) -> Self {
+        value
+            .into_iter()
+            .fold(Filter::default(), |acc, next| acc.append(next))
     }
 }
