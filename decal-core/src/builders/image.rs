@@ -63,6 +63,7 @@ impl Hideable for Image {
 }
 
 impl AspectRatio for Image {}
+impl Background for Image {}
 impl Border for Image {}
 impl RoundedCorners for Image {}
 impl Dimensions for Image {}

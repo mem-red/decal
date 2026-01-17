@@ -319,10 +319,7 @@ impl Node {
         ElementWriter::close_tag(ctx.out, "g").map_err(Into::into)
     }
 
-    pub(crate) fn pre_emit<T>(
-        &self,
-        ctx: &mut RenderContext<T>,
-    ) -> Result<Option<Vec<Resource>>, VectorizeError>
+    pub(crate) fn pre_emit<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
     where
         T: Write,
     {
@@ -383,6 +380,7 @@ impl Node {
                 let has_radius = self.has_radius();
 
                 self.open_block_group(ctx)?;
+                self.render_block_background(ctx)?;
                 self.render_block_border(ctx)?;
                 self.open_block_clip(ctx, (has_radius, has_radius))?;
 
@@ -406,7 +404,7 @@ impl Node {
             }
         };
 
-        Ok(None)
+        Ok(())
     }
 
     pub(crate) fn post_emit<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
