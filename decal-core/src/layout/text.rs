@@ -1,10 +1,9 @@
 use crate::builders::TextSpan;
 use crate::layout::{BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry};
 use crate::layout::{DEFAULT_FONT_FAMILY, Typography};
-use crate::paint::{Appearance, ResourceIri};
 use crate::primitives::Color;
 use crate::text::{FontStyle, FontWeight};
-use crate::utils::{ElementWriter, IsDefault, PathWriter, encode_image};
+use crate::utils::{ElementWriter, PathWriter, encode_image};
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;
 use cosmic_text::{Attrs, Buffer, Command, Family, FontSystem, Metrics, Shaping, SwashCache};
@@ -32,8 +31,6 @@ pub(crate) struct TextMeta {
     spans: Vec<TextSpan>,
     buffer: Option<Buffer>,
     typography: Typography,
-    width: f32,
-    height: f32,
 }
 
 impl TextMeta {
@@ -42,8 +39,6 @@ impl TextMeta {
             spans,
             buffer: None,
             typography: Typography::default(),
-            width: 0.0,
-            height: 0.0,
         }
     }
 
@@ -51,42 +46,24 @@ impl TextMeta {
         self.typography = typography;
     }
 
-    pub(crate) fn vectorize_text<T>(
+    pub(crate) fn render<T>(
         &self,
         out: &mut T,
-        offset: (f32, f32),
-        appearance: &Appearance,
         cache: &mut SwashCache,
         font_system: &mut FontSystem,
     ) -> Result<(), TextVectorizeError>
     where
         T: std::fmt::Write,
     {
-        let ref transform = appearance.transform;
         let Some(ref buffer) = self.buffer else {
             return Ok(());
         };
-
-        ElementWriter::new(out, "g")?
-            .attr_if("opacity", appearance.opacity, appearance.opacity != 1.0)?
-            .attr_if(
-                "filter",
-                (format_args!("url(#{})", appearance.filter.iri()),),
-                !appearance.filter.is_default(),
-            )?
-            .attr_if(
-                "style",
-                (format_args!("mix-blend-mode:{}", appearance.blend_mode),),
-                !appearance.blend_mode.is_default(),
-            )?
-            .write(|out| transform.write(out, offset, (0.0, 0.0), (self.width, self.height)))?
-            .open()?;
 
         for run in buffer.layout_runs() {
             let line_y = run.line_y;
 
             for glyph in run.glyphs.iter() {
-                let physical = glyph.physical(offset, 1.0);
+                let physical = glyph.physical((0.0, 0.0), 1.0);
                 let glyph_x = physical.x as f32;
                 let glyph_y = physical.y as f32;
                 let cache_key = physical.cache_key;
@@ -167,7 +144,7 @@ impl TextMeta {
             }
         }
 
-        ElementWriter::close_tag(out, "g").map_err(Into::into)
+        Ok(())
     }
 
     pub(crate) fn measure(
@@ -206,9 +183,6 @@ impl TextMeta {
                 (run.line_w.max(width), total_lines + 1)
             });
         let height = total_lines as f32 * buffer.metrics().line_height;
-
-        self.width = width;
-        self.height = height;
 
         Size { width, height }
     }

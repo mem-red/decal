@@ -61,6 +61,7 @@ impl Hideable for Text {
     }
 }
 
+impl Background for Text {}
 impl Dimensions for Text {}
 impl Margin for Text {}
 impl Opacity for Text {}
@@ -71,6 +72,8 @@ impl SelfAlignment for Text {}
 impl Visibility for Text {}
 impl FilterEffects for Text {}
 impl Blendable for Text {}
+
+//
 
 #[derive(Debug, Clone)]
 pub struct TextSpan {
@@ -157,6 +160,8 @@ impl TextSpan {
         self
     }
 }
+
+//
 
 pub trait IntoTextSpan {
     fn into_text_span(self) -> TextSpan;

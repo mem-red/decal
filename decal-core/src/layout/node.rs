@@ -116,6 +116,12 @@ impl Node {
     where
         T: Write,
     {
+        let taffy::Layout {
+            location: taffy::Point { x, y },
+            size: taffy::Size { width, height },
+            ..
+        } = self.final_layout;
+
         ElementWriter::new(ctx.out, "g")?
             .attr_if("opacity", self.visual.opacity, self.visual.opacity != 1.0)?
             .attr_if(
@@ -129,12 +135,9 @@ impl Node {
                 !self.visual.blend_mode.is_default(),
             )?
             .write(|out| {
-                self.visual.transform.write(
-                    out,
-                    (0.0, 0.0),
-                    (self.final_layout.location.x, self.final_layout.location.y),
-                    (self.final_layout.size.width, self.final_layout.size.height),
-                )
+                self.visual
+                    .transform
+                    .write(out, (0.0, 0.0), (x, y), (width, height))
             })?
             .open()
             .map(|_| ())
@@ -360,20 +363,20 @@ impl Node {
             }
             //
             NodeKind::Text(meta) => {
-                let mut fonts = ctx.fonts.lock();
-                let FontRegistry {
-                    swash_cache,
-                    system,
-                    ..
-                } = &mut *fonts;
+                self.open_block_group(ctx)?;
+                self.render_block_background(ctx)?;
 
-                meta.vectorize_text(
-                    ctx.out,
-                    (self.final_layout.location.x, self.final_layout.location.y),
-                    &self.visual,
-                    swash_cache,
-                    system,
-                )?;
+                {
+                    let mut fonts = ctx.fonts.lock();
+                    let FontRegistry {
+                        swash_cache,
+                        system,
+                        ..
+                    } = &mut *fonts;
+                    meta.render(ctx.out, swash_cache, system)?;
+                }
+
+                Self::close_block_group(false, ctx)?;
             }
             //
             NodeKind::Image(meta) => {
