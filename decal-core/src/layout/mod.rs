@@ -6,6 +6,7 @@ mod image;
 mod node;
 mod node_id;
 mod options;
+mod stencil;
 mod text;
 mod typography;
 
@@ -16,6 +17,7 @@ pub use image::*;
 pub use node::*;
 pub use node_id::*;
 pub use options::*;
+pub use stencil::*;
 pub use text::*;
 
 pub(crate) use context::*;

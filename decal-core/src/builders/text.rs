@@ -1,7 +1,8 @@
+use crate::attributes::IntoPaintStack;
 use crate::capabilities::*;
 use crate::layout::TextMeta;
-use crate::layout::Typography;
-use crate::layout::{Node, NodeKind};
+use crate::layout::{Node, NodeKind, StencilType};
+use crate::layout::{StencilScope, Typography};
 use crate::macros::impl_node_builder;
 use crate::paint::Resource;
 use crate::paint::{Appearance, IntoResources};
@@ -51,6 +52,26 @@ impl Text {
             resources,
             ..Default::default()
         }
+    }
+
+    pub fn stencil<T>(mut self, value: T) -> Self
+    where
+        T: IntoPaintStack,
+    {
+        let paint = value.into_paint_stack();
+        self.meta.stencil_paint(paint.clone());
+        self.add_resources(paint);
+        self
+    }
+
+    pub fn stencil_scope(mut self, scope: StencilScope) -> Self {
+        self.meta.stencil_scope(scope);
+        self
+    }
+
+    pub fn stencil_type(mut self, value: StencilType) -> Self {
+        self.meta.stencil_type(value);
+        self
     }
 }
 

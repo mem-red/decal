@@ -1,15 +1,20 @@
 use crate::builders::TextSpan;
-use crate::layout::{BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry};
+use crate::layout::{
+    BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry, RenderContext, Stencil, StencilScope,
+    StencilType,
+};
 use crate::layout::{DEFAULT_FONT_FAMILY, Typography};
-use crate::primitives::Color;
+use crate::paint::{Iri, ResourceIri, ScaledRadii, write_fill_path};
+use crate::primitives::Mask;
+use crate::primitives::{Color, PaintStack};
 use crate::text::{FontStyle, FontWeight};
 use crate::utils::{ElementWriter, PathWriter, encode_image};
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;
-use cosmic_text::{Attrs, Buffer, Command, Family, FontSystem, Metrics, Shaping, SwashCache};
+use cosmic_text::{Attrs, Buffer, Command, Family, Metrics, Shaping};
 use parking_lot::Mutex;
 use png::EncodingError;
-use std::fmt::Formatter;
+use std::fmt::{Formatter, Write};
 use std::sync::Arc;
 use swash::scale::image::Content;
 use taffy::prelude::*;
@@ -26,19 +31,29 @@ pub enum TextVectorizeError {
     EncodeEmoji(#[from] EncodingError),
 }
 
+#[derive(Debug, Default)]
+pub(crate) enum GlyphRenderMode {
+    #[default]
+    All,
+    Vector,
+    Bitmap,
+}
+
 #[derive(Debug, Clone, Default)]
 pub(crate) struct TextMeta {
     spans: Vec<TextSpan>,
     buffer: Option<Buffer>,
+    width: f32,
+    height: f32,
     typography: Typography,
+    stencil: Stencil,
 }
 
 impl TextMeta {
     pub(crate) fn new(spans: Vec<TextSpan>) -> Self {
         Self {
             spans,
-            buffer: None,
-            typography: Typography::default(),
+            ..Default::default()
         }
     }
 
@@ -46,18 +61,156 @@ impl TextMeta {
         self.typography = typography;
     }
 
-    pub(crate) fn render<T>(
+    pub(crate) fn stencil_paint(&mut self, value: PaintStack) {
+        self.stencil.paint = value;
+    }
+
+    pub(crate) fn stencil_scope(&mut self, value: StencilScope) {
+        self.stencil.scope = value;
+    }
+
+    pub(crate) fn stencil_type(&mut self, value: StencilType) {
+        self.stencil.r#type = value;
+    }
+
+    pub(crate) fn measure(
+        &mut self,
+        known_dimensions: Size<Option<f32>>,
+        available_space: Size<AvailableSpace>,
+        fonts: Arc<Mutex<FontRegistry>>,
+    ) -> Size<f32> {
+        if let Size {
+            width: Some(width),
+            height: Some(height),
+        } = known_dimensions
+        {
+            return Size { width, height };
+        }
+
+        let mut fonts = fonts.lock();
+        self.init_buffer(&mut fonts);
+
+        let Some(ref mut buffer) = self.buffer else {
+            return Size::zero();
+        };
+
+        let width_constraint = known_dimensions.width.or(match available_space.width {
+            AvailableSpace::MinContent => Some(0.0),
+            AvailableSpace::MaxContent => None,
+            AvailableSpace::Definite(width) => Some(width),
+        });
+
+        buffer.set_size(&mut fonts.system, width_constraint, None);
+        buffer.shape_until_scroll(&mut fonts.system, false);
+
+        let (width, total_lines) = buffer
+            .layout_runs()
+            .fold((0.0, 0usize), |(width, total_lines), run| {
+                (run.line_w.max(width), total_lines + 1)
+            });
+        let height = total_lines as f32 * buffer.metrics().line_height;
+
+        self.width = width;
+        self.height = height;
+
+        Size { width, height }
+    }
+
+    pub(crate) fn render<W>(&self, ctx: &mut RenderContext<W>) -> Result<(), TextVectorizeError>
+    where
+        W: Write,
+    {
+        if self.stencil.is_none() {
+            self.render_text(ctx.out, &ctx.fonts, GlyphRenderMode::All)
+        } else {
+            let mask = {
+                Mask::build(|out| {
+                    self.render_text(
+                        out,
+                        &ctx.fonts,
+                        if matches!(self.stencil.scope, StencilScope::VectorGlyphs) {
+                            GlyphRenderMode::Vector
+                        } else {
+                            GlyphRenderMode::All
+                        },
+                    )
+                    .map_err(|_| std::fmt::Error)
+                })?
+                .r#type(self.stencil.r#type.into())
+            };
+
+            self.render_stencil(ctx, mask.iri())?;
+            ctx.resources.lock().get_or_add_resource(mask.into());
+
+            // render bitmaps on top
+            if matches!(self.stencil.scope, StencilScope::VectorGlyphs) {
+                self.render_text(ctx.out, &ctx.fonts, GlyphRenderMode::Bitmap)?;
+            }
+
+            Ok(())
+        }
+    }
+
+    //
+
+    fn init_buffer(&mut self, fonts: &mut FontRegistry) {
+        if self.buffer.is_some() {
+            return;
+        }
+
+        let mut spans = Vec::with_capacity(self.spans.len());
+
+        for (idx, span) in self.spans.iter_mut().enumerate() {
+            if span.hidden {
+                continue;
+            }
+
+            span.typography.cascade_from(&self.typography);
+            let (attrs, _) = typography_to_attrs(&mut span.typography, fonts);
+            spans.push((span.content.as_str(), attrs.metadata(idx)));
+        }
+
+        let mut root_tp = self.typography.clone();
+        let (root_attrs, root_metrics) = typography_to_attrs(&mut root_tp, fonts);
+        let mut buf = Buffer::new_empty(root_metrics);
+        let mut brw = buf.borrow_with(&mut fonts.system);
+
+        if let Some(wrap) = self.typography.wrap {
+            brw.set_wrap(wrap.to_cosmic_wrap());
+        }
+
+        brw.set_rich_text(
+            spans,
+            &root_attrs,
+            Shaping::Advanced,
+            self.typography.align.map(|x| x.to_cosmic_align()),
+        );
+
+        self.buffer = Some(brw.to_owned());
+    }
+
+    fn render_text<W>(
         &self,
-        out: &mut T,
-        cache: &mut SwashCache,
-        font_system: &mut FontSystem,
+        out: &mut W,
+        font_registry: &Arc<Mutex<FontRegistry>>,
+        mode: GlyphRenderMode,
     ) -> Result<(), TextVectorizeError>
     where
-        T: std::fmt::Write,
+        W: Write,
     {
         let Some(ref buffer) = self.buffer else {
             return Ok(());
         };
+
+        let mut font_registry = font_registry.lock();
+        let FontRegistry {
+            swash_cache: cache,
+            system: font_system,
+            ..
+        } = &mut *font_registry;
+
+        let skip_vector = matches!(mode, GlyphRenderMode::Bitmap);
+        let skip_bitmap = matches!(mode, GlyphRenderMode::Vector);
 
         for run in buffer.layout_runs() {
             let line_y = run.line_y;
@@ -72,6 +225,10 @@ impl TextMeta {
                     .get_outline_commands(font_system, cache_key)
                     .filter(|x| is_drawable(*x))
                 {
+                    if skip_vector {
+                        continue;
+                    }
+
                     ElementWriter::new(out, "path")?
                         .attr(
                             "fill",
@@ -123,7 +280,7 @@ impl TextMeta {
                         .close()?;
                 } else if let Some(image) = cache.get_image(font_system, cache_key) {
                     // handle emoji/color glyphs
-                    if image.content == Content::Color {
+                    if !skip_bitmap && image.content == Content::Color {
                         ElementWriter::new(out, "image")?
                             .attr(
                                 "href",
@@ -147,80 +304,23 @@ impl TextMeta {
         Ok(())
     }
 
-    pub(crate) fn measure(
-        &mut self,
-        known_dimensions: Size<Option<f32>>,
-        available_space: Size<AvailableSpace>,
-        fonts: Arc<Mutex<FontRegistry>>,
-    ) -> Size<f32> {
-        if let Size {
-            width: Some(width),
-            height: Some(height),
-        } = known_dimensions
-        {
-            return Size { width, height };
-        }
-
-        let mut fonts = fonts.lock();
-        self.init_buffer(&mut fonts);
-
-        let Some(ref mut buffer) = self.buffer else {
-            return Size::zero();
-        };
-
-        let width_constraint = known_dimensions.width.or(match available_space.width {
-            AvailableSpace::MinContent => Some(0.0),
-            AvailableSpace::MaxContent => None,
-            AvailableSpace::Definite(width) => Some(width),
-        });
-
-        buffer.set_size(&mut fonts.system, width_constraint, None);
-        buffer.shape_until_scroll(&mut fonts.system, false);
-
-        let (width, total_lines) = buffer
-            .layout_runs()
-            .fold((0.0, 0usize), |(width, total_lines), run| {
-                (run.line_w.max(width), total_lines + 1)
-            });
-        let height = total_lines as f32 * buffer.metrics().line_height;
-
-        Size { width, height }
-    }
-
-    fn init_buffer(&mut self, fonts: &mut FontRegistry) {
-        if self.buffer.is_some() {
-            return;
-        }
-
-        let mut spans = Vec::with_capacity(self.spans.len());
-
-        for (idx, span) in self.spans.iter_mut().enumerate() {
-            if span.hidden {
-                continue;
-            }
-
-            span.typography.cascade_from(&self.typography);
-            let (attrs, _) = typography_to_attrs(&mut span.typography, fonts);
-            spans.push((span.content.as_str(), attrs.metadata(idx)));
-        }
-
-        let mut root_tp = self.typography.clone();
-        let (root_attrs, root_metrics) = typography_to_attrs(&mut root_tp, fonts);
-        let mut buf = Buffer::new_empty(root_metrics);
-        let mut brw = buf.borrow_with(&mut fonts.system);
-
-        if let Some(wrap) = self.typography.wrap {
-            brw.set_wrap(wrap.to_cosmic_wrap());
-        }
-
-        brw.set_rich_text(
-            spans,
-            &root_attrs,
-            Shaping::Advanced,
-            self.typography.align.map(|x| x.to_cosmic_align()),
-        );
-
-        self.buffer = Some(brw.to_owned());
+    fn render_stencil<W>(&self, ctx: &mut RenderContext<W>, mask_iri: Iri) -> std::fmt::Result
+    where
+        W: Write,
+    {
+        self.stencil.paint.render(
+            ctx,
+            |out| write_fill_path(out, self.width, self.height, ScaledRadii::default()),
+            |out| write_fill_path(out, self.width, self.height, ScaledRadii::default()),
+            |layer, is_use_element| {
+                if is_use_element {
+                    Ok(layer)
+                } else {
+                    layer.attr("mask", (format_args!("url(#{mask_iri})"),))
+                }
+            },
+            |group| group.attr("mask", (format_args!("url(#{mask_iri})"),)),
+        )
     }
 }
 
