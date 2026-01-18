@@ -22,7 +22,7 @@ impl_node_builder!(
     Text,
     build(this) {
         let mut meta = this.meta;
-        meta.set_typography(this.typography.clone());
+        meta.typography(this.typography.clone());
 
         Node::new(
             NodeKind::Text(meta),

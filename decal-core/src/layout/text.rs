@@ -42,7 +42,7 @@ impl TextMeta {
         }
     }
 
-    pub(crate) fn set_typography(&mut self, typography: Typography) {
+    pub(crate) fn typography(&mut self, typography: Typography) {
         self.typography = typography;
     }
 

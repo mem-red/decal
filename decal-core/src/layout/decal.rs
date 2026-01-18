@@ -69,7 +69,7 @@ impl Decal {
 
         // copy the resolved typography into its metadata
         if let NodeKind::Text(ref mut meta) = child.kind {
-            meta.set_typography(child.typography.clone());
+            meta.typography(child.typography.clone());
         }
 
         // register resources
@@ -324,7 +324,7 @@ fn cascade_typography_subtree(nodes: &mut [Node], parent_typography: &Typography
         node.typography.cascade_from(&parent);
 
         if let NodeKind::Text(ref mut meta) = node.kind {
-            meta.set_typography(node.typography.clone());
+            meta.typography(node.typography.clone());
         }
 
         if !node.children.is_empty() {
