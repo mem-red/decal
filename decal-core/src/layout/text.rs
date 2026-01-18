@@ -43,8 +43,6 @@ pub(crate) enum GlyphRenderMode {
 pub(crate) struct TextMeta {
     spans: Vec<TextSpan>,
     buffer: Option<Buffer>,
-    width: f32,
-    height: f32,
     typography: Typography,
     stencil: Stencil,
 }
@@ -110,19 +108,21 @@ impl TextMeta {
             });
         let height = total_lines as f32 * buffer.metrics().line_height;
 
-        self.width = width;
-        self.height = height;
-
         Size { width, height }
     }
 
-    pub(crate) fn render<W>(&self, ctx: &mut RenderContext<W>) -> Result<(), TextVectorizeError>
+    pub(crate) fn render<W>(
+        &self,
+        ctx: &mut RenderContext<W>,
+        layout: Layout,
+    ) -> Result<(), TextVectorizeError>
     where
         W: Write,
     {
         if self.stencil.is_none() {
             self.render_text(ctx.out, &ctx.fonts, GlyphRenderMode::All)
         } else {
+            let Size { width, height } = layout.size;
             let mask = {
                 Mask::build(|out| {
                     self.render_text(
@@ -139,7 +139,7 @@ impl TextMeta {
                 .r#type(self.stencil.r#type.into())
             };
 
-            self.render_stencil(ctx, mask.iri())?;
+            self.render_stencil(ctx, mask.iri(), width, height)?;
             ctx.resources.lock().get_or_add_resource(mask.into());
 
             // render bitmaps on top
@@ -304,14 +304,20 @@ impl TextMeta {
         Ok(())
     }
 
-    fn render_stencil<W>(&self, ctx: &mut RenderContext<W>, mask_iri: Iri) -> std::fmt::Result
+    fn render_stencil<W>(
+        &self,
+        ctx: &mut RenderContext<W>,
+        mask_iri: Iri,
+        width: f32,
+        height: f32,
+    ) -> std::fmt::Result
     where
         W: Write,
     {
         self.stencil.paint.render(
             ctx,
-            |out| write_fill_path(out, self.width, self.height, ScaledRadii::default()),
-            |out| write_fill_path(out, self.width, self.height, ScaledRadii::default()),
+            |out| write_fill_path(out, width, height, ScaledRadii::default()),
+            |out| write_fill_path(out, width, height, ScaledRadii::default()),
             |layer, is_use_element| {
                 if is_use_element {
                     Ok(layer)
