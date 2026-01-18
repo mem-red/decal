@@ -176,14 +176,14 @@ impl TextMeta {
         let mut brw = buf.borrow_with(&mut fonts.system);
 
         if let Some(wrap) = self.typography.wrap {
-            brw.set_wrap(wrap.to_cosmic_wrap());
+            brw.set_wrap(wrap.into());
         }
 
         brw.set_rich_text(
             spans,
             &root_attrs,
             Shaping::Advanced,
-            self.typography.align.map(|x| x.to_cosmic_align()),
+            self.typography.align.map(Into::into),
         );
 
         self.buffer = Some(brw.to_owned());
@@ -378,8 +378,8 @@ fn typography_to_attrs<'a>(
     let mut attrs = Attrs::new()
         .family(family)
         .metrics(metrics)
-        .style(tp.style.unwrap_or(FontStyle::Normal).to_cosmic_style())
-        .weight(tp.weight.unwrap_or(FontWeight::Normal).to_cosmic_weight());
+        .style(tp.style.unwrap_or(FontStyle::Normal).into())
+        .weight(tp.weight.unwrap_or(FontWeight::Normal).into());
 
     if let Some(letter_spacing) = tp.letter_spacing {
         attrs = attrs.letter_spacing(letter_spacing);

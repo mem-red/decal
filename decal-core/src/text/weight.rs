@@ -13,9 +13,9 @@ pub enum FontWeight {
     Value(u16),
 }
 
-impl FontWeight {
-    pub(crate) fn to_cosmic_weight(&self) -> cosmic_text::Weight {
-        match *self {
+impl From<FontWeight> for cosmic_text::Weight {
+    fn from(value: FontWeight) -> Self {
+        match value {
             FontWeight::Thin => cosmic_text::Weight::THIN,
             FontWeight::ExtraLight => cosmic_text::Weight::EXTRA_LIGHT,
             FontWeight::Light => cosmic_text::Weight::LIGHT,

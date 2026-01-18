@@ -7,9 +7,9 @@ pub enum TextWrap {
     WordOrGlyph,
 }
 
-impl TextWrap {
-    pub(crate) fn to_cosmic_wrap(&self) -> cosmic_text::Wrap {
-        match self {
+impl From<TextWrap> for cosmic_text::Wrap {
+    fn from(value: TextWrap) -> Self {
+        match value {
             TextWrap::None => cosmic_text::Wrap::None,
             TextWrap::Glyph => cosmic_text::Wrap::Glyph,
             TextWrap::Word => cosmic_text::Wrap::Word,
