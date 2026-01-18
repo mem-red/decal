@@ -1,6 +1,9 @@
+use crate::layout::RenderContext;
 use crate::primitives::CrossOrigin;
+use crate::utils::ElementWriter;
 use enum_display::EnumDisplay;
 use quick_xml::escape::escape;
+use std::fmt::Write;
 use taffy::Size;
 
 #[derive(Debug, Clone, EnumDisplay)]
@@ -52,6 +55,25 @@ impl ImageMeta {
                 width: self.width,
                 height: self.height,
             },
+        }
+    }
+
+    pub(crate) fn render<W>(
+        &self,
+        ctx: &mut RenderContext<W>,
+        layout: taffy::Layout,
+    ) -> std::fmt::Result
+    where
+        W: Write,
+    {
+        let Size { width, height } = layout.size;
+        match &self.source {
+            ImageSource::Url(_) | ImageSource::DataUri(_) => ElementWriter::new(ctx.out, "image")?
+                .attr("href", (&self.source,))?
+                .attrs([("width", width), ("height", height)])?
+                .attr("crossorigin", self.cross_origin.map(|x| (x,)))?
+                .close(),
+            ImageSource::Svg(svg) => ctx.out.write_str(svg.as_str()),
         }
     }
 }

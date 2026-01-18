@@ -1,7 +1,7 @@
 use crate::builders::RootMeta;
 use crate::layout::text::TextMeta;
 use crate::layout::{ImageMeta, Typography};
-use crate::layout::{ImageSource, RenderContext, SvgDimensions, TextVectorizeError};
+use crate::layout::{RenderContext, SvgDimensions, TextVectorizeError};
 use crate::paint::{Appearance, compute_scaled_radii};
 use crate::paint::{Resource, ResourceIri};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
@@ -285,30 +285,14 @@ impl Node {
                 Self::close_block_group(false, ctx)?;
             }
             //
-            NodeKind::Image(meta) => {
+            NodeKind::Image(image) => {
                 let has_radius = self.has_radius();
 
                 self.open_block_group(ctx)?;
                 self.render_block_background(ctx)?;
                 self.render_block_border(ctx)?;
                 self.open_block_clip(ctx, (has_radius, has_radius))?;
-
-                match &meta.source {
-                    ImageSource::Url(_) | ImageSource::DataUri(_) => {
-                        ElementWriter::new(ctx.out, "image")?
-                            .attr("href", (&meta.source,))?
-                            .attrs([
-                                ("width", self.final_layout.size.width),
-                                ("height", self.final_layout.size.height),
-                            ])?
-                            .attr("crossorigin", meta.cross_origin.map(|x| (x,)))?
-                            .close()?;
-                    }
-                    ImageSource::Svg(svg) => {
-                        ctx.out.write_str(svg)?;
-                    }
-                };
-
+                image.render(ctx, self.final_layout)?;
                 Self::close_block_group(has_radius, ctx)?;
             }
         };
