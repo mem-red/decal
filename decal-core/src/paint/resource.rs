@@ -1,5 +1,5 @@
 use crate::filters::Filter;
-use crate::primitives::{ClipPath, LinearGradient, Paint, Path, Pattern, RadialGradient};
+use crate::primitives::{ClipPath, LinearGradient, Mask, Paint, Path, Pattern, RadialGradient};
 use crate::utils::IsDefault;
 use enum_display::EnumDisplay;
 use std::hash::Hash;
@@ -13,11 +13,13 @@ pub(crate) enum Resource {
     #[display("{0}")]
     Pattern(Pattern),
     #[display("{0}")]
+    Filter(Filter),
+    #[display("{0}")]
     ClipPath(ClipPath),
     #[display("{0}")]
-    Path(Path),
+    Mask(Mask),
     #[display("{0}")]
-    Filter(Filter),
+    Path(Path),
 }
 
 pub(crate) trait IntoResources {
@@ -84,6 +86,13 @@ impl From<Pattern> for Resource {
     }
 }
 
+impl From<Filter> for Resource {
+    #[inline]
+    fn from(value: Filter) -> Self {
+        Self::Filter(value)
+    }
+}
+
 impl From<ClipPath> for Resource {
     #[inline]
     fn from(value: ClipPath) -> Self {
@@ -91,16 +100,16 @@ impl From<ClipPath> for Resource {
     }
 }
 
+impl From<Mask> for Resource {
+    #[inline]
+    fn from(value: Mask) -> Self {
+        Self::Mask(value)
+    }
+}
+
 impl From<Path> for Resource {
     #[inline]
     fn from(value: Path) -> Self {
         Self::Path(value)
-    }
-}
-
-impl From<Filter> for Resource {
-    #[inline]
-    fn from(value: Filter) -> Self {
-        Self::Filter(value)
     }
 }

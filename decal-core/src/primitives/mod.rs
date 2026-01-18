@@ -15,6 +15,8 @@ mod gradient_units;
 mod length;
 mod light_source;
 mod linear_gradient;
+mod mask;
+mod mask_type;
 mod overflow;
 mod paint;
 mod paint_transform;
@@ -71,6 +73,8 @@ pub use transform::*;
 pub use view_box::*;
 
 pub(crate) use clip_path::*;
+pub(crate) use mask::*;
+pub(crate) use mask_type::*;
 pub(crate) use path::*;
 
 // TODO: re-export under a feature
