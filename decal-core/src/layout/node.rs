@@ -281,7 +281,7 @@ impl Node {
             NodeKind::Text(text) => {
                 self.open_block_group(ctx)?;
                 self.render_block_background(ctx)?;
-                text.render(ctx)?;
+                text.render(ctx, self.final_layout)?;
                 Self::close_block_group(false, ctx)?;
             }
             //
