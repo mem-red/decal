@@ -1,12 +1,13 @@
-use crate::layout::ImageSource;
+use crate::layout::{ImageSource, RenderContext};
 use crate::macros::nf32;
 use crate::paint::{IntoResources, Resource, ResourceIri};
 use crate::primitives::Length;
+use crate::primitives::Path;
 use crate::primitives::{BlendMode, Color, CrossOrigin, PatternContentUnits, PatternUnits};
 use crate::primitives::{LinearGradient, Pattern, RadialGradient};
-use crate::utils::{ElementWriter, IsDefault};
+use crate::utils::{ElementWriter, Initialized, IsDefault};
 use smart_default::SmartDefault;
-use std::fmt::Display;
+use std::fmt::{Display, Write};
 use strict_num::NormalizedF32;
 
 #[derive(Debug, Clone, Default)]
@@ -297,12 +298,86 @@ impl PaintStack {
         self.0.is_empty() || (self.0.len() == 1 && self.0[0].is_none())
     }
 
-    pub(crate) fn needs_isolation(&self) -> bool {
+    fn needs_isolation(&self) -> bool {
         self.0.iter().any(|x| !x.blend_mode.is_default())
     }
 
-    pub(crate) fn layers(&self) -> &[PaintLayer] {
-        &self.0
+    pub(crate) fn render<'a, W, D, S, L, G>(
+        &self,
+        ctx: &mut RenderContext<W>,
+        draw_single_layer: D,
+        draw_cached_layer: S,
+        visit_layer: L,
+        visit_group: G,
+    ) -> std::fmt::Result
+    where
+        W: Write,
+        D: FnOnce(&mut W) -> std::fmt::Result,
+        S: FnOnce(&mut String) -> std::fmt::Result,
+        L: Fn(
+            ElementWriter<W, Initialized>,
+            bool,
+        ) -> Result<ElementWriter<W, Initialized>, std::fmt::Error>,
+        G: Fn(
+            ElementWriter<W, Initialized>,
+        ) -> Result<ElementWriter<W, Initialized>, std::fmt::Error>,
+    {
+        if self.is_none() {
+            return Ok(());
+        }
+
+        let layers = &self.0;
+        let render_layer =
+            |element: ElementWriter<W, Initialized>, layer: &PaintLayer, cached: bool| {
+                visit_layer(
+                    element
+                        .attr("fill", (&layer.paint,))?
+                        .attr_if(
+                            "fill-opacity",
+                            layer.opacity,
+                            layer.opacity != NormalizedF32::ONE,
+                        )?
+                        .attr_if(
+                            "style",
+                            (format_args!("mix-blend-mode:{}", layer.blend_mode),),
+                            !layer.blend_mode.is_default(),
+                        )?,
+                    cached,
+                )?
+                .close()
+            };
+
+        if layers.len() == 1 {
+            render_layer(
+                ElementWriter::new(ctx.out, "path")?.write_attr("d", draw_single_layer)?,
+                &layers[0],
+                false,
+            )?;
+
+            return Ok(());
+        }
+
+        let path = Path::build(draw_cached_layer)?;
+        let href = format_args!("#{}", path.iri());
+        ctx.resources.lock().get_or_add_resource(path.into());
+
+        visit_group(ElementWriter::new(ctx.out, "g")?.attr_if(
+            "style",
+            "isolation:isolate",
+            self.needs_isolation(),
+        )?)?
+        .content(|out| {
+            layers.iter().try_for_each(|layer| {
+                render_layer(
+                    ElementWriter::new(out, "use")?.attr("href", (href,))?,
+                    layer,
+                    true,
+                )
+            })
+        })?
+        .close()?;
+
+        Ok(())
     }
 }
 
