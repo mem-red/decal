@@ -1,15 +1,14 @@
 use crate::builders::RootMeta;
 use crate::layout::text::TextMeta;
-use crate::layout::{FontRegistry, ImageSource, RenderContext, SvgDimensions, TextVectorizeError};
 use crate::layout::{ImageMeta, Typography};
+use crate::layout::{ImageSource, RenderContext, SvgDimensions, TextVectorizeError};
 use crate::paint::{Appearance, compute_scaled_radii};
 use crate::paint::{Resource, ResourceIri};
 use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
-use crate::primitives::{ClipPath, Path, Rect};
+use crate::primitives::{ClipPath, Rect, ViewBox};
 use crate::utils::{ElementWriter, IsDefault};
 use enum_display::EnumDisplay;
 use std::fmt::Write;
-use strict_num::NormalizedF32;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -148,64 +147,22 @@ impl Node {
     where
         T: Write,
     {
-        if self.visual.background.is_none() {
-            return Ok(());
-        }
-
         let taffy::Size {
             width: w,
             height: h,
         } = self.final_layout.size;
         let radius = self.scaled_radii;
-        let layers = self.visual.background.layers();
 
-        if layers.len() == 1 {
-            ElementWriter::new(ctx.out, "path")?
-                .write_attr("d", |out| write_fill_path(out, w, h, radius))?
-                .attr("fill", (&layers[0].paint,))?
-                .attr_if(
-                    "fill-opacity",
-                    layers[0].opacity,
-                    layers[0].opacity != NormalizedF32::ONE,
-                )?
-                .attr_if(
-                    "style",
-                    (format_args!("mix-blend-mode:{}", layers[0].blend_mode),),
-                    !layers[0].blend_mode.is_default(),
-                )?
-                .close()
-        } else {
-            let path = Path::build(|buf| write_fill_path(buf, w, h, radius))?;
-            let path_href = format_args!("#{}", path.iri());
-            ctx.resources.lock().get_or_add_resource(path.into());
-
-            ElementWriter::new(ctx.out, "g")?
-                .attr_if(
-                    "style",
-                    "isolation:isolate",
-                    self.visual.background.needs_isolation(),
-                )?
-                .content(|out| {
-                    layers.iter().try_for_each(|layer| {
-                        ElementWriter::new(out, "use")?
-                            .attr("href", (path_href,))?
-                            .attr("fill", (&layer.paint,))?
-                            .attr_if(
-                                "fill-opacity",
-                                layer.opacity,
-                                layer.opacity != NormalizedF32::ONE,
-                            )?
-                            .attr_if(
-                                "style",
-                                (&format_args!("mix-blend-mode:{}", layer.blend_mode),),
-                                !layer.blend_mode.is_default(),
-                            )?
-                            .close()
-                    })
-                })?
-                .close()
-        }
-        .map_err(Into::into)
+        self.visual
+            .background
+            .render(
+                ctx,
+                |out| write_fill_path(out, w, h, radius),
+                |out| write_fill_path(out, w, h, radius),
+                |x, _| Ok(x),
+                |x| Ok(x),
+            )
+            .map_err(Into::into)
     }
 
     fn render_block_border<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
@@ -221,59 +178,17 @@ impl Node {
             height: h,
         } = self.final_layout.size;
         let border = Rect::from(self.final_layout.border);
-        let layers = self.visual.border.layers();
 
-        if layers.len() == 1 {
-            ElementWriter::new(ctx.out, "path")?
-                .write_attr("d", |out| {
-                    write_border_path(out, w, h, self.scaled_radii, border)
-                })?
-                .attr("fill", (&layers[0].paint,))?
-                .attr_if(
-                    "fill-opacity",
-                    layers[0].opacity,
-                    layers[0].opacity != NormalizedF32::ONE,
-                )?
-                .attr_if(
-                    "style",
-                    (format_args!("mix-blend-mode:{}", layers[0].blend_mode),),
-                    !layers[0].blend_mode.is_default(),
-                )?
-                .attrs([("fill-rule", "evenodd"), ("clip-rule", "evenodd")])?
-                .close()
-        } else {
-            let path = Path::build(|buf| write_border_path(buf, w, h, self.scaled_radii, border))?;
-            let path_href = format_args!("#{}", path.iri());
-            ctx.resources.lock().get_or_add_resource(path.into());
-
-            ElementWriter::new(ctx.out, "g")?
-                .attr_if(
-                    "style",
-                    "isolation:isolate",
-                    self.visual.border.needs_isolation(),
-                )?
-                .content(|out| {
-                    layers.iter().try_for_each(|layer| {
-                        ElementWriter::new(out, "use")?
-                            .attr("href", (path_href,))?
-                            .attr("fill", (&layer.paint,))?
-                            .attrs([("fill-rule", "evenodd"), ("clip-rule", "evenodd")])?
-                            .attr_if(
-                                "fill-opacity",
-                                layer.opacity,
-                                layer.opacity != NormalizedF32::ONE,
-                            )?
-                            .attr_if(
-                                "style",
-                                (&format_args!("mix-blend-mode:{}", layer.blend_mode),),
-                                !layer.blend_mode.is_default(),
-                            )?
-                            .close()
-                    })
-                })?
-                .close()
-        }
-        .map_err(Into::into)
+        self.visual
+            .border
+            .render(
+                ctx,
+                |out| write_border_path(out, w, h, self.scaled_radii, border),
+                |out| write_border_path(out, w, h, self.scaled_radii, border),
+                |layer, _| layer.attrs([("fill-rule", "evenodd"), ("clip-rule", "evenodd")]),
+                |x| Ok(x),
+            )
+            .map_err(Into::into)
     }
 
     fn open_block_clip<T>(
@@ -329,13 +244,14 @@ impl Node {
         match &self.kind {
             NodeKind::Root(meta) => {
                 let (w, h) = (meta.width, meta.height);
+                let view_box = ViewBox::new(0.0, 0.0, w, h);
                 let mut svg = ElementWriter::new(ctx.out, "svg")?
                     .attr_if(
                         "xmlns",
                         "http://www.w3.org/2000/svg",
                         !ctx.options.omit_svg_xmlns,
                     )?
-                    .attr("viewBox", (format_args!("0 0 {w} {h}"),))?;
+                    .attr("viewBox", (view_box,))?;
 
                 match &ctx.options.svg_dimensions {
                     SvgDimensions::Omit => {}
@@ -362,20 +278,10 @@ impl Node {
                 self.open_block_clip(ctx, self.should_clip())?;
             }
             //
-            NodeKind::Text(meta) => {
+            NodeKind::Text(text) => {
                 self.open_block_group(ctx)?;
                 self.render_block_background(ctx)?;
-
-                {
-                    let mut fonts = ctx.fonts.lock();
-                    let FontRegistry {
-                        swash_cache,
-                        system,
-                        ..
-                    } = &mut *fonts;
-                    meta.render(ctx.out, swash_cache, system)?;
-                }
-
+                text.render(ctx)?;
                 Self::close_block_group(false, ctx)?;
             }
             //
