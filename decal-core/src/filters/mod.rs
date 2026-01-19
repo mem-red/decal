@@ -1,12 +1,15 @@
 mod context;
 mod filter;
 mod presets;
+mod primitives;
 mod region;
 //
-pub mod primitives;
+pub(crate) use context::*;
 //
 pub use filter::*;
 pub use presets::*;
 pub use region::*;
-//
-pub(crate) use context::*;
+
+pub mod filter_primitives {
+    pub use super::primitives::*;
+}
