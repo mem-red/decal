@@ -116,9 +116,9 @@ impl<const AUTO: bool, const PERCENT: bool> Display for Length<AUTO, PERCENT> {
     }
 }
 
-impl<const PERCENT: bool> Into<taffy::LengthPercentage> for Length<false, PERCENT> {
-    fn into(self) -> taffy::LengthPercentage {
-        match self.0 {
+impl<const PERCENT: bool> From<Length<false, PERCENT>> for taffy::LengthPercentage {
+    fn from(value: Length<false, PERCENT>) -> Self {
+        match value.0 {
             LengthInner::Zero => taffy::LengthPercentage::ZERO,
             LengthInner::Absolute(value) => taffy::LengthPercentage::length(value.get()),
             LengthInner::Percent(value) => taffy::LengthPercentage::percent(value.get()),
@@ -127,11 +127,11 @@ impl<const PERCENT: bool> Into<taffy::LengthPercentage> for Length<false, PERCEN
     }
 }
 
-impl<const AUTO: bool, const PERCENT: bool> Into<taffy::LengthPercentageAuto>
-    for Length<AUTO, PERCENT>
+impl<const AUTO: bool, const PERCENT: bool> From<Length<AUTO, PERCENT>>
+    for taffy::LengthPercentageAuto
 {
-    fn into(self) -> taffy::LengthPercentageAuto {
-        match self.0 {
+    fn from(value: Length<AUTO, PERCENT>) -> Self {
+        match value.0 {
             LengthInner::Auto => taffy::LengthPercentageAuto::AUTO,
             LengthInner::Zero => taffy::LengthPercentageAuto::ZERO,
             LengthInner::Absolute(value) => taffy::LengthPercentageAuto::length(value.get()),
@@ -140,9 +140,9 @@ impl<const AUTO: bool, const PERCENT: bool> Into<taffy::LengthPercentageAuto>
     }
 }
 
-impl<const AUTO: bool, const PERCENT: bool> Into<taffy::Dimension> for Length<AUTO, PERCENT> {
-    fn into(self) -> taffy::Dimension {
-        let length: taffy::LengthPercentageAuto = self.into();
+impl<const AUTO: bool, const PERCENT: bool> From<Length<AUTO, PERCENT>> for taffy::Dimension {
+    fn from(value: Length<AUTO, PERCENT>) -> Self {
+        let length: taffy::LengthPercentageAuto = value.into();
         taffy::Dimension::from(length)
     }
 }
