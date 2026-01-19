@@ -39,9 +39,9 @@ fn main() {
         }
     };
 
-    engine
-        .rasterize(&mut gradients, &RasterizeOptions::default())
-        .unwrap()
-        .save_png("./output.png")
+    let (pixmap, _size) = engine
+        .rasterize(&mut stencil, &RasterizeOptions::default())
         .unwrap();
+
+    pixmap.save_png("./output.png").unwrap();
 }

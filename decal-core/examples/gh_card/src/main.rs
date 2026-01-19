@@ -115,9 +115,9 @@ fn main() {
             .text_wrap(TextWrap::Word)
     };
 
-    engine
+    let (pixmap, _size) = engine
         .rasterize(&mut gh_card, &RasterizeOptions::default())
-        .unwrap()
-        .save_png("./output.png")
         .unwrap();
+
+    pixmap.save_png("./output.png").unwrap();
 }

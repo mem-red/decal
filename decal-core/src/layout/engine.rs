@@ -1,5 +1,6 @@
 use crate::layout::font::FontRegistry;
 use crate::layout::{Decal, RasterizeError, RasterizeOptions, VectorizeError, VectorizeOptions};
+use crate::primitives::Size;
 use lru::LruCache;
 use parking_lot::Mutex;
 use smart_default::SmartDefault;
@@ -44,7 +45,7 @@ impl Engine {
         &mut self,
         decal: &mut Decal,
         options: &RasterizeOptions,
-    ) -> Result<Pixmap, RasterizeError> {
+    ) -> Result<(Pixmap, Size<f32>), RasterizeError> {
         decal.set_fonts(self.fonts.clone());
         decal.compute_layout();
         decal.rasterize(&self.image_cache, options)
@@ -54,7 +55,7 @@ impl Engine {
         &mut self,
         decal: &mut Decal,
         options: &VectorizeOptions,
-    ) -> Result<String, VectorizeError> {
+    ) -> Result<(String, Size<f32>), VectorizeError> {
         decal.set_fonts(self.fonts.clone());
         decal.compute_layout();
         decal.vectorize(options)

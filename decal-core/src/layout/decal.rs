@@ -123,7 +123,10 @@ impl Decal {
         print_tree(self, taffy::NodeId::from(ROOT_ID));
     }
 
-    pub(crate) fn vectorize(&self, options: &VectorizeOptions) -> Result<String, VectorizeError> {
+    pub(crate) fn vectorize(
+        &self,
+        options: &VectorizeOptions,
+    ) -> Result<(String, Size<f32>), VectorizeError> {
         if self.is_fragment {
             return Err(VectorizeError::NonRootNode);
         }
@@ -143,14 +146,14 @@ impl Decal {
             taffy::NodeId::from(ROOT_ID),
         )?;
 
-        Ok(out)
+        Ok((out, root_size))
     }
 
     pub(crate) fn rasterize(
         &self,
         image_cache: &ImageCache,
         options: &RasterizeOptions,
-    ) -> Result<Pixmap, RasterizeError> {
+    ) -> Result<(Pixmap, Size<f32>), RasterizeError> {
         if self.is_fragment {
             return Err(RasterizeError::NonRootNode);
         }
@@ -177,9 +180,8 @@ impl Decal {
             );
         }
 
-        let svg = self.vectorize(&options.vectorize_options)?;
+        let (svg, size) = self.vectorize(&options.vectorize_options)?;
         let tree = Tree::from_str(&svg, &usvg_options).map_err(RasterizeError::Parse)?;
-        let size = tree.size();
         let mut pixmap = Pixmap::new(size.width() as u32, size.height() as u32)
             .ok_or(RasterizeError::PixmapAlloc)?;
 
@@ -208,7 +210,7 @@ impl Decal {
             }
         }
 
-        Ok(pixmap)
+        Ok((pixmap, size))
     }
 
     pub(crate) fn compute_layout(&mut self) {

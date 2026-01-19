@@ -21,9 +21,9 @@ fn main() {
         }
     };
 
-    engine
+    let (pixmap, _size) = engine
         .rasterize(&mut gradients, &RasterizeOptions::default())
-        .unwrap()
-        .save_png("./output.png")
         .unwrap();
+
+    pixmap.save_png("./output.png").unwrap();
 }
