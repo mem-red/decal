@@ -17,6 +17,14 @@ where
     pub const fn from_values(width: T, height: T) -> Self {
         Self { width, height }
     }
+
+    pub fn width(&self) -> T {
+        self.width
+    }
+
+    pub fn height(&self) -> T {
+        self.height
+    }
 }
 
 impl<const AUTO: bool, const PERCENT: bool> Default for Size<Length<AUTO, PERCENT>> {
@@ -25,35 +33,49 @@ impl<const AUTO: bool, const PERCENT: bool> Default for Size<Length<AUTO, PERCEN
     }
 }
 
-impl<const AUTO: bool, const PERCENT: bool> Into<taffy::Size<taffy::Dimension>>
-    for Size<Length<AUTO, PERCENT>>
+//
+
+impl<T> From<taffy::geometry::Size<T>> for Size<T>
+where
+    T: Copy,
 {
-    fn into(self) -> taffy::Size<taffy::Dimension> {
-        taffy::Size {
-            width: self.width.into(),
-            height: self.height.into(),
+    fn from(value: taffy::Size<T>) -> Self {
+        Self {
+            width: value.width,
+            height: value.height,
         }
     }
 }
 
-impl<const PERCENT: bool> Into<taffy::Size<taffy::LengthPercentage>>
-    for Size<Length<false, PERCENT>>
+impl<const AUTO: bool, const PERCENT: bool> From<Size<Length<AUTO, PERCENT>>>
+    for taffy::Size<taffy::Dimension>
 {
-    fn into(self) -> taffy::Size<taffy::LengthPercentage> {
+    fn from(value: Size<Length<AUTO, PERCENT>>) -> Self {
         taffy::Size {
-            width: self.width.into(),
-            height: self.height.into(),
+            width: value.width.into(),
+            height: value.height.into(),
         }
     }
 }
 
-impl<const AUTO: bool, const PERCENT: bool> Into<taffy::Size<taffy::LengthPercentageAuto>>
-    for Size<Length<AUTO, PERCENT>>
+impl<const PERCENT: bool> From<Size<Length<false, PERCENT>>>
+    for taffy::Size<taffy::LengthPercentage>
 {
-    fn into(self) -> taffy::Size<taffy::LengthPercentageAuto> {
+    fn from(value: Size<Length<false, PERCENT>>) -> Self {
         taffy::Size {
-            width: self.width.into(),
-            height: self.height.into(),
+            width: value.width.into(),
+            height: value.height.into(),
+        }
+    }
+}
+
+impl<const AUTO: bool, const PERCENT: bool> From<Size<Length<AUTO, PERCENT>>>
+    for taffy::Size<taffy::LengthPercentageAuto>
+{
+    fn from(value: Size<Length<AUTO, PERCENT>>) -> Self {
+        taffy::Size {
+            width: value.width.into(),
+            height: value.height.into(),
         }
     }
 }
