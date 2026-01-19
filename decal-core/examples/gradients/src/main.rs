@@ -1,5 +1,6 @@
 use decal::prelude::*;
 use std::f32::consts::FRAC_1_SQRT_2;
+use std::fs;
 
 fn main() {
     let mut engine = Engine::new(EngineOptions::default());
@@ -20,6 +21,12 @@ fn main() {
                 .background(gradient_list)
         }
     };
+
+    let (svg, _size) = engine
+        .vectorize(&mut gradients, &VectorizeOptions::default())
+        .unwrap();
+
+    fs::write("./output.svg", svg).unwrap();
 
     let (pixmap, _size) = engine
         .rasterize(&mut gradients, &RasterizeOptions::default())

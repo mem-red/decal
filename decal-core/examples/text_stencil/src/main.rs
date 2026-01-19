@@ -1,4 +1,5 @@
 use decal::prelude::*;
+use std::fs;
 
 fn main() {
     let mut engine = Engine::new(EngineOptions {
@@ -38,6 +39,12 @@ fn main() {
                 .background(rgb(0x000))
         }
     };
+
+    let (svg, _size) = engine
+        .vectorize(&mut stencil, &VectorizeOptions::default())
+        .unwrap();
+
+    fs::write("./output.svg", svg).unwrap();
 
     let (pixmap, _size) = engine
         .rasterize(&mut stencil, &RasterizeOptions::default())

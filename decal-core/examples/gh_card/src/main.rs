@@ -1,4 +1,5 @@
 use decal::prelude::*;
+use std::fs;
 
 fn header(owner: &str, repo: &str) -> Decal {
     fragment! {
@@ -114,6 +115,12 @@ fn main() {
             .font_family("Mona Sans")
             .text_wrap(TextWrap::Word)
     };
+
+    let (svg, _size) = engine
+        .vectorize(&mut gh_card, &VectorizeOptions::default())
+        .unwrap();
+
+    fs::write("./output.svg", svg).unwrap();
 
     let (pixmap, _size) = engine
         .rasterize(&mut gh_card, &RasterizeOptions::default())
