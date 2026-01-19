@@ -1,4 +1,7 @@
-use crate::primitives::{Corner, Length};
+use crate::primitives::{
+    Corner,
+    Length,
+};
 
 type CornerRadii = Length<false, true>;
 pub type CornerRadius = Corner<CornerRadii>;

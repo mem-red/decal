@@ -1,6 +1,8 @@
 use super::Drawable;
-use crate::attributes::IntoDimensions;
-use crate::primitives::IntoOptionalLength;
+use crate::{
+    attributes::IntoDimensions,
+    primitives::IntoOptionalLength,
+};
 
 macro_rules! impl_dimension {
     ($method:ident, $taffy_method:ident, $taffy_field:ident) => {

@@ -1,4 +1,7 @@
-use crate::primitives::{MaskType, PaintStack};
+use crate::primitives::{
+    MaskType,
+    PaintStack,
+};
 
 #[derive(Debug, Copy, Clone, Default)]
 pub enum StencilScope {

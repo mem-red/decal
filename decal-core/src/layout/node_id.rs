@@ -1,4 +1,7 @@
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct NodeId(u64);

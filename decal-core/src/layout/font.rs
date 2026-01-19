@@ -1,5 +1,11 @@
-use cosmic_text::fontdb::{ID, Source};
-use cosmic_text::{FontSystem, SwashCache};
+use cosmic_text::{
+    FontSystem,
+    SwashCache,
+    fontdb::{
+        ID,
+        Source,
+    },
+};
 use hashbrown::HashMap;
 use smart_default::SmartDefault;
 use std::sync::Arc;

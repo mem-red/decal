@@ -1,7 +1,17 @@
-use std::fmt::{Debug, Formatter};
-use std::sync::Arc;
+use std::{
+    fmt::{
+        Debug,
+        Formatter,
+    },
+    sync::Arc,
+};
 use tiny_skia::Transform;
-use usvg::{ImageKind, ImageRendering, ShapeRendering, TextRendering};
+use usvg::{
+    ImageKind,
+    ImageRendering,
+    ShapeRendering,
+    TextRendering,
+};
 
 #[derive(Debug, Clone, Default)]
 pub enum SvgDimensions {

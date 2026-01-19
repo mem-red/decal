@@ -1,6 +1,11 @@
 use super::Drawable;
-use crate::attributes::{IntoMargin, IntoMarginPair};
-use crate::primitives::IntoOptionalLength;
+use crate::{
+    attributes::{
+        IntoMargin,
+        IntoMarginPair,
+    },
+    primitives::IntoOptionalLength,
+};
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {

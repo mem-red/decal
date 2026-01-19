@@ -1,6 +1,12 @@
 use super::Drawable;
-use crate::attributes::{IntoBorder, IntoBorderPair, IntoPaintStack};
-use crate::primitives::IntoOptionalLength;
+use crate::{
+    attributes::{
+        IntoBorder,
+        IntoBorderPair,
+        IntoPaintStack,
+    },
+    primitives::IntoOptionalLength,
+};
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {

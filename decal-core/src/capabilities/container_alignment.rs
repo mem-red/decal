@@ -1,5 +1,9 @@
 use super::Drawable;
-use crate::primitives::{AlignContent, AlignItems, JustifyContent};
+use crate::primitives::{
+    AlignContent,
+    AlignItems,
+    JustifyContent,
+};
 
 pub trait ContainerAlignment: Drawable {
     fn align_items<T>(mut self, value: T) -> Self

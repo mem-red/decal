@@ -1,4 +1,7 @@
-use crate::primitives::{Length, Rect};
+use crate::primitives::{
+    Length,
+    Rect,
+};
 
 type PaddingValue = Length<false, true>;
 type Padding = Rect<PaddingValue>;

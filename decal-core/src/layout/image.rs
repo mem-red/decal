@@ -1,6 +1,8 @@
-use crate::layout::RenderContext;
-use crate::primitives::CrossOrigin;
-use crate::utils::ElementWriter;
+use crate::{
+    layout::RenderContext,
+    primitives::CrossOrigin,
+    utils::ElementWriter,
+};
 use enum_display::EnumDisplay;
 use quick_xml::escape::escape;
 use std::fmt::Write;

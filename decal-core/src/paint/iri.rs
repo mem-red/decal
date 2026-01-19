@@ -1,5 +1,13 @@
-use std::fmt::{Display, Formatter};
-use std::hash::{Hash, Hasher};
+use std::{
+    fmt::{
+        Display,
+        Formatter,
+    },
+    hash::{
+        Hash,
+        Hasher,
+    },
+};
 use twox_hash::XxHash3_64;
 
 const PREFIX: &'static str = "decal";

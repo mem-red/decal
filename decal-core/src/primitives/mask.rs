@@ -1,7 +1,15 @@
-use crate::paint::ResourceIri;
-use crate::primitives::MaskType;
-use crate::utils::{ElementWriter, IsDefault};
-use std::fmt::{Display, Formatter};
+use crate::{
+    paint::ResourceIri,
+    primitives::MaskType,
+    utils::{
+        ElementWriter,
+        IsDefault,
+    },
+};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
 pub(crate) struct Mask {

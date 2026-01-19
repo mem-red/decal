@@ -1,6 +1,12 @@
-use crate::macros::pf32;
-use crate::utils::FloatWriter;
-use std::fmt::{Display, Formatter, Write};
+use crate::{
+    macros::pf32,
+    utils::FloatWriter,
+};
+use std::fmt::{
+    Display,
+    Formatter,
+    Write,
+};
 use strict_num::PositiveF32;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]

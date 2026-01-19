@@ -1,12 +1,26 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::paint::ResourceIri;
-use crate::primitives::ColorInterpolation;
-use crate::primitives::{FilterInput, PositiveF32Pair};
-use crate::utils::{ElementWriter, IsDefault};
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    paint::ResourceIri,
+    primitives::{
+        ColorInterpolation,
+        FilterInput,
+        PositiveF32Pair,
+    },
+    utils::{
+        ElementWriter,
+        IsDefault,
+    },
+};
 use enum_display::EnumDisplay;
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default, EnumDisplay)]
 pub enum MorphologyOperator {

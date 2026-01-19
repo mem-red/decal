@@ -1,4 +1,7 @@
-use crate::primitives::{PaintLayer, PaintStack};
+use crate::primitives::{
+    PaintLayer,
+    PaintStack,
+};
 
 pub trait IntoPaintLayer {
     fn into_layer(self) -> PaintLayer;

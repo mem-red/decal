@@ -1,8 +1,13 @@
-use crate::macros::nf32;
-use crate::primitives::Color;
-use crate::utils::ElementWriter;
+use crate::{
+    macros::nf32,
+    primitives::Color,
+    utils::ElementWriter,
+};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 use strict_num::NormalizedF32;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]

@@ -1,11 +1,20 @@
-use crate::primitives::IntoOptionalLength;
-use crate::primitives::Length;
-use crate::utils::IsDefault;
-use std::fmt::{Display, Formatter};
+use crate::{
+    primitives::{
+        IntoOptionalLength,
+        Length,
+    },
+    utils::IsDefault,
+};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 mod private {
-    use crate::primitives::Length;
-    use crate::utils::IsDefault;
+    use crate::{
+        primitives::Length,
+        utils::IsDefault,
+    };
     use smart_default::SmartDefault;
 
     #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]

@@ -1,6 +1,12 @@
-use crate::attributes::CornerRadius;
-use crate::filters::Filter;
-use crate::primitives::{BlendMode, PaintStack, Transform};
+use crate::{
+    attributes::CornerRadius,
+    filters::Filter,
+    primitives::{
+        BlendMode,
+        PaintStack,
+        Transform,
+    },
+};
 use smart_default::SmartDefault;
 
 #[derive(Debug, Clone, SmartDefault)]

@@ -1,6 +1,12 @@
-use crate::macros::ff32;
-use crate::utils::FloatWriter;
-use std::fmt::{Display, Formatter, Write};
+use crate::{
+    macros::ff32,
+    utils::FloatWriter,
+};
+use std::fmt::{
+    Display,
+    Formatter,
+    Write,
+};
 use strict_num::FiniteF32;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]

@@ -1,9 +1,23 @@
-use crate::macros::ff32;
-use crate::utils::FloatWriter;
-use std::fmt::{Display, Formatter, Write};
-use std::ops::{Add, Sub};
+use crate::{
+    macros::ff32,
+    utils::FloatWriter,
+};
+use std::{
+    fmt::{
+        Display,
+        Formatter,
+        Write,
+    },
+    ops::{
+        Add,
+        Sub,
+    },
+};
 use strict_num::FiniteF32;
-use taffy::prelude::{TaffyAuto, TaffyZero};
+use taffy::prelude::{
+    TaffyAuto,
+    TaffyZero,
+};
 
 // do not expose this enum in public API to avoid mess
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Copy, Default)]

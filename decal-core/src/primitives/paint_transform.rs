@@ -1,7 +1,11 @@
-use crate::macros::ff32;
-use crate::primitives::IntoFloatPair;
-use crate::utils::FloatWriter;
-use crate::utils::IsDefault;
+use crate::{
+    macros::ff32,
+    primitives::IntoFloatPair,
+    utils::{
+        FloatWriter,
+        IsDefault,
+    },
+};
 use smart_default::SmartDefault;
 use std::fmt::Write;
 use strict_num::FiniteF32;

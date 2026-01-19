@@ -1,4 +1,7 @@
-use crate::primitives::{Length, Size};
+use crate::primitives::{
+    Length,
+    Size,
+};
 
 type GapSize = Length<false, true>;
 type Gap = Size<GapSize>;

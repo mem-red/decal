@@ -1,11 +1,29 @@
-use crate::paint::{IntoResources, Resource, ResourceIri};
-use crate::primitives::{
-    ColorInterpolation, GradientTransform, GradientUnits, IntoOptionalLength, Length, SpreadMethod,
-    Stop,
+use crate::{
+    paint::{
+        IntoResources,
+        Resource,
+        ResourceIri,
+    },
+    primitives::{
+        ColorInterpolation,
+        GradientTransform,
+        GradientUnits,
+        IntoOptionalLength,
+        Length,
+        SpreadMethod,
+        Stop,
+    },
+    utils::{
+        ElementWriter,
+        IsDefault,
+        angle_to_line,
+    },
 };
-use crate::utils::{ElementWriter, IsDefault, angle_to_line};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 type GradientUnit = Length<false, true>;
 

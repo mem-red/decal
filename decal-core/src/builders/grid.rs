@@ -1,9 +1,16 @@
-use crate::capabilities::*;
-use crate::layout::Typography;
-use crate::layout::{Node, NodeKind};
-use crate::macros::impl_node_builder;
-use crate::paint::Appearance;
-use crate::paint::Resource;
+use crate::{
+    capabilities::*,
+    layout::{
+        Node,
+        NodeKind,
+        Typography,
+    },
+    macros::impl_node_builder,
+    paint::{
+        Appearance,
+        Resource,
+    },
+};
 use taffy::prelude::*;
 
 // TODO: impl grid layout

@@ -1,10 +1,31 @@
-use crate::filters::primitives::{
-    Blend, ColorMatrix, ComponentTransfer, Composite, ConvolveMatrix, DiffuseLighting,
-    DisplacementMap, DropShadow, FilterPrimitive, Flood, GaussianBlur, Image, Merge, Morphology,
-    Offset, PrimitiveBuilder, SpecularLighting, Tile, Turbulence,
+use crate::{
+    filters::primitives::{
+        Blend,
+        ColorMatrix,
+        ComponentTransfer,
+        Composite,
+        ConvolveMatrix,
+        DiffuseLighting,
+        DisplacementMap,
+        DropShadow,
+        FilterPrimitive,
+        Flood,
+        GaussianBlur,
+        Image,
+        Merge,
+        Morphology,
+        Offset,
+        PrimitiveBuilder,
+        SpecularLighting,
+        Tile,
+        Turbulence,
+    },
+    paint::{
+        Iri,
+        ResourceIri,
+    },
+    primitives::LightSource,
 };
-use crate::paint::{Iri, ResourceIri};
-use crate::primitives::LightSource;
 use hashbrown::HashMap;
 use parking_lot::Mutex;
 

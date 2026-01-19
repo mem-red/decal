@@ -1,11 +1,23 @@
-use crate::paint::ResourceIri;
-use crate::primitives::Length;
-use crate::primitives::{
-    IntoOptionalLength, PatternContentUnits, PatternTransform, PatternUnits, PreserveAspectRatio,
-    ViewBox,
+use crate::{
+    paint::ResourceIri,
+    primitives::{
+        IntoOptionalLength,
+        Length,
+        PatternContentUnits,
+        PatternTransform,
+        PatternUnits,
+        PreserveAspectRatio,
+        ViewBox,
+    },
+    utils::{
+        ElementWriter,
+        IsDefault,
+    },
 };
-use crate::utils::{ElementWriter, IsDefault};
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 type PatternUnit = Length<false, true>;
 

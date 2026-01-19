@@ -1,6 +1,11 @@
-use crate::paint::ScaledRadii;
-use crate::primitives::{Rect, Size};
-use crate::utils::PathWriter;
+use crate::{
+    paint::ScaledRadii,
+    primitives::{
+        Rect,
+        Size,
+    },
+    utils::PathWriter,
+};
 
 pub(crate) fn write_fill_path<T>(out: &mut T, w: f32, h: f32, r: ScaledRadii) -> std::fmt::Result
 where

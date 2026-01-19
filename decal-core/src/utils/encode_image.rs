@@ -1,4 +1,9 @@
-use png::{BitDepth, ColorType, Encoder, EncodingError};
+use png::{
+    BitDepth,
+    ColorType,
+    Encoder,
+    EncodingError,
+};
 use std::io::Cursor;
 use swash::scale::image::Image;
 

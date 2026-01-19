@@ -1,5 +1,7 @@
-use crate::filters::Filter;
-use crate::filters::primitives::TransferFunction;
+use crate::filters::{
+    Filter,
+    primitives::TransferFunction,
+};
 
 // https://www.w3.org/TR/filter-effects-1/#contrastEquivalent
 

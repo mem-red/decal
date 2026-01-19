@@ -1,7 +1,12 @@
-use crate::filters::PrimitiveNode;
-use crate::paint::Iri;
+use crate::{
+    filters::PrimitiveNode,
+    paint::Iri,
+};
 use enum_display::EnumDisplay;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, EnumDisplay)]
 enum FilterInputInner {

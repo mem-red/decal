@@ -1,11 +1,21 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::paint::ResourceIri;
-use crate::primitives::ColorInterpolation;
-use crate::primitives::FilterInput;
-use crate::utils::ElementWriter;
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    paint::ResourceIri,
+    primitives::{
+        ColorInterpolation,
+        FilterInput,
+    },
+    utils::ElementWriter,
+};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct Merge {

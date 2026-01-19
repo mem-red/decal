@@ -1,6 +1,9 @@
 use super::Resource;
 use hashbrown::HashMap;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 #[derive(Debug, Clone, Default)]
 pub(crate) struct Resources {

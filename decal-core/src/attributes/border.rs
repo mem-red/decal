@@ -1,4 +1,7 @@
-use crate::primitives::{Length, Rect};
+use crate::primitives::{
+    Length,
+    Rect,
+};
 
 type BorderWidth = Length<false, true>;
 type Border = Rect<BorderWidth>;

@@ -1,5 +1,9 @@
 use super::Drawable;
-use crate::primitives::{AlignSelf, IntoOptionalLength, JustifySelf};
+use crate::primitives::{
+    AlignSelf,
+    IntoOptionalLength,
+    JustifySelf,
+};
 
 pub trait SelfAlignment: Drawable {
     fn align_self<T>(mut self, value: T) -> Self

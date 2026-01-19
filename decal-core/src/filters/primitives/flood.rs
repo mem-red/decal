@@ -1,11 +1,19 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::macros::nf32;
-use crate::paint::ResourceIri;
-use crate::primitives::Color;
-use crate::utils::ElementWriter;
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    macros::nf32,
+    paint::ResourceIri,
+    primitives::Color,
+    utils::ElementWriter,
+};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 use strict_num::NormalizedF32;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]

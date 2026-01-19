@@ -1,10 +1,18 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::macros::ff32;
-use crate::paint::ResourceIri;
-use crate::primitives::FilterInput;
-use crate::utils::ElementWriter;
-use std::fmt::{Display, Formatter};
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    macros::ff32,
+    paint::ResourceIri,
+    primitives::FilterInput,
+    utils::ElementWriter,
+};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 use strict_num::FiniteF32;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]

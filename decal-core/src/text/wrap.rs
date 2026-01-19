@@ -3,7 +3,8 @@ pub enum TextWrap {
     None,
     Glyph,
     Word,
-    /// wrap at the word level or fallback to glyph level if a word can't fit on a line by itself
+    /// wrap at the word level or fallback to glyph level if a word can't fit on
+    /// a line by itself
     WordOrGlyph,
 }
 

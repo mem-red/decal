@@ -1,21 +1,58 @@
-use crate::builders::TextSpan;
-use crate::layout::{
-    BASE_FONT_SIZE, BASE_LINE_HEIGHT, FontRegistry, RenderContext, Stencil, StencilScope,
-    StencilType,
+use crate::{
+    builders::TextSpan,
+    layout::{
+        BASE_FONT_SIZE,
+        BASE_LINE_HEIGHT,
+        DEFAULT_FONT_FAMILY,
+        FontRegistry,
+        RenderContext,
+        Stencil,
+        StencilScope,
+        StencilType,
+        Typography,
+    },
+    paint::{
+        Iri,
+        ResourceIri,
+        ScaledRadii,
+        write_fill_path,
+    },
+    primitives::{
+        Color,
+        Mask,
+        PaintStack,
+    },
+    text::{
+        FontStyle,
+        FontWeight,
+    },
+    utils::{
+        ElementWriter,
+        PathWriter,
+        encode_image,
+    },
 };
-use crate::layout::{DEFAULT_FONT_FAMILY, Typography};
-use crate::paint::{Iri, ResourceIri, ScaledRadii, write_fill_path};
-use crate::primitives::Mask;
-use crate::primitives::{Color, PaintStack};
-use crate::text::{FontStyle, FontWeight};
-use crate::utils::{ElementWriter, PathWriter, encode_image};
-use base64::Engine;
-use base64::engine::general_purpose::STANDARD as BASE64;
-use cosmic_text::{Attrs, Buffer, Command, Family, Metrics, Shaping};
+use base64::{
+    Engine,
+    engine::general_purpose::STANDARD as BASE64,
+};
+use cosmic_text::{
+    Attrs,
+    Buffer,
+    Command,
+    Family,
+    Metrics,
+    Shaping,
+};
 use parking_lot::Mutex;
 use png::EncodingError;
-use std::fmt::{Formatter, Write};
-use std::sync::Arc;
+use std::{
+    fmt::{
+        Formatter,
+        Write,
+    },
+    sync::Arc,
+};
 use swash::scale::image::Content;
 use taffy::prelude::*;
 use thiserror::Error;

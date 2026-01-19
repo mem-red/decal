@@ -1,6 +1,13 @@
 use crate::utils::FloatWriter;
-use color::{AlphaColor, Srgb, parse_color};
-use std::fmt::{Display, Write};
+use color::{
+    AlphaColor,
+    Srgb,
+    parse_color,
+};
+use std::fmt::{
+    Display,
+    Write,
+};
 
 #[derive(Debug, Clone, Copy, Hash, Eq, PartialEq)]
 pub struct Color {

@@ -1,11 +1,32 @@
-use crate::layout::text::TextMeta;
-use crate::layout::{ImageMeta, Typography};
-use crate::layout::{RenderContext, SvgDimensions, TextVectorizeError};
-use crate::paint::{Appearance, compute_scaled_radii};
-use crate::paint::{Resource, ResourceIri};
-use crate::paint::{ScaledRadii, write_border_path, write_clip_path, write_fill_path};
-use crate::primitives::{ClipPath, Rect, ViewBox};
-use crate::utils::{ElementWriter, IsDefault};
+use crate::{
+    layout::{
+        ImageMeta,
+        RenderContext,
+        SvgDimensions,
+        TextVectorizeError,
+        Typography,
+        text::TextMeta,
+    },
+    paint::{
+        Appearance,
+        Resource,
+        ResourceIri,
+        ScaledRadii,
+        compute_scaled_radii,
+        write_border_path,
+        write_clip_path,
+        write_fill_path,
+    },
+    primitives::{
+        ClipPath,
+        Rect,
+        ViewBox,
+    },
+    utils::{
+        ElementWriter,
+        IsDefault,
+    },
+};
 use enum_display::EnumDisplay;
 use std::fmt::Write;
 use thiserror::Error;

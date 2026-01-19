@@ -1,6 +1,8 @@
 use super::Drawable;
-use crate::attributes::IntoOverflow;
-use crate::primitives::Overflow;
+use crate::{
+    attributes::IntoOverflow,
+    primitives::Overflow,
+};
 
 macro_rules! impl_axis {
     ($method:ident, $field:ident) => {

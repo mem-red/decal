@@ -1,6 +1,13 @@
 use super::Drawable;
-use crate::primitives::Paint;
-use crate::text::{FontStyle, FontWeight, TextAlign, TextWrap};
+use crate::{
+    primitives::Paint,
+    text::{
+        FontStyle,
+        FontWeight,
+        TextAlign,
+        TextWrap,
+    },
+};
 
 pub trait Textual: Drawable {
     fn color<T>(mut self, value: T) -> Self

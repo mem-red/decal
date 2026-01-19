@@ -1,5 +1,12 @@
-use crate::primitives::Paint;
-use crate::text::{FontStyle, FontWeight, TextAlign, TextWrap};
+use crate::{
+    primitives::Paint,
+    text::{
+        FontStyle,
+        FontWeight,
+        TextAlign,
+        TextWrap,
+    },
+};
 
 #[derive(Debug, Clone, Default)]
 pub(crate) struct Typography {

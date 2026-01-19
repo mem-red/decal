@@ -1,13 +1,35 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::macros::{ff32, nf32};
-use crate::paint::ResourceIri;
-use crate::primitives::ColorInterpolation;
-use crate::primitives::FilterInput;
-use crate::utils::{ElementWriter, FloatWriter, IsDefault, write_spaced};
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    macros::{
+        ff32,
+        nf32,
+    },
+    paint::ResourceIri,
+    primitives::{
+        ColorInterpolation,
+        FilterInput,
+    },
+    utils::{
+        ElementWriter,
+        FloatWriter,
+        IsDefault,
+        write_spaced,
+    },
+};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter, Write};
-use strict_num::{FiniteF32, NormalizedF32};
+use std::fmt::{
+    Display,
+    Formatter,
+    Write,
+};
+use strict_num::{
+    FiniteF32,
+    NormalizedF32,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
 enum TransferFunctionInner {

@@ -1,12 +1,28 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::macros::ff32;
-use crate::paint::ResourceIri;
-use crate::primitives::EdgeMode;
-use crate::primitives::{ColorInterpolation, FilterInput};
-use crate::utils::{ElementWriter, FloatWriter, IsDefault, write_spaced};
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    macros::ff32,
+    paint::ResourceIri,
+    primitives::{
+        ColorInterpolation,
+        EdgeMode,
+        FilterInput,
+    },
+    utils::{
+        ElementWriter,
+        FloatWriter,
+        IsDefault,
+        write_spaced,
+    },
+};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 use strict_num::FiniteF32;
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]

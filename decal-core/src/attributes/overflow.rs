@@ -1,4 +1,7 @@
-use crate::primitives::{Overflow, Point};
+use crate::primitives::{
+    Overflow,
+    Point,
+};
 
 type OverflowXY = Point<Overflow>;
 

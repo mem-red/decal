@@ -1,6 +1,9 @@
 use crate::utils::IsDefault;
 use enum_display::EnumDisplay;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, EnumDisplay)]
 enum Align {

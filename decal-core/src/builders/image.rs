@@ -1,9 +1,19 @@
-use crate::capabilities::*;
-use crate::layout::{ImageMeta, ImageSource, Node, NodeKind, Typography};
-use crate::macros::impl_node_builder;
-use crate::paint::Appearance;
-use crate::paint::Resource;
-use crate::primitives::CrossOrigin;
+use crate::{
+    capabilities::*,
+    layout::{
+        ImageMeta,
+        ImageSource,
+        Node,
+        NodeKind,
+        Typography,
+    },
+    macros::impl_node_builder,
+    paint::{
+        Appearance,
+        Resource,
+    },
+    primitives::CrossOrigin,
+};
 use taffy::prelude::*;
 
 #[derive(Debug, Default)]

@@ -1,9 +1,17 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::paint::ResourceIri;
-use crate::primitives::CrossOrigin;
-use crate::utils::ElementWriter;
-use std::fmt::{Display, Formatter};
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    paint::ResourceIri,
+    primitives::CrossOrigin,
+    utils::ElementWriter,
+};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct Image {

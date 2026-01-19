@@ -1,12 +1,22 @@
-use crate::layout::font::FontRegistry;
-use crate::layout::{Decal, RasterizeError, RasterizeOptions, VectorizeError, VectorizeOptions};
-use crate::primitives::Size;
+use crate::{
+    layout::{
+        Decal,
+        RasterizeError,
+        RasterizeOptions,
+        VectorizeError,
+        VectorizeOptions,
+        font::FontRegistry,
+    },
+    primitives::Size,
+};
 use lru::LruCache;
 use parking_lot::Mutex;
 use smart_default::SmartDefault;
-use std::fmt::Write;
-use std::num::NonZeroUsize;
-use std::sync::Arc;
+use std::{
+    fmt::Write,
+    num::NonZeroUsize,
+    sync::Arc,
+};
 use tiny_skia::Pixmap;
 use usvg::ImageKind;
 

@@ -1,6 +1,13 @@
-use crate::filters::context::{FilterContext, PrimitiveNode};
-use crate::filters::primitives::FilterPrimitive;
-use crate::filters::{FilterRegion, FilterRegionConfig, HasFilterRegion};
+use crate::filters::{
+    FilterRegion,
+    FilterRegionConfig,
+    HasFilterRegion,
+    context::{
+        FilterContext,
+        PrimitiveNode,
+    },
+    primitives::FilterPrimitive,
+};
 
 #[derive(Debug)]
 pub struct PrimitiveBuilder<'a, T>

@@ -1,13 +1,37 @@
-use crate::layout::{ImageSource, RenderContext};
-use crate::macros::nf32;
-use crate::paint::{IntoResources, Resource, ResourceIri};
-use crate::primitives::Length;
-use crate::primitives::Path;
-use crate::primitives::{BlendMode, Color, CrossOrigin, PatternContentUnits, PatternUnits};
-use crate::primitives::{LinearGradient, Pattern, RadialGradient};
-use crate::utils::{ElementWriter, Initialized, IsDefault};
+use crate::{
+    layout::{
+        ImageSource,
+        RenderContext,
+    },
+    macros::nf32,
+    paint::{
+        IntoResources,
+        Resource,
+        ResourceIri,
+    },
+    primitives::{
+        BlendMode,
+        Color,
+        CrossOrigin,
+        Length,
+        LinearGradient,
+        Path,
+        Pattern,
+        PatternContentUnits,
+        PatternUnits,
+        RadialGradient,
+    },
+    utils::{
+        ElementWriter,
+        Initialized,
+        IsDefault,
+    },
+};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Write};
+use std::fmt::{
+    Display,
+    Write,
+};
 use strict_num::NormalizedF32;
 
 #[derive(Debug, Clone, Default)]

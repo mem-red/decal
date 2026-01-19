@@ -1,6 +1,8 @@
 use super::Drawable;
-use crate::attributes::IntoCornerRadius;
-use crate::primitives::IntoOptionalLength;
+use crate::{
+    attributes::IntoCornerRadius,
+    primitives::IntoOptionalLength,
+};
 
 macro_rules! impl_corner {
     ($method:ident, $field:ident) => {

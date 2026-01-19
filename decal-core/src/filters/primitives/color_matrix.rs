@@ -1,15 +1,35 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::macros::{ff32, pf32};
-use crate::paint::ResourceIri;
-use crate::primitives::ColorInterpolation;
-use crate::primitives::FilterInput;
-use crate::utils::{ElementWriter, FloatWriter};
-use crate::utils::{IsDefault, write_spaced};
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    macros::{
+        ff32,
+        pf32,
+    },
+    paint::ResourceIri,
+    primitives::{
+        ColorInterpolation,
+        FilterInput,
+    },
+    utils::{
+        ElementWriter,
+        FloatWriter,
+        IsDefault,
+        write_spaced,
+    },
+};
 use enum_display::EnumDisplay;
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
-use strict_num::{FiniteF32, PositiveF32};
+use std::fmt::{
+    Display,
+    Formatter,
+};
+use strict_num::{
+    FiniteF32,
+    PositiveF32,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, EnumDisplay)]
 pub enum ColorMatrixType {

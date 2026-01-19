@@ -1,9 +1,23 @@
 use super::writer::Writer;
-use crate::primitives::{Length, PositiveF32Pair};
-use crate::utils::FloatWriter;
-use std::fmt::{Display, Write};
-use std::marker::PhantomData;
-use strict_num::{FiniteF32, NormalizedF32, PositiveF32};
+use crate::{
+    primitives::{
+        Length,
+        PositiveF32Pair,
+    },
+    utils::FloatWriter,
+};
+use std::{
+    fmt::{
+        Display,
+        Write,
+    },
+    marker::PhantomData,
+};
+use strict_num::{
+    FiniteF32,
+    NormalizedF32,
+    PositiveF32,
+};
 
 pub(crate) struct Initialized;
 pub(crate) struct Opened;

@@ -1,10 +1,25 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::paint::ResourceIri;
-use crate::primitives::{BlendMode, ColorInterpolation, FilterInput};
-use crate::utils::{ElementWriter, IsDefault};
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    paint::ResourceIri,
+    primitives::{
+        BlendMode,
+        ColorInterpolation,
+        FilterInput,
+    },
+    utils::{
+        ElementWriter,
+        IsDefault,
+    },
+};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Blend {

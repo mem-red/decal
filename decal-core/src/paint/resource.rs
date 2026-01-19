@@ -1,6 +1,16 @@
-use crate::filters::Filter;
-use crate::primitives::{ClipPath, LinearGradient, Mask, Paint, Path, Pattern, RadialGradient};
-use crate::utils::IsDefault;
+use crate::{
+    filters::Filter,
+    primitives::{
+        ClipPath,
+        LinearGradient,
+        Mask,
+        Paint,
+        Path,
+        Pattern,
+        RadialGradient,
+    },
+    utils::IsDefault,
+};
 use enum_display::EnumDisplay;
 use std::hash::Hash;
 

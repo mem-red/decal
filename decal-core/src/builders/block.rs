@@ -1,9 +1,20 @@
-use crate::capabilities::*;
-use crate::layout::Typography;
-use crate::layout::{Node, NodeKind};
-use crate::macros::impl_node_builder;
-use crate::paint::{Appearance, Resource};
-use crate::primitives::{Display, FlexDirection};
+use crate::{
+    capabilities::*,
+    layout::{
+        Node,
+        NodeKind,
+        Typography,
+    },
+    macros::impl_node_builder,
+    paint::{
+        Appearance,
+        Resource,
+    },
+    primitives::{
+        Display,
+        FlexDirection,
+    },
+};
 use taffy::Style;
 
 #[derive(Debug, Default)]

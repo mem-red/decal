@@ -1,9 +1,16 @@
-use crate::layout::{FontRegistry, VectorizeOptions};
-use crate::paint::Resources;
-use crate::primitives::Size;
+use crate::{
+    layout::{
+        FontRegistry,
+        VectorizeOptions,
+    },
+    paint::Resources,
+    primitives::Size,
+};
 use parking_lot::Mutex;
-use std::fmt::Write;
-use std::sync::Arc;
+use std::{
+    fmt::Write,
+    sync::Arc,
+};
 
 pub(crate) struct RenderContext<'a, T>
 where

@@ -1,24 +1,51 @@
-use crate::layout::{
-    FontRegistry, ImageCache, ImageOptions, Node, NodeKind, RasterizeOptions, RenderContext,
+use crate::{
+    layout::{
+        FontRegistry,
+        ImageCache,
+        ImageOptions,
+        Node,
+        NodeId,
+        NodeKind,
+        RasterizeOptions,
+        RenderContext,
+        Typography,
+        VectorizeError,
+        VectorizeOptions,
+    },
+    paint::Resources,
+    primitives::Size,
 };
-use crate::layout::{NodeId, VectorizeError};
-use crate::layout::{Typography, VectorizeOptions};
-use crate::paint::Resources;
-use crate::primitives::Size;
 use parking_lot::Mutex;
 use resvg::render;
 use smallvec::SmallVec;
-use std::fmt::Write;
-use std::sync::Arc;
-use taffy::prelude::TaffyMaxContent;
+use std::{
+    fmt::Write,
+    sync::Arc,
+};
 use taffy::{
-    CacheTree, LayoutPartialTree, PrintTree, RoundTree, TraversePartialTree, TraverseTree,
-    compute_block_layout, compute_cached_layout, compute_flexbox_layout, compute_grid_layout,
-    compute_leaf_layout, compute_root_layout, print_tree, round_layout,
+    CacheTree,
+    LayoutPartialTree,
+    PrintTree,
+    RoundTree,
+    TraversePartialTree,
+    TraverseTree,
+    compute_block_layout,
+    compute_cached_layout,
+    compute_flexbox_layout,
+    compute_grid_layout,
+    compute_leaf_layout,
+    compute_root_layout,
+    prelude::TaffyMaxContent,
+    print_tree,
+    round_layout,
 };
 use thiserror::Error;
 use tiny_skia::Pixmap;
-use usvg::{ImageHrefResolver, ImageKind, Tree};
+use usvg::{
+    ImageHrefResolver,
+    ImageKind,
+    Tree,
+};
 
 const ROOT_ID: usize = 0;
 const INLINE_FRAG_CASCADE: usize = 16;
@@ -240,7 +267,8 @@ impl Decal {
 
     /// Panics if the node with the given `id` is atomic (cannot have children).
     ///
-    /// Note: This is a safety check. The macro should prevent adding children to atomic nodes at compile time.
+    /// Note: This is a safety check. The macro should prevent adding children
+    /// to atomic nodes at compile time.
     fn assert_non_atomic(&self, id: NodeId) {
         if self.nodes[id].kind.is_atomic() {
             panic!("node with id {id} is atomic and cannot contain children");

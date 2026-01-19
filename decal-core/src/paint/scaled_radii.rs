@@ -30,7 +30,8 @@ pub(crate) fn compute_scaled_radii(r: CornerRadius, w: f32, h: f32) -> ScaledRad
         r.bottom_left.resolve_abs(h).unwrap_or_default(),
     );
 
-    // scale all the radii by min ratio if adjacent radii exceed the available edge length
+    // scale all the radii by min ratio if adjacent radii exceed the available edge
+    // length
     let mut scale = 1.0_f32;
     let sum_top = h_tl + h_tr;
     let sum_bottom = h_bl + h_br;

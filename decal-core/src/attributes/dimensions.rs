@@ -1,4 +1,7 @@
-use crate::primitives::{Length, Size};
+use crate::primitives::{
+    Length,
+    Size,
+};
 
 type Dimensions = Size<Length>;
 

@@ -1,13 +1,26 @@
-use crate::attributes::IntoPaintStack;
-use crate::capabilities::*;
-use crate::layout::TextMeta;
-use crate::layout::{Node, NodeKind, StencilType};
-use crate::layout::{StencilScope, Typography};
-use crate::macros::impl_node_builder;
-use crate::paint::Resource;
-use crate::paint::{Appearance, IntoResources};
-use crate::primitives::Paint;
-use crate::text::{FontStyle, FontWeight};
+use crate::{
+    attributes::IntoPaintStack,
+    capabilities::*,
+    layout::{
+        Node,
+        NodeKind,
+        StencilScope,
+        StencilType,
+        TextMeta,
+        Typography,
+    },
+    macros::impl_node_builder,
+    paint::{
+        Appearance,
+        IntoResources,
+        Resource,
+    },
+    primitives::Paint,
+    text::{
+        FontStyle,
+        FontWeight,
+    },
+};
 use taffy::prelude::*;
 
 #[derive(Debug, Default)]

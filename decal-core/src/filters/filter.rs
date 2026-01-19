@@ -1,12 +1,30 @@
-use crate::filters::context::FilterContext;
-use crate::filters::primitives::FilterPrimitive;
-use crate::filters::{FilterRegion, FilterRegionConfig, HasFilterRegion};
-use crate::paint::ResourceIri;
-use crate::primitives::{ColorInterpolation, FilterUnits, PrimitiveUnits};
-use crate::utils::{ElementWriter, IsDefault};
+use crate::{
+    filters::{
+        FilterRegion,
+        FilterRegionConfig,
+        HasFilterRegion,
+        context::FilterContext,
+        primitives::FilterPrimitive,
+    },
+    paint::ResourceIri,
+    primitives::{
+        ColorInterpolation,
+        FilterUnits,
+        PrimitiveUnits,
+    },
+    utils::{
+        ElementWriter,
+        IsDefault,
+    },
+};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
-use std::hash::Hash;
+use std::{
+    fmt::{
+        Display,
+        Formatter,
+    },
+    hash::Hash,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct Filter {

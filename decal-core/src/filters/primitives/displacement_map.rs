@@ -1,13 +1,26 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::macros::ff32;
-use crate::paint::ResourceIri;
-use crate::primitives::ColorInterpolation;
-use crate::primitives::FilterInput;
-use crate::utils::{ElementWriter, IsDefault};
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    macros::ff32,
+    paint::ResourceIri,
+    primitives::{
+        ColorInterpolation,
+        FilterInput,
+    },
+    utils::{
+        ElementWriter,
+        IsDefault,
+    },
+};
 use enum_display::EnumDisplay;
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 use strict_num::FiniteF32;
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default, EnumDisplay)]

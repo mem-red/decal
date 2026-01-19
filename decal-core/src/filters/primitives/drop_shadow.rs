@@ -1,14 +1,31 @@
-use crate::filters::primitives::PrimitiveBuilder;
-use crate::filters::{FilterRegion, HasFilterRegion};
-use crate::macros::{ff32, nf32};
-use crate::paint::ResourceIri;
-use crate::primitives::Color;
-use crate::primitives::ColorInterpolation;
-use crate::primitives::{FilterInput, PositiveF32Pair};
-use crate::utils::ElementWriter;
+use crate::{
+    filters::{
+        FilterRegion,
+        HasFilterRegion,
+        primitives::PrimitiveBuilder,
+    },
+    macros::{
+        ff32,
+        nf32,
+    },
+    paint::ResourceIri,
+    primitives::{
+        Color,
+        ColorInterpolation,
+        FilterInput,
+        PositiveF32Pair,
+    },
+    utils::ElementWriter,
+};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
-use strict_num::{FiniteF32, NormalizedF32};
+use std::fmt::{
+    Display,
+    Formatter,
+};
+use strict_num::{
+    FiniteF32,
+    NormalizedF32,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct DropShadow {

@@ -1,10 +1,27 @@
-use crate::paint::{IntoResources, Resource, ResourceIri};
-use crate::primitives::GradientTransform;
-use crate::primitives::Stop;
-use crate::primitives::{ColorInterpolation, GradientUnits, IntoOptionalLength, Length};
-use crate::utils::{ElementWriter, IsDefault};
+use crate::{
+    paint::{
+        IntoResources,
+        Resource,
+        ResourceIri,
+    },
+    primitives::{
+        ColorInterpolation,
+        GradientTransform,
+        GradientUnits,
+        IntoOptionalLength,
+        Length,
+        Stop,
+    },
+    utils::{
+        ElementWriter,
+        IsDefault,
+    },
+};
 use smart_default::SmartDefault;
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 type GradientUnit = Length<false, true>;
 

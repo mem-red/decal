@@ -1,10 +1,32 @@
-use crate::filters::primitives::{
-    Blend, ColorMatrix, ComponentTransfer, Composite, ConvolveMatrix, DiffuseLighting,
-    DisplacementMap, DropShadow, Flood, GaussianBlur, Image, Merge, Morphology, Offset,
-    SpecularLighting, Tile, Turbulence,
+use crate::{
+    filters::primitives::{
+        Blend,
+        ColorMatrix,
+        ComponentTransfer,
+        Composite,
+        ConvolveMatrix,
+        DiffuseLighting,
+        DisplacementMap,
+        DropShadow,
+        Flood,
+        GaussianBlur,
+        Image,
+        Merge,
+        Morphology,
+        Offset,
+        SpecularLighting,
+        Tile,
+        Turbulence,
+    },
+    paint::{
+        Iri,
+        ResourceIri,
+    },
 };
-use crate::paint::{Iri, ResourceIri};
-use std::fmt::{Display, Formatter};
+use std::fmt::{
+    Display,
+    Formatter,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub enum FilterPrimitive {

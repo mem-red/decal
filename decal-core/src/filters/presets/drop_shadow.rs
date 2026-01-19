@@ -1,5 +1,7 @@
-use crate::filters::Filter;
-use crate::primitives::Color;
+use crate::{
+    filters::Filter,
+    primitives::Color,
+};
 
 // https://www.w3.org/TR/filter-effects-1/#dropshadowEquivalent
 
