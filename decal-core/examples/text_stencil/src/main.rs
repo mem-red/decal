@@ -12,8 +12,8 @@ fn main() {
         (0.9, rgb(0xf69d3c)),
     ]);
 
-    let mut gradients = decal! {
-        Root(1024.0, 350.0) {
+    let mut stencil = decal! {
+        Root(None, None) {
             Column {
                 Text("type = alpha 🐠")
                     .stencil(gradient.clone())

@@ -10,6 +10,12 @@ impl NodeId {
     }
 }
 
+impl Display for NodeId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 impl From<u64> for NodeId {
     #[inline]
     fn from(raw: u64) -> Self {
@@ -35,8 +41,8 @@ impl From<NodeId> for usize {
     }
 }
 
-impl Display for NodeId {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+impl From<NodeId> for taffy::NodeId {
+    fn from(value: NodeId) -> Self {
+        taffy::NodeId::from(value.0)
     }
 }

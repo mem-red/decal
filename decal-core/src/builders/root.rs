@@ -8,24 +8,17 @@ use taffy::prelude::*;
 
 #[derive(Debug, Default)]
 pub struct Root {
-    meta: RootMeta,
     layout: Style,
     visual: Appearance,
     typography: Typography,
     resources: Vec<Resource>,
 }
 
-#[derive(Debug, Clone, Default)]
-pub(crate) struct RootMeta {
-    pub(crate) width: f32,
-    pub(crate) height: f32,
-}
-
 impl_node_builder!(
     Root,
     build(this) {
         Node::new(
-            NodeKind::Root(this.meta),
+            NodeKind::Root,
             this.layout,
             this.visual,
             Some(this.typography),
@@ -35,13 +28,18 @@ impl_node_builder!(
 );
 
 impl Root {
-    pub fn new(width: f32, height: f32) -> Self {
+    pub fn new<T>(width: T, height: T) -> Self
+    where
+        T: Into<Option<f32>>,
+    {
         Self {
-            meta: RootMeta { width, height },
             layout: Style {
                 size: Size {
-                    width: length(width),
-                    height: length(height),
+                    width: width.into().map(|x| length(x)).unwrap_or(Dimension::auto()),
+                    height: height
+                        .into()
+                        .map(|x| length(x))
+                        .unwrap_or(Dimension::auto()),
                 },
                 ..Default::default()
             },

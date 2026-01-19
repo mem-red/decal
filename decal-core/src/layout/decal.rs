@@ -4,6 +4,7 @@ use crate::layout::{
 use crate::layout::{NodeId, VectorizeError};
 use crate::layout::{Typography, VectorizeOptions};
 use crate::paint::Resources;
+use crate::primitives::Size;
 use parking_lot::Mutex;
 use resvg::render;
 use smallvec::SmallVec;
@@ -214,8 +215,9 @@ impl Decal {
     }
 
     pub(crate) fn compute_layout(&mut self) {
-        compute_root_layout(self, taffy::NodeId::from(ROOT_ID), taffy::Size::MAX_CONTENT);
-        round_layout(self, taffy::NodeId::from(ROOT_ID));
+        let root_id = taffy::NodeId::from(self.root_id());
+        compute_root_layout(self, root_id, taffy::Size::MAX_CONTENT);
+        round_layout(self, root_id);
     }
 
     pub(crate) fn set_fonts(&mut self, fonts: Arc<Mutex<FontRegistry>>) {
@@ -430,7 +432,7 @@ impl LayoutPartialTree for Decal {
         compute_cached_layout(self, node_id, inputs, |tree, node_id, inputs| {
             let node = &mut tree.nodes[usize::from(node_id)];
             match node.kind {
-                NodeKind::Root(_) | NodeKind::Block => compute_block_layout(tree, node_id, inputs),
+                NodeKind::Root | NodeKind::Block => compute_block_layout(tree, node_id, inputs),
                 NodeKind::Flex | NodeKind::Column | NodeKind::Row => {
                     compute_flexbox_layout(tree, node_id, inputs)
                 }
@@ -566,7 +568,7 @@ impl RoundTree for Decal {
 impl PrintTree for Decal {
     fn get_debug_label(&self, node_id: taffy::NodeId) -> &'static str {
         match self.node_from_id(node_id).kind {
-            NodeKind::Root(_) => "ROOT",
+            NodeKind::Root => "ROOT",
             NodeKind::Block => "BLOCK",
             NodeKind::Flex => "FLEX",
             NodeKind::Column => "COLUMN",

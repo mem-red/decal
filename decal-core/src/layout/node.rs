@@ -1,4 +1,3 @@
-use crate::builders::RootMeta;
 use crate::layout::text::TextMeta;
 use crate::layout::{ImageMeta, Typography};
 use crate::layout::{RenderContext, SvgDimensions, TextVectorizeError};
@@ -23,8 +22,7 @@ pub enum VectorizeError {
 
 #[derive(Debug, Clone, EnumDisplay)]
 pub(crate) enum NodeKind {
-    #[display("Root: {0:?}")]
-    Root(RootMeta),
+    Root,
     Block,
     Flex,
     Column,
@@ -242,9 +240,9 @@ impl Node {
         T: Write,
     {
         match &self.kind {
-            NodeKind::Root(meta) => {
-                let (w, h) = (meta.width, meta.height);
-                let view_box = ViewBox::new(0.0, 0.0, w, h);
+            NodeKind::Root => {
+                let taffy::Size { width, height } = self.final_layout.size;
+                let view_box = ViewBox::new(0.0, 0.0, width, height);
                 let mut svg = ElementWriter::new(ctx.out, "svg")?
                     .attr_if(
                         "xmlns",
@@ -256,7 +254,7 @@ impl Node {
                 match &ctx.options.svg_dimensions {
                     SvgDimensions::Omit => {}
                     SvgDimensions::Layout => {
-                        svg = svg.attrs([("width", w), ("height", h)])?;
+                        svg = svg.attrs([("width", width), ("height", height)])?;
                     }
                     SvgDimensions::Custom { width, height } => {
                         svg =
@@ -305,7 +303,7 @@ impl Node {
         T: Write,
     {
         match &self.kind {
-            NodeKind::Root(_) => {
+            NodeKind::Root => {
                 let resources = ctx.resources.lock();
 
                 if !resources.is_empty() {
