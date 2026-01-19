@@ -130,13 +130,14 @@ impl Decal {
 
         let mut out = String::new();
         let root = &self.nodes[ROOT_ID];
+        let root_size = Size::from(root.final_layout.size);
 
         self.emit_node(
             &mut RenderContext {
                 out: &mut out,
                 fonts: self.fonts.clone(),
                 resources: &self.resources,
-                root_size: (root.final_layout.size.width, root.final_layout.size.height),
+                root_size,
                 options,
             },
             taffy::NodeId::from(ROOT_ID),

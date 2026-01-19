@@ -1,5 +1,5 @@
 use crate::paint::ScaledRadii;
-use crate::primitives::Rect;
+use crate::primitives::{Rect, Size};
 use crate::utils::PathWriter;
 
 pub(crate) fn write_fill_path<T>(out: &mut T, w: f32, h: f32, r: ScaledRadii) -> std::fmt::Result
@@ -38,13 +38,13 @@ pub(crate) fn write_clip_path<T>(
     border: Rect<f32>,
     clip_x: bool,
     clip_y: bool,
-    root_size: (f32, f32),
+    root_size: Size<f32>,
 ) -> std::fmt::Result
 where
     T: std::fmt::Write,
 {
     let (bt, br, bb, bl) = border.tuple();
-    let (root_w, root_h) = root_size;
+    let (root_w, root_h) = (root_size.width(), root_size.height());
     let ir = inset_radii(r, border);
     let (x1, y1) = (bl, bt);
     let (x2, y2) = (w - br, h - bb);
