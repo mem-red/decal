@@ -1,6 +1,6 @@
 [package]
 name = "decal"
-description = "Under development"
+description = "Declarative SVG rendering with layout and rasterization"
 version = "0.0.0"
 edition = "2021"
 license.workspace = true

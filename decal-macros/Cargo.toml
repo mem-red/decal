@@ -1,6 +1,6 @@
 [package]
 name = "decal-macros"
-description = "Under development"
+description = "Macros for constructing Decal nodes"
 version = "0.0.0"
 edition = "2021"
 license.workspace = true
