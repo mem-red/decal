@@ -124,21 +124,26 @@ impl Decal {
         print_tree(self, taffy::NodeId::from(ROOT_ID));
     }
 
-    pub(crate) fn vectorize(
+    //
+
+    pub(crate) fn stream_vector<T>(
         &self,
+        out: &mut T,
         options: &VectorizeOptions,
-    ) -> Result<(String, Size<f32>), VectorizeError> {
+    ) -> Result<Size<f32>, VectorizeError>
+    where
+        T: Write,
+    {
         if self.is_fragment {
             return Err(VectorizeError::NonRootNode);
         }
 
-        let mut out = String::new();
         let root = &self.nodes[ROOT_ID];
         let root_size = Size::from(root.final_layout.size);
 
         self.emit_node(
             &mut RenderContext {
-                out: &mut out,
+                out,
                 fonts: self.fonts.clone(),
                 resources: &self.resources,
                 root_size,
@@ -147,7 +152,16 @@ impl Decal {
             taffy::NodeId::from(ROOT_ID),
         )?;
 
-        Ok((out, root_size))
+        Ok(root_size)
+    }
+
+    pub(crate) fn vectorize(
+        &self,
+        options: &VectorizeOptions,
+    ) -> Result<(String, Size<f32>), VectorizeError> {
+        let mut out = String::new();
+        self.stream_vector(&mut out, options)
+            .map(|root_size| (out, root_size))
     }
 
     pub(crate) fn rasterize(

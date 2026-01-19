@@ -4,6 +4,7 @@ use crate::primitives::Size;
 use lru::LruCache;
 use parking_lot::Mutex;
 use smart_default::SmartDefault;
+use std::fmt::Write;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use tiny_skia::Pixmap;
@@ -46,9 +47,7 @@ impl Engine {
         decal: &mut Decal,
         options: &RasterizeOptions,
     ) -> Result<(Pixmap, Size<f32>), RasterizeError> {
-        decal.set_fonts(self.fonts.clone());
-        decal.compute_layout();
-        decal.rasterize(&self.image_cache, options)
+        self.prepare(decal).rasterize(&self.image_cache, options)
     }
 
     pub fn vectorize(
@@ -56,8 +55,26 @@ impl Engine {
         decal: &mut Decal,
         options: &VectorizeOptions,
     ) -> Result<(String, Size<f32>), VectorizeError> {
+        self.prepare(decal).vectorize(options)
+    }
+
+    pub fn stream_vector<T>(
+        &mut self,
+        destination: &mut T,
+        decal: &mut Decal,
+        options: &VectorizeOptions,
+    ) -> Result<Size<f32>, VectorizeError>
+    where
+        T: Write,
+    {
+        self.prepare(decal).stream_vector(destination, options)
+    }
+
+    //
+
+    fn prepare<'a>(&self, decal: &'a mut Decal) -> &'a mut Decal {
         decal.set_fonts(self.fonts.clone());
         decal.compute_layout();
-        decal.vectorize(options)
+        decal
     }
 }
