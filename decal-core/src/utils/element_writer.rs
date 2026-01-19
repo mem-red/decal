@@ -272,3 +272,164 @@ where
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::macros::{
+        ff32,
+        nf32,
+        pf32,
+    };
+
+    fn sink<F>(write_fn: F) -> String
+    where
+        F: FnOnce(&mut String) -> std::fmt::Result,
+    {
+        let mut out = String::new();
+        write_fn(&mut out).unwrap();
+        out
+    }
+
+    #[test]
+    fn writes_empty_element() {
+        assert_eq!(
+            sink(|out| ElementWriter::new(out, "path")?.close()),
+            r#"<path />"#
+        );
+    }
+
+    #[test]
+    fn writes_single_attr() {
+        assert_eq!(
+            sink(|out| ElementWriter::new(out, "rect")?.attr("id", "test")?.close()),
+            r#"<rect id="test" />"#
+        );
+    }
+
+    #[test]
+    fn writes_multiple_attrs() {
+        assert_eq!(
+            sink(|out| {
+                ElementWriter::new(out, "rect")?
+                    .attrs([("x", 10.0), ("y", 25.0), ("width", 96.0), ("height", 64.0)])?
+                    .close()
+            }),
+            r#"<rect x="10" y="25" width="96" height="64" />"#
+        );
+    }
+
+    #[test]
+    fn attr_if_writes_conditionally() {
+        assert_eq!(
+            sink(|out| {
+                ElementWriter::new(out, "circle")?
+                    .attr_if("cx", 50.0, true)?
+                    .attr_if("cy", 50.0, false)?
+                    .close()
+            }),
+            r#"<circle cx="50" />"#
+        );
+    }
+
+    #[test]
+    fn element_with_content() {
+        assert_eq!(
+            sink(|out| {
+                ElementWriter::new(out, "text")?
+                    .open()?
+                    .content(|out| out.write_str("hello"))?
+                    .close()
+            }),
+            r#"<text>hello</text>"#
+        );
+    }
+
+    #[test]
+    fn content_without_manually_opening() {
+        assert_eq!(
+            sink(|out| {
+                ElementWriter::new(out, "text")?
+                    .content(|out| out.write_str("hello"))?
+                    .close()
+            }),
+            r#"<text>hello</text>"#
+        );
+    }
+
+    #[test]
+    fn custom_attr_writer() {
+        assert_eq!(
+            sink(|out| {
+                ElementWriter::new(out, "polygon")?
+                    .write_attr("points", |out| out.write_str("0,0 10,10"))?
+                    .close()
+            }),
+            r#"<polygon points="0,0 10,10" />"#
+        );
+    }
+
+    #[test]
+    fn writes_float_attrs() {
+        assert_eq!(
+            sink(|out| {
+                ElementWriter::new(out, "group")?
+                    .attr("x", nf32!(0.5))?
+                    .attr("y", pf32!(1.5))?
+                    .attr("z", ff32!(2.5))?
+                    .close()
+            }),
+            r#"<group x="0.5" y="1.5" z="2.5" />"#
+        );
+    }
+
+    #[test]
+    fn writes_length_attr() {
+        assert_eq!(
+            sink(|out| {
+                ElementWriter::new(out, "rect")?
+                    .attr("width", Length::<false, false>::units(100.0))?
+                    .close()
+            }),
+            r#"<rect width="100" />"#
+        );
+    }
+
+    #[test]
+    fn writes_positive_f32_pair() {
+        assert_eq!(
+            sink(|out| {
+                ElementWriter::new(out, "feMorphology")?
+                    .attr("radius", PositiveF32Pair::from((1.5, 2.5)))?
+                    .close()
+            }),
+            r#"<feMorphology radius="1.5 2.5" />"#
+        );
+    }
+
+    #[test]
+    fn writes_optional_attr() {
+        assert_eq!(
+            sink(|out| {
+                ElementWriter::new(out, "rect")?
+                    .attr("x", Some(10.0))?
+                    .close()
+            }),
+            r#"<rect x="10" />"#
+        );
+
+        assert_eq!(
+            sink(|out| {
+                ElementWriter::new(out, "rect")?
+                    .attr("x", None::<f32>)?
+                    .close()
+            }),
+            "<rect />"
+        );
+    }
+
+    #[test]
+    fn writes_close_tag() {
+        assert_eq!(sink(|out| ElementWriter::close_tag(out, "g")), "</g>");
+    }
+}
