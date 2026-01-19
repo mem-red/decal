@@ -1,13 +1,23 @@
 use super::TokenGenMode;
 use crate::{
     IdentGen,
-    ast::child::{NodeChild, Tokenize},
+    ast::child::{
+        NodeChild,
+        Tokenize,
+    },
 };
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use syn::{
-    Expr, Pat, Result as SynResult, Token, braced,
-    parse::{Parse, ParseStream},
+    Expr,
+    Pat,
+    Result as SynResult,
+    Token,
+    braced,
+    parse::{
+        Parse,
+        ParseStream,
+    },
     token,
 };
 

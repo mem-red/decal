@@ -1,10 +1,31 @@
-use super::constants::VALID_NODES;
-use super::ctrl_expr::{CtrlExpr, TokenGenMode};
-use super::node::Node;
+use super::{
+    constants::VALID_NODES,
+    ctrl_expr::{
+        CtrlExpr,
+        TokenGenMode,
+    },
+    node::Node,
+};
 use crate::IdentGen;
-use proc_macro2::{Ident as PM2Ident, TokenStream, TokenTree};
-use quote::{ToTokens, quote};
-use syn::{Block, Ident, Result as SynResult, parse::Parse, parse::ParseStream, token};
+use proc_macro2::{
+    Ident as PM2Ident,
+    TokenStream,
+    TokenTree,
+};
+use quote::{
+    ToTokens,
+    quote,
+};
+use syn::{
+    Block,
+    Ident,
+    Result as SynResult,
+    parse::{
+        Parse,
+        ParseStream,
+    },
+    token,
+};
 
 pub(crate) trait Tokenize {
     fn tokenize(

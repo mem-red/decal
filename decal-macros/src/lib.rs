@@ -4,7 +4,11 @@ mod ident_gen;
 mod text;
 
 use crate::text::text_impl;
-use ast::{child::Tokenize, ctrl_expr::TokenGenMode, tree::DecalTree};
+use ast::{
+    child::Tokenize,
+    ctrl_expr::TokenGenMode,
+    tree::DecalTree,
+};
 use ident_gen::IdentGen;
 use proc_macro::TokenStream;
 use syn::parse_macro_input;

@@ -1,8 +1,17 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::parse::ParseStream;
 use syn::{
-    Expr, Token, braced, parenthesized, parse::Parse, parse2, punctuated::Punctuated, token,
+    Expr,
+    Token,
+    braced,
+    parenthesized,
+    parse::{
+        Parse,
+        ParseStream,
+    },
+    parse2,
+    punctuated::Punctuated,
+    token,
 };
 
 struct Style {

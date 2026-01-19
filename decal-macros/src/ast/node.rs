@@ -1,19 +1,42 @@
 use crate::{
     IdentGen,
     ast::{
-        child::{NodeChild, Tokenize, parse_children},
+        child::{
+            NodeChild,
+            Tokenize,
+            parse_children,
+        },
         constants::ATOMIC_NODES,
         ctrl_expr::TokenGenMode,
         method_call::MethodCall,
     },
 };
-use proc_macro2::{Span, TokenStream};
-use quote::{format_ident, quote};
+use proc_macro2::{
+    Span,
+    TokenStream,
+};
+use quote::{
+    format_ident,
+    quote,
+};
 use syn::{
-    Block, Error as SynError, Expr, Ident, Result as SynResult, Token, braced, parenthesized,
-    parse::{Parse, ParseStream},
+    Block,
+    Error as SynError,
+    Expr,
+    Ident,
+    Result as SynResult,
+    Token,
+    braced,
+    parenthesized,
+    parse::{
+        Parse,
+        ParseStream,
+    },
     punctuated::Punctuated,
-    token::{self, Comma},
+    token::{
+        self,
+        Comma,
+    },
 };
 
 pub(crate) struct Node {
@@ -199,7 +222,8 @@ impl Node {
     /// - `parent_id`: The parent node's identifier.
     /// - `node_token`: The unique identifier variable for this node's token.
     /// - `node_expr`: The expression that constructs this node.
-    /// - `children_tokens`: The generated token stream for this node's children.
+    /// - `children_tokens`: The generated token stream for this node's
+    ///   children.
     ///
     /// # Returns
     /// A [`TokenStream`] for the non-root node.

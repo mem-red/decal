@@ -1,13 +1,25 @@
 use super::TokenGenMode;
 use crate::{
     IdentGen,
-    ast::child::{NodeChild, Tokenize, parse_children},
+    ast::child::{
+        NodeChild,
+        Tokenize,
+        parse_children,
+    },
 };
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{
-    Expr, Label, Pat, Result as SynResult, Token, braced,
-    parse::{Parse, ParseStream},
+    Expr,
+    Label,
+    Pat,
+    Result as SynResult,
+    Token,
+    braced,
+    parse::{
+        Parse,
+        ParseStream,
+    },
 };
 
 pub(crate) struct CtrlExprForLoop {

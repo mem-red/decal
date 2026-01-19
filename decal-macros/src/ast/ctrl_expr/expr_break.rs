@@ -1,10 +1,18 @@
 use super::TokenGenMode;
-use crate::{IdentGen, ast::child::Tokenize};
+use crate::{
+    IdentGen,
+    ast::child::Tokenize,
+};
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{
-    Lifetime, Result as SynResult, Token,
-    parse::{Parse, ParseStream},
+    Lifetime,
+    Result as SynResult,
+    Token,
+    parse::{
+        Parse,
+        ParseStream,
+    },
 };
 
 pub(crate) struct CtrlExprBreak {

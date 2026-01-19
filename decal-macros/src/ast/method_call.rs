@@ -1,6 +1,13 @@
 use syn::{
-    Expr, Ident, Result as SynResult, Token, parenthesized,
-    parse::{Parse, ParseStream},
+    Expr,
+    Ident,
+    Result as SynResult,
+    Token,
+    parenthesized,
+    parse::{
+        Parse,
+        ParseStream,
+    },
     punctuated::Punctuated,
     token::Comma,
 };

@@ -1,7 +1,10 @@
 use super::node::Node;
 use syn::{
     Result as SynResult,
-    parse::{Parse, ParseStream},
+    parse::{
+        Parse,
+        ParseStream,
+    },
 };
 
 pub(crate) struct DecalTree {

@@ -1,13 +1,26 @@
-use super::{CtrlExpr, TokenGenMode};
+use super::{
+    CtrlExpr,
+    TokenGenMode,
+};
 use crate::{
     IdentGen,
-    ast::child::{NodeChild, Tokenize, parse_children},
+    ast::child::{
+        NodeChild,
+        Tokenize,
+        parse_children,
+    },
 };
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{
-    Expr, Result as SynResult, Token, braced,
-    parse::{Parse, ParseStream},
+    Expr,
+    Result as SynResult,
+    Token,
+    braced,
+    parse::{
+        Parse,
+        ParseStream,
+    },
     token,
 };
 

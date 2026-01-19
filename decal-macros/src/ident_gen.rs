@@ -1,5 +1,8 @@
 use hashbrown::HashMap;
-use proc_macro2::{Ident, Span};
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use quote::format_ident;
 
 #[derive(Debug)]
