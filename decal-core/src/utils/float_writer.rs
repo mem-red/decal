@@ -39,3 +39,49 @@ where
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::str_sink;
+
+    #[test]
+    fn writes_integer_without_decimal() {
+        assert_eq!(str_sink(|x| x.write_float(5.0)), "5");
+    }
+
+    #[test]
+    fn writes_float() {
+        assert_eq!(str_sink(|x| x.write_float(2.25)), "2.25");
+    }
+
+    #[test]
+    fn rounds_to_default_scale() {
+        assert_eq!(str_sink(|x| x.write_float(1.2345678)), "1.2346");
+    }
+
+    #[test]
+    fn rounds_down() {
+        assert_eq!(str_sink(|x| x.write_float(2.00004)), "2");
+    }
+
+    #[test]
+    fn rounds_up() {
+        assert_eq!(str_sink(|x| x.write_float(2.00005)), "2.0001");
+    }
+
+    #[test]
+    fn writes_negative_floats() {
+        assert_eq!(str_sink(|x| x.write_float(-2.25)), "-2.25");
+    }
+
+    #[test]
+    fn tiny_value_rounds_to_zero() {
+        assert_eq!(str_sink(|x| x.write_float(1e-5)), "0");
+    }
+
+    #[test]
+    fn writes_float_with_custom_scale() {
+        assert_eq!(str_sink(|x| x.write_float_precise(1.2345678, 10.0)), "1.2");
+    }
+}

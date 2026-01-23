@@ -106,3 +106,86 @@ where
         self.char('Z').map(|_| ())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn write_path<F>(write_fn: F) -> String
+    where
+        F: FnOnce(&mut PathWriter<'_, String>) -> std::fmt::Result,
+    {
+        let mut out = String::new();
+        let mut d = PathWriter::new(&mut out);
+        write_fn(&mut d).unwrap();
+        out
+    }
+
+    #[test]
+    fn writes_move_to() {
+        assert_eq!(write_path(|d| d.move_to(10.0, 15.0).map(|_| ())), "M10 15 ");
+    }
+
+    #[test]
+    fn writes_line_to() {
+        assert_eq!(write_path(|d| d.line_to(2.5, 3.5).map(|_| ())), "L2.5 3.5 ");
+    }
+
+    #[test]
+    fn writes_horizontal_to() {
+        assert_eq!(
+            write_path(|d| d.horizontal_to(15.75).map(|_| ())),
+            "H15.75 "
+        );
+    }
+
+    #[test]
+    fn writes_vertical_to() {
+        assert_eq!(write_path(|d| d.vertical_to(15.75).map(|_| ())), "V15.75 ");
+    }
+
+    #[test]
+    fn writes_quad_to() {
+        assert_eq!(
+            write_path(|d| d.quad_to(1.0, 2.0, 3.0, 4.0).map(|_| ())),
+            "Q1 2 3 4 "
+        );
+    }
+
+    #[test]
+    fn writes_curve_to() {
+        assert_eq!(
+            write_path(|d| d.curve_to(1.0, 2.0, 3.0, 4.0, 5.0, 6.0).map(|_| ())),
+            "C1 2 3 4 5 6 "
+        );
+    }
+
+    #[test]
+    fn writes_arc_to() {
+        assert_eq!(
+            write_path(|d| d.arc_to(1.0, 2.0, 3.0, 4.0).map(|_| ())),
+            "A1 2 0 0 1 3 4 "
+        );
+    }
+
+    #[test]
+    fn close_without_commands() {
+        assert_eq!(write_path(|d| d.close()), "Z");
+    }
+
+    #[test]
+    fn closes_with_commands() {
+        assert_eq!(
+            write_path(|d| d.move_to(0.0, 0.0)?.line_to(10.0, 0.0)?.close()),
+            "M0 0 L10 0 Z"
+        );
+    }
+
+    #[test]
+    fn rounds_float_values() {
+        assert_eq!(
+            write_path(|d| d.move_to(1.23456, 2.000004).map(|_| ())),
+            "M1.2346 2 "
+        );
+    }
+}
