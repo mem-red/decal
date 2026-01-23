@@ -5,7 +5,7 @@ use std::fmt::{
     Formatter,
 };
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, EnumDisplay)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, EnumDisplay)]
 enum Align {
     #[display("none")]
     None,
@@ -29,7 +29,7 @@ enum Align {
     XMaxYMax,
 }
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, EnumDisplay)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, EnumDisplay)]
 enum MeetOrSlice {
     #[display("meet")]
     Meet,
@@ -37,7 +37,7 @@ enum MeetOrSlice {
     Slice,
 }
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 pub struct PreserveAspectRatio(Align, MeetOrSlice);
 
 impl Default for PreserveAspectRatio {

@@ -1,7 +1,7 @@
 use crate::utils::IsDefault;
 use enum_display::EnumDisplay;
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Default, EnumDisplay)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default, EnumDisplay)]
 pub enum PatternUnits {
     #[default]
     #[display("objectBoundingBox")]
