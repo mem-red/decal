@@ -117,7 +117,7 @@ impl Transform {
         self
     }
 
-    pub fn skew_y<T>(mut self, angle: f32) -> Self {
+    pub fn skew_y(mut self, angle: f32) -> Self {
         self.operations.push(TransformOperation::Skew(0.0, angle));
         self
     }
