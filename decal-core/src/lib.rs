@@ -1,5 +1,7 @@
 // Private
 mod paint;
+#[cfg(test)]
+mod test_utils;
 mod utils;
 
 // Public
