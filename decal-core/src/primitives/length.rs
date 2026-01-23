@@ -250,3 +250,139 @@ pub(super) mod helpers {
 
     impl_length_ext!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f32, f64);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        helpers::*,
+        *,
+    };
+
+    type Len = Length<true, true>;
+    type LenNoAutoNoPct = Length<false, false>;
+
+    #[test]
+    fn units_constructor() {
+        let x = Len::units(5.5);
+        assert_eq!(x, Length(LengthInner::Absolute(ff32!(5.5))));
+        assert_eq!(x.resolve_abs(100.0), Some(5.5));
+        assert!(!x.is_zero());
+    }
+
+    #[test]
+    fn percent_constructor() {
+        let x = Len::percent(50.0);
+        assert_eq!(x, Length(LengthInner::Percent(ff32!(0.5))));
+        assert_eq!(x.resolve_abs(200.0), Some(100.0));
+        assert!(!x.is_zero());
+    }
+
+    #[test]
+    fn percent_normalized_constructor() {
+        assert_eq!(
+            Len::percent_normalized(0.25).resolve_abs(400.0),
+            Some(100.0)
+        );
+    }
+
+    #[test]
+    fn is_zero() {
+        assert!(Len::zero().is_zero());
+        assert!(Len::units(0.0).is_zero());
+        assert!(Len::percent(0.0).is_zero());
+    }
+
+    #[test]
+    fn resolves_absolute() {
+        assert_eq!(Len::units(50.0).resolve_abs(100.0), Some(50.0));
+        assert_eq!(Len::percent(25.0).resolve_abs(400.0), Some(100.0));
+    }
+
+    #[test]
+    fn adds_zero() {
+        let a = LenNoAutoNoPct::units(10.0);
+        let b = LenNoAutoNoPct::zero();
+        assert_eq!(a + b, a);
+        assert_eq!(b + a, a);
+    }
+
+    #[test]
+    fn adds_absolute() {
+        let a = LenNoAutoNoPct::units(10.0);
+        let b = LenNoAutoNoPct::units(5.0);
+        assert_eq!(a + b, LenNoAutoNoPct::units(15.0));
+    }
+
+    #[test]
+    fn subs_zero() {
+        let a = LenNoAutoNoPct::units(10.0);
+        let b = LenNoAutoNoPct::zero();
+        assert_eq!(a - b, a);
+    }
+
+    #[test]
+    fn subs_absolute() {
+        let a = LenNoAutoNoPct::units(6.0);
+        let b = LenNoAutoNoPct::units(4.0);
+        assert_eq!(a - b, LenNoAutoNoPct::units(2.0));
+    }
+
+    #[test]
+    fn sub_from_zero_negates() {
+        let a = LenNoAutoNoPct::zero();
+        let b = LenNoAutoNoPct::units(5.0);
+        assert_eq!(a - b, LenNoAutoNoPct::units(-5.0));
+    }
+
+    #[test]
+    fn renders_zero() {
+        assert_eq!(Len::zero().to_string(), "0");
+    }
+
+    #[test]
+    fn renders_auto() {
+        assert_eq!(Len::auto().to_string(), "auto");
+    }
+
+    #[test]
+    fn renders_units() {
+        assert_eq!(Len::units(7.5).to_string(), "7.5");
+    }
+
+    #[test]
+    fn renders_percent() {
+        assert_eq!(Len::percent(50.0).to_string(), "50%");
+    }
+
+    #[test]
+    fn units_from_integer() {
+        assert_eq!(Len::from(10_u32), Len::units(10.0));
+    }
+
+    #[test]
+    fn units_from_float() {
+        assert_eq!(Len::from(2.5_f32), Len::units(2.5));
+    }
+
+    // helpers
+
+    #[test]
+    fn from_zero_helper() {
+        assert!(zero::<true, true>().is_zero());
+    }
+
+    #[test]
+    fn from_auto_helper() {
+        assert_eq!(auto::<true>(), Length::auto());
+    }
+
+    #[test]
+    fn from_units_helper() {
+        assert_eq!(units::<_, true, true>(5), Len::units(5.0));
+    }
+
+    #[test]
+    fn from_percent_helper() {
+        assert_eq!(pct::<_, true>(50), Len::percent(50.0));
+    }
+}

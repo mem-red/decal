@@ -28,7 +28,7 @@ impl Color {
             r,
             g,
             b,
-            a: (a.clamp(0.0, 1.0) * 255.0) as u8,
+            a: (a.clamp(0.0, 1.0) * 255.0).round() as u8,
         }
     }
 
@@ -160,5 +160,97 @@ pub(super) mod helpers {
         T: IntoRgba,
     {
         value.into_rgba()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        helpers::*,
+        *,
+    };
+
+    #[test]
+    fn rgb_constructor() {
+        assert_eq!(
+            Color::rgb(1, 2, 3),
+            Color {
+                r: 1,
+                g: 2,
+                b: 3,
+                a: 255
+            }
+        );
+    }
+
+    #[test]
+    fn rgba_constructor() {
+        assert_eq!(
+            Color::rgba(1, 2, 3, 0.5),
+            Color {
+                r: 1,
+                g: 2,
+                b: 3,
+                a: 128
+            }
+        );
+    }
+
+    #[test]
+    fn defaults_to_opaque_black() {
+        assert_eq!(Color::default(), Color::rgb(0, 0, 0));
+    }
+
+    #[test]
+    fn parses_rgb_string() {
+        assert_eq!(Color::parse("rgb(1,2,3)"), Color::rgb(1, 2, 3));
+    }
+
+    #[test]
+    fn parses_rgba_string() {
+        assert_eq!(Color::parse("rgb(1,2,3,50%)"), Color::rgba(1, 2, 3, 0.5));
+    }
+
+    #[test]
+    fn handles_invalid_string() {
+        assert!(Color::try_parse("test").is_none());
+    }
+
+    #[test]
+    fn parse_fallbacks_to_default() {
+        assert_eq!(Color::parse("test"), Color::default());
+    }
+
+    #[test]
+    fn renders() {
+        assert_eq!(Color::rgb(1, 2, 3).to_string(), "rgb(1,2,3)");
+        assert_eq!(Color::rgba(1, 2, 3, 0.5).to_string(), "rgba(1,2,3,0.502)");
+        assert_eq!(Color::rgba(1, 2, 3, 1.0).to_string(), "rgb(1,2,3)");
+    }
+
+    //
+
+    #[test]
+    fn from_u8_array() {
+        assert_eq!(Color::from([1, 2, 3]), Color::rgb(1, 2, 3));
+    }
+
+    #[test]
+    fn from_rgb_tuple_with_alpha() {
+        assert_eq!(Color::from(([1, 2, 3], 0.5)), Color::rgba(1, 2, 3, 0.5));
+    }
+
+    // helpers
+
+    #[test]
+    fn from_hex_helper() {
+        assert_eq!(rgb(0x0a0b0c), Color::rgb(10, 11, 12));
+        assert_eq!(rgba(0x0a0b0c80), Color::rgba(10, 11, 12, 0.5));
+    }
+
+    #[test]
+    fn from_tuple_helper() {
+        assert_eq!(rgb((1, 2, 3)), Color::rgb(1, 2, 3));
+        assert_eq!(rgba((1, 2, 3, 0.5)), Color::rgba(1, 2, 3, 0.5));
     }
 }

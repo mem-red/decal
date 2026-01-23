@@ -242,3 +242,183 @@ impl Display for LinearGradient {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn renders_default_gradient() {
+        let lg = LinearGradient::new();
+        assert_eq!(
+            lg.to_string(),
+            format!(r#"<linearGradient id="{}" />"#, lg.iri())
+        );
+    }
+
+    #[test]
+    fn renders_to_top() {
+        let lg = LinearGradient::top();
+        assert_eq!(
+            lg.to_string(),
+            format!(r#"<linearGradient id="{}" y1="100%" x2="0" />"#, lg.iri())
+        );
+    }
+
+    #[test]
+    fn renders_to_right() {
+        let lg = LinearGradient::right();
+        assert_eq!(
+            lg.to_string(),
+            format!(r#"<linearGradient id="{}" />"#, lg.iri())
+        );
+    }
+
+    #[test]
+    fn renders_to_bottom() {
+        let lg = LinearGradient::bottom();
+        assert_eq!(
+            lg.to_string(),
+            format!(r#"<linearGradient id="{}" x2="0" y2="100%" />"#, lg.iri())
+        );
+    }
+
+    #[test]
+    fn renders_to_left() {
+        let lg = LinearGradient::left();
+        assert_eq!(
+            lg.to_string(),
+            format!(r#"<linearGradient id="{}" x1="100%" x2="0" />"#, lg.iri())
+        );
+    }
+
+    #[test]
+    fn renders_to_top_left() {
+        let lg = LinearGradient::top_left();
+        assert_eq!(
+            lg.to_string(),
+            format!(
+                r#"<linearGradient id="{}" x1="100%" y1="100%" x2="0" />"#,
+                lg.iri()
+            )
+        );
+    }
+
+    #[test]
+    fn renders_to_top_right() {
+        let lg = LinearGradient::top_right();
+        assert_eq!(
+            lg.to_string(),
+            format!(r#"<linearGradient id="{}" y1="100%" />"#, lg.iri())
+        );
+    }
+
+    #[test]
+    fn renders_to_bottom_left() {
+        let lg = LinearGradient::bottom_left();
+        assert_eq!(
+            lg.to_string(),
+            format!(
+                r#"<linearGradient id="{}" x1="100%" x2="0" y2="100%" />"#,
+                lg.iri()
+            )
+        );
+    }
+
+    #[test]
+    fn renders_to_bottom_right() {
+        let lg = LinearGradient::bottom_right();
+        assert_eq!(
+            lg.to_string(),
+            format!(r#"<linearGradient id="{}" y2="100%" />"#, lg.iri())
+        );
+    }
+
+    #[test]
+    fn renders_with_angle() {
+        let lg = LinearGradient::angle(90.0);
+        assert_eq!(
+            lg.to_string(),
+            format!(r#"<linearGradient id="{}" y1="50%" y2="50%" />"#, lg.iri())
+        );
+    }
+
+    #[test]
+    fn self_closes_when_no_stops() {
+        let lg = LinearGradient::new();
+        assert_eq!(
+            lg.to_string(),
+            format!(r#"<linearGradient id="{}" />"#, lg.iri())
+        );
+    }
+
+    #[test]
+    fn renders_stops() {
+        let lg = LinearGradient::new()
+            .stop(Stop::new().offset(0.0).color("#000"))
+            .stop(Stop::new().offset(1.0).color("#fff"));
+
+        assert_eq!(
+            lg.to_string(),
+            format!(
+                r#"<linearGradient id="{}"><stop stop-color="rgb(0,0,0)" offset="0" /><stop stop-color="rgb(255,255,255)" offset="1" /></linearGradient>"#,
+                lg.iri()
+            )
+        );
+    }
+
+    #[test]
+    fn renders_with_gradient_units() {
+        let lg = LinearGradient::new().units(GradientUnits::UserSpaceOnUse);
+
+        assert_eq!(
+            lg.to_string(),
+            format!(
+                r#"<linearGradient id="{}" gradientUnits="{}" />"#,
+                lg.iri(),
+                GradientUnits::UserSpaceOnUse
+            )
+        );
+    }
+
+    #[test]
+    fn renders_with_spread_method() {
+        let lg = LinearGradient::new().spread_method(SpreadMethod::Reflect);
+
+        assert_eq!(
+            lg.to_string(),
+            format!(
+                r#"<linearGradient id="{}" spreadMethod="{}" />"#,
+                lg.iri(),
+                SpreadMethod::Reflect
+            )
+        );
+    }
+
+    #[test]
+    fn renders_with_transform() {
+        let lg = LinearGradient::new().transform(GradientTransform::new().translate_x(10.0));
+
+        assert_eq!(
+            lg.to_string(),
+            format!(
+                r#"<linearGradient id="{}" gradientTransform="matrix(1 0 0 1 10 0)" />"#,
+                lg.iri(),
+            )
+        );
+    }
+
+    #[test]
+    fn renders_with_color_interpolation() {
+        let lg = LinearGradient::new().color_interpolation(ColorInterpolation::LinearRgb);
+
+        assert_eq!(
+            lg.to_string(),
+            format!(
+                r#"<linearGradient id="{}" color-interpolation="{}" />"#,
+                lg.iri(),
+                ColorInterpolation::LinearRgb
+            )
+        );
+    }
+}

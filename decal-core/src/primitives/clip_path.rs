@@ -36,3 +36,27 @@ impl Display for ClipPath {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fmt::Write;
+
+    #[test]
+    fn renders() {
+        let clip_path = ClipPath::build(|out| out.write_str("content")).unwrap();
+        assert_eq!(
+            clip_path.to_string(),
+            format!(r#"<clipPath id="{}">content</clipPath>"#, clip_path.iri())
+        );
+    }
+
+    #[test]
+    fn renders_without_content() {
+        let clip_path = ClipPath::build(|out| out.write_str("")).unwrap();
+        assert_eq!(
+            clip_path.to_string(),
+            format!(r#"<clipPath id="{}" />"#, clip_path.iri())
+        );
+    }
+}
