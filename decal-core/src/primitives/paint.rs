@@ -414,3 +414,262 @@ impl IntoResources for PaintStack {
             .collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        layout::VectorizeOptions,
+        paint::Resources,
+        test_utils::assert_xml,
+    };
+    use parking_lot::Mutex;
+    use std::fmt::Write;
+
+    #[test]
+    fn renders_none() {
+        assert_eq!(Paint::none().to_string(), "none");
+    }
+
+    #[test]
+    fn is_none() {
+        assert!(Paint::none().is_none());
+        assert!(!Paint::color(Color::default()).is_none());
+    }
+
+    #[test]
+    fn renders_color_paint() {
+        assert_eq!(Paint::color(Color::rgb(1, 2, 3)).to_string(), "rgb(1,2,3)");
+    }
+
+    #[test]
+    fn renders_linear_gradient_paint() {
+        let lg = LinearGradient::new();
+        assert_eq!(
+            Paint::linear_gradient(lg.clone()).to_string(),
+            format!(r#"url(#{})"#, lg.iri())
+        );
+    }
+
+    #[test]
+    fn renders_radial_gradient_paint() {
+        let rg = RadialGradient::new();
+        assert_eq!(
+            Paint::radial_gradient(rg.clone()).to_string(),
+            format!(r#"url(#{})"#, rg.iri())
+        );
+    }
+
+    #[test]
+    fn renders_image_paint() {
+        let img = ImagePaint::new("test");
+        let pattern = img.clone().into_pattern().unwrap();
+
+        assert_eq!(
+            Paint::image(img).to_string(),
+            format!(r#"url(#{})"#, pattern.iri())
+        );
+
+        assert_xml(
+            pattern.to_string(),
+            format!(
+                r#"
+<pattern id="{}" width="1" height="1" patternContentUnits="objectBoundingBox">
+    <image href="test" preserveAspectRatio="none" x="0" y="0" width="1" height="1" />
+</pattern>
+"#,
+                pattern.iri()
+            ),
+        );
+    }
+
+    //
+
+    #[test]
+    fn paint_layer_defaults_to_none() {
+        let layer = PaintLayer::default();
+        assert!(layer.is_none());
+        assert_eq!(layer.opacity, NormalizedF32::ONE);
+        assert!(layer.blend_mode.is_default());
+    }
+
+    #[test]
+    fn paint_layer_with_blend_and_opacity() {
+        let layer = PaintLayer::from(Color::rgb(0, 0, 0))
+            .blend_mode(BlendMode::Multiply)
+            .opacity(0.5);
+
+        assert_eq!(layer.opacity.get(), 0.5);
+        assert_eq!(layer.blend_mode, BlendMode::Multiply);
+    }
+
+    //
+
+    #[test]
+    fn paint_stack_defaults_to_none() {
+        assert!(PaintStack::default().is_none());
+    }
+
+    #[test]
+    fn single_none_layer_is_none() {
+        assert!(PaintStack::new([Paint::none()]).is_none());
+    }
+
+    #[test]
+    fn renders_single_layer() {
+        let stack = PaintStack::new([Color::rgb(0, 0, 0)]);
+        let mut out = String::new();
+        let resources = Mutex::new(Resources::default());
+        let options = VectorizeOptions::default();
+
+        stack
+            .render(
+                &mut RenderContext::new(&mut out, &resources, &options),
+                |out| out.write_str("path_data"),
+                |out| out.write_str("path_data"),
+                |layer, _| Ok(layer),
+                |group| Ok(group),
+            )
+            .unwrap();
+
+        assert_xml(out, r#"<path d="path_data" fill="rgb(0,0,0)" />"#);
+    }
+
+    #[test]
+    fn visits_single_layer() {
+        let stack = PaintStack::new([Color::rgb(0, 0, 0)]);
+        let mut out = String::new();
+        let resources = Mutex::new(Resources::default());
+        let options = VectorizeOptions::default();
+
+        stack
+            .render(
+                &mut RenderContext::new(&mut out, &resources, &options),
+                |out| out.write_str("path_data"),
+                |out| out.write_str("path_data"),
+                |layer, _| layer.attr("visited", "true"),
+                |group| group.attr("visited", "true"),
+            )
+            .unwrap();
+
+        assert_xml(
+            out,
+            r#"<path d="path_data" fill="rgb(0,0,0)" visited="true" />"#,
+        );
+    }
+
+    #[test]
+    fn renders_multiple_layers() {
+        let stack = PaintStack::new([
+            PaintLayer::from(Color::rgb(0, 0, 0)),
+            PaintLayer::from(Color::rgb(1, 2, 3)).blend_mode(BlendMode::Multiply),
+        ]);
+
+        let mut out = String::new();
+        let resources = Mutex::new(Resources::default());
+        let options = VectorizeOptions::default();
+
+        stack
+            .render(
+                &mut RenderContext::new(&mut out, &resources, &options),
+                |out| out.write_str("path_data"),
+                |out| out.write_str("path_data"),
+                |layer, _| Ok(layer),
+                |group| Ok(group),
+            )
+            .unwrap();
+
+        let path_iri = match resources.lock().inner().get(0).unwrap() {
+            Resource::Path(path) => path.iri(),
+            _ => panic!("path not found"),
+        };
+
+        assert_xml(
+            out,
+            format!(
+                r##"
+<g style="isolation:isolate">
+    <use href="#{path_iri}" fill="rgb(0,0,0)" />
+    <use href="#{path_iri}" fill="rgb(1,2,3)" style="mix-blend-mode:multiply" />
+</g>
+"##,
+            ),
+        );
+    }
+
+    #[test]
+    fn visits_group() {
+        let stack = PaintStack::new([
+            PaintLayer::from(Color::rgb(0, 0, 0)),
+            PaintLayer::from(Color::rgb(1, 2, 3)).blend_mode(BlendMode::Multiply),
+        ]);
+        let mut out = String::new();
+        let resources = Mutex::new(Resources::default());
+        let options = VectorizeOptions::default();
+
+        stack
+            .render(
+                &mut RenderContext::new(&mut out, &resources, &options),
+                |out| out.write_str("path_data"),
+                |out| out.write_str("path_data"),
+                |layer, _| Ok(layer),
+                |group| group.attr("visited", "true"),
+            )
+            .unwrap();
+
+        let path_iri = match resources.lock().inner().get(0).unwrap() {
+            Resource::Path(path) => path.iri(),
+            _ => panic!("path not found"),
+        };
+
+        assert_xml(
+            out,
+            format!(
+                r##"
+<g style="isolation:isolate" visited="true">
+    <use href="#{path_iri}" fill="rgb(0,0,0)" />
+    <use href="#{path_iri}" fill="rgb(1,2,3)" style="mix-blend-mode:multiply" />
+</g>
+"##,
+            ),
+        );
+    }
+
+    #[test]
+    fn visits_multiple_layers() {
+        let stack = PaintStack::new([
+            PaintLayer::from(Color::rgb(0, 0, 0)),
+            PaintLayer::from(Color::rgb(1, 2, 3)).blend_mode(BlendMode::Multiply),
+        ]);
+        let mut out = String::new();
+        let resources = Mutex::new(Resources::default());
+        let options = VectorizeOptions::default();
+
+        stack
+            .render(
+                &mut RenderContext::new(&mut out, &resources, &options),
+                |out| out.write_str("path_data"),
+                |out| out.write_str("path_data"),
+                |layer, _| layer.attr("visited", "true"),
+                |group| Ok(group),
+            )
+            .unwrap();
+
+        let path_iri = match resources.lock().inner().get(0).unwrap() {
+            Resource::Path(path) => path.iri(),
+            _ => panic!("path not found"),
+        };
+
+        assert_xml(
+            out,
+            format!(
+                r##"
+<g style="isolation:isolate">
+    <use href="#{path_iri}" fill="rgb(0,0,0)" visited="true" />
+    <use href="#{path_iri}" fill="rgb(1,2,3)" style="mix-blend-mode:multiply" visited="true" />
+</g>
+"##,
+            ),
+        );
+    }
+}

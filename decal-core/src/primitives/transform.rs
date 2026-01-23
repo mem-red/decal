@@ -207,6 +207,8 @@ impl Transform {
     }
 }
 
+//
+
 pub trait IntoFloatPair {
     fn into_float_pair(self) -> (f32, f32);
 }
@@ -232,5 +234,238 @@ impl IntoFloatPair for [f32; 1] {
 impl IntoFloatPair for [f32; 2] {
     fn into_float_pair(self) -> (f32, f32) {
         (self[0].into(), self[1].into())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::str_sink;
+
+    fn transform_sink(
+        tf: Transform,
+        pos: (f32, f32),
+        translate: (f32, f32),
+        size: (f32, f32),
+    ) -> String {
+        str_sink(|out| tf.write(out, pos, translate, size))
+    }
+
+    #[test]
+    fn defaults_to_identity() {
+        assert!(transform_sink(Transform::new(), (0.0, 0.0), (0.0, 0.0), (10.0, 10.0)).is_empty());
+    }
+
+    #[test]
+    fn explicit_matrix() {
+        assert_eq!(
+            transform_sink(
+                Transform::matrix(0.4, 0.3, 0.2, 0.5, 10.0, 15.0),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(0.4 0.3 0.2 0.5 10 15)""#
+        );
+    }
+
+    //
+
+    #[test]
+    fn translates_xy() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().translate((1.0, 2.0)),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0),
+            ),
+            r#" transform="matrix(1 0 0 1 1 2)""#
+        );
+    }
+
+    #[test]
+    fn translates_x() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().translate_x(5.0),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(1 0 0 1 5 0)""#
+        );
+    }
+
+    #[test]
+    fn translates_y() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().translate_y(5.0),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(1 0 0 1 0 5)""#
+        );
+    }
+
+    //
+
+    #[test]
+    fn scales_uniformly() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().scale(2.5),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(2.5 0 0 2.5 -7.5 -7.5)""#
+        );
+    }
+
+    #[test]
+    fn scales_xy() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().scale((2.5, 4.5)),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(2.5 0 0 4.5 -7.5 -17.5)""#
+        );
+    }
+
+    #[test]
+    fn scales_x() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().scale_x(2.5),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(2.5 0 0 1 -7.5 0)""#
+        );
+    }
+
+    #[test]
+    fn scales_y() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().scale_y(2.5),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(1 0 0 2.5 0 -7.5)""#
+        );
+    }
+
+    //
+
+    #[test]
+    fn rotates_about_center() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().rotate(45.0),
+                (10.0, 10.0),
+                (0.0, 0.0),
+                (50.0, 50.0)
+            ),
+            r#" transform="matrix(0.7071 0.7071 -0.7071 0.7071 35 -14.4975)""#
+        );
+    }
+
+    #[test]
+    fn rotates_about_origin() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().rotate_origin(45.0),
+                (10.0, 10.0),
+                (0.0, 0.0),
+                (50.0, 50.0)
+            ),
+            r#" transform="matrix(0.7071 0.7071 -0.7071 0.7071 0 0)""#
+        );
+    }
+
+    #[test]
+    fn rotates_at_point() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().rotate_at(45.0, 3.0, 5.0),
+                (10.0, 10.0),
+                (0.0, 0.0),
+                (50.0, 50.0)
+            ),
+            r#" transform="matrix(0.7071 0.7071 -0.7071 0.7071 4.4142 -0.6569)""#
+        );
+    }
+
+    //
+
+    #[test]
+    fn skews_uniformly() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().skew(0.5),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(1 0.5 0.5 1 -2.5 -2.5)""#
+        );
+    }
+
+    #[test]
+    fn skews_xy() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().skew((0.5, 0.6)),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(1 0.6 0.5 1 -2.5 -3)""#
+        );
+    }
+
+    #[test]
+    fn skews_x() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().skew_x(0.5),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(1 0 0.5 1 -2.5 0)""#
+        );
+    }
+
+    #[test]
+    fn skews_y() {
+        assert_eq!(
+            transform_sink(
+                Transform::new().skew_y(0.5),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (10.0, 10.0)
+            ),
+            r#" transform="matrix(1 0.5 0 1 0 -2.5)""#
+        );
+    }
+
+    //
+
+    #[test]
+    fn into_float_pair() {
+        assert_eq!(1.5_f32.into_float_pair(), (1.5, 1.5));
+        assert_eq!((1.0, 2.0).into_float_pair(), (1.0, 2.0));
+        assert_eq!([1.5].into_float_pair(), (1.5, 1.5));
+        assert_eq!([1.0, 2.0].into_float_pair(), (1.0, 2.0));
     }
 }

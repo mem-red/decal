@@ -53,3 +53,38 @@ impl Display for Mask {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::assert_xml;
+    use std::fmt::Write;
+
+    #[test]
+    fn renders() {
+        let mask = Mask::build(|out| out.write_str("content")).unwrap();
+        assert_xml(
+            mask.to_string(),
+            format!(r#"<mask id="{}">content</mask>"#, mask.iri()),
+        );
+    }
+
+    #[test]
+    fn renders_without_content() {
+        let mask = Mask::build(|_| Ok(())).unwrap();
+        assert_xml(mask.to_string(), format!(r#"<mask id="{}" />"#, mask.iri()));
+    }
+
+    #[test]
+    fn renders_with_mask_type() {
+        let mask = Mask::build(|_| Ok(())).unwrap().r#type(MaskType::Alpha);
+        assert_xml(
+            mask.to_string(),
+            format!(
+                r#"<mask id="{}" mask-type="{}" />"#,
+                mask.iri(),
+                MaskType::Alpha
+            ),
+        );
+    }
+}

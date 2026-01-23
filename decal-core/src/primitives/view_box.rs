@@ -39,3 +39,16 @@ impl Display for ViewBox {
         f.write_float(self.height.get())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn renders() {
+        assert_eq!(
+            ViewBox::new(0.2, 0.3, 150.0, 250.0).to_string(),
+            "0.2 0.3 150 250"
+        );
+    }
+}

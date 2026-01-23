@@ -49,3 +49,48 @@ impl Display for PositiveF32Pair {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn defaults_to_zero() {
+        let pair = PositiveF32Pair::default();
+        assert!(pair.is_zero());
+        assert_eq!(pair, PositiveF32Pair(PositiveF32::ZERO, PositiveF32::ZERO));
+    }
+
+    #[test]
+    fn is_zero() {
+        assert!(PositiveF32Pair::from(0.0).is_zero());
+        assert!(!PositiveF32Pair::from((0.0, 1.0)).is_zero());
+        assert!(!PositiveF32Pair::from((1.0, 0.0)).is_zero());
+    }
+
+    #[test]
+    fn from_single_value() {
+        assert_eq!(
+            PositiveF32Pair::from(2.5),
+            PositiveF32Pair(pf32!(2.5), pf32!(2.5))
+        );
+    }
+
+    #[test]
+    fn from_tuple() {
+        assert_eq!(
+            PositiveF32Pair::from((1.5, 2.5)),
+            PositiveF32Pair(pf32!(1.5), pf32!(2.5))
+        );
+    }
+
+    #[test]
+    fn renders_single_value() {
+        assert_eq!(PositiveF32Pair::from(3.5).to_string(), "3.5");
+    }
+
+    #[test]
+    fn renders_tuple() {
+        assert_eq!(PositiveF32Pair::from((3.2, 4.5)).to_string(), "3.2 4.5");
+    }
+}

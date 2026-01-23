@@ -28,3 +28,23 @@ impl Display for Iri {
         write!(f, "{PREFIX}-{:x}", self.0)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[derive(Debug, Hash, Eq, PartialEq)]
+    struct Stub(u32);
+
+    impl ResourceIri for Stub {}
+
+    #[test]
+    fn renders_iri() {
+        assert_eq!(Iri(0xdeadbeef).to_string(), "decal-deadbeef");
+    }
+
+    #[test]
+    fn iri_is_deterministic() {
+        assert_eq!(Stub(45).iri(), Stub(45).iri());
+    }
+}

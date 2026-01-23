@@ -113,3 +113,153 @@ where
             .close()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        paint::ScaledRadii,
+        primitives::{
+            Rect,
+            Size,
+        },
+        test_utils::str_sink,
+    };
+
+    fn rounded_radii(x: f32) -> ScaledRadii {
+        ScaledRadii {
+            h_tl: x,
+            h_tr: x,
+            h_br: x,
+            h_bl: x,
+            v_tl: x,
+            v_tr: x,
+            v_br: x,
+            v_bl: x,
+        }
+    }
+
+    #[test]
+    fn renders_fill_path_with_zero_radius() {
+        assert_eq!(
+            str_sink(|out| write_fill_path(out, 100.0, 50.0, ScaledRadii::default())),
+            "M0 0 H100 V50 H0 Z"
+        );
+    }
+
+    #[test]
+    fn renders_fill_path_with_radius() {
+        assert_eq!(
+            str_sink(|out| write_fill_path(out, 100.0, 50.0, ScaledRadii::default())),
+            "M0 0 H100 V50 H0 Z"
+        );
+    }
+
+    //
+
+    #[test]
+    fn renders_border_path_with_zero_border() {
+        assert!(
+            str_sink(|out| write_border_path(
+                out,
+                100.0,
+                50.0,
+                rounded_radii(10.0),
+                Rect::from_values(0.0, 0.0, 0.0, 0.0)
+            ))
+            .is_empty()
+        );
+    }
+
+    #[test]
+    fn renders_border_path() {
+        assert_eq!(
+            str_sink(|out| write_border_path(
+                out,
+                100.0,
+                50.0,
+                rounded_radii(10.0),
+                Rect::from_values(5.0, 6.0, 7.0, 8.0),
+            )),
+            "M10 0 H90 A10 10 0 0 1 100 10 V40 A10 10 0 0 1 90 50 H10 A10 10 0 0 1 0 40 V10 A10 10 0 0 1 10 0 ZM10 5 H90 A4 5 0 0 1 94 10 V40 A4 3 0 0 1 90 43 H10 A2 3 0 0 1 8 40 V10 A2 5 0 0 1 10 5 Z"
+        );
+    }
+
+    //
+
+    #[test]
+    fn renders_clip_path_with_no_clipping() {
+        assert!(
+            str_sink(|out| {
+                write_clip_path(
+                    out,
+                    100.0,
+                    50.0,
+                    rounded_radii(10.0),
+                    Rect::from_values(5.0, 6.0, 7.0, 8.0),
+                    false,
+                    false,
+                    Size::from_values(200.0, 200.0),
+                )
+            })
+            .is_empty()
+        );
+    }
+
+    #[test]
+    fn renders_clip_path_with_full_clipping() {
+        assert_eq!(
+            str_sink(|out| {
+                write_clip_path(
+                    out,
+                    100.0,
+                    50.0,
+                    rounded_radii(10.0),
+                    Rect::from_values(5.0, 6.0, 7.0, 8.0),
+                    true,
+                    true,
+                    Size::from_values(200.0, 200.0),
+                )
+            }),
+            "M10 5 H90 A4 5 0 0 1 94 10 V40 A4 3 0 0 1 90 43 H10 A2 3 0 0 1 8 40 V10 A2 5 0 0 1 10 5 Z"
+        );
+    }
+
+    #[test]
+    fn renders_clip_path_with_clip_x() {
+        assert_eq!(
+            str_sink(|out| {
+                write_clip_path(
+                    out,
+                    100.0,
+                    50.0,
+                    rounded_radii(10.0),
+                    Rect::from_values(5.0, 6.0, 7.0, 8.0),
+                    true,
+                    false,
+                    Size::from_values(200.0, 200.0),
+                )
+            }),
+            "M10 0 H90 A4 5 0 0 1 94 5 V197 A4 3 0 0 1 90 200 H10 A2 3 0 0 1 8 197 V5 A2 5 0 0 1 10 0 Z"
+        );
+    }
+
+    #[test]
+    fn renders_clip_path_with_clip_y() {
+        assert_eq!(
+            str_sink(|out| {
+                write_clip_path(
+                    out,
+                    100.0,
+                    50.0,
+                    rounded_radii(10.0),
+                    Rect::from_values(5.0, 6.0, 7.0, 8.0),
+                    false,
+                    true,
+                    Size::from_values(200.0, 200.0),
+                )
+            }),
+            "M2 5 H196 A4 5 0 0 1 200 10 V40 A4 3 0 0 1 196 43 H2 A2 3 0 0 1 0 40 V10 A2 5 0 0 1 2 5 Z"
+        );
+    }
+}

@@ -178,3 +178,83 @@ impl Display for RadialGradient {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::assert_xml;
+
+    #[test]
+    fn renders_default_gradient() {
+        let lg = RadialGradient::new();
+        assert_xml(
+            lg.to_string(),
+            format!(r#"<radialGradient id="{}" />"#, lg.iri()),
+        );
+    }
+
+    #[test]
+    fn self_closes_when_no_stops() {
+        let lg = RadialGradient::new();
+        assert_xml(
+            lg.to_string(),
+            format!(r#"<radialGradient id="{}" />"#, lg.iri()),
+        );
+    }
+
+    #[test]
+    fn renders_stops() {
+        let lg = RadialGradient::new()
+            .stop(Stop::new().offset(0.0).color("#000"))
+            .stop(Stop::new().offset(1.0).color("#fff"));
+
+        assert_xml(
+            lg.to_string(),
+            format!(
+                r#"
+<radialGradient id="{}">
+    <stop stop-color="rgb(0,0,0)" offset="0" />
+    <stop stop-color="rgb(255,255,255)" offset="1" />
+</radialGradient>"#,
+                lg.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let gradient_units = GradientUnits::UserSpaceOnUse;
+        let color_interpolation = ColorInterpolation::LinearRgb;
+        let lg = RadialGradient::new()
+            .r(25.0)
+            .cx(10.0)
+            .cy(15.0)
+            .fx(4.5)
+            .fy(6.5)
+            .fr(8.5)
+            .units(gradient_units)
+            .transform(GradientTransform::new().translate_x(10.0))
+            .color_interpolation(color_interpolation);
+
+        assert_xml(
+            lg.to_string(),
+            format!(
+                r#"
+<radialGradient
+    id="{}"
+    r="25"
+    cx="10"
+    cy="15"
+    fx="4.5"
+    fy="6.5"
+    fr="8.5"
+    gradientUnits="{gradient_units}"
+    gradientTransform="matrix(1 0 0 1 10 0)"
+    color-interpolation="{color_interpolation}"
+/>
+"#,
+                lg.iri(),
+            ),
+        );
+    }
+}

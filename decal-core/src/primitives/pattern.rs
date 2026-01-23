@@ -156,3 +156,64 @@ impl Display for Pattern {
             .close()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::assert_xml;
+    use std::fmt::Write;
+
+    #[test]
+    fn renders() {
+        for pattern in [
+            Pattern::new("content".into()),
+            Pattern::build(|out| out.write_str("content")).unwrap(),
+        ] {
+            assert_xml(
+                pattern.to_string(),
+                format!(r#"<pattern id="{}">content</pattern>"#, pattern.iri()),
+            );
+        }
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let view_box = ViewBox::new(0.0, 0.0, 100.0, 150.0);
+        let pattern_units = PatternUnits::UserSpaceOnUse;
+        let pattern_content_units = PatternContentUnits::ObjectBoundingBox;
+        let preserve_aspect_ratio = PreserveAspectRatio::new().x_min_y_min();
+        let pattern = Pattern::new("<content />".into())
+            .x(Length::percent(1.0))
+            .y(Length::percent(2.0))
+            .width(Length::percent(50.0))
+            .height(Length::percent(75.0))
+            .view_box(view_box)
+            .pattern_units(pattern_units)
+            .pattern_content_units(pattern_content_units)
+            .preserve_aspect_ratio(preserve_aspect_ratio)
+            .transform(PatternTransform::new().translate((1.0, 2.0)));
+
+        assert_xml(
+            pattern.to_string(),
+            format!(
+                r#"
+<pattern
+    id="{}"
+    viewBox="{view_box}"
+    x="1%"
+    y="2%"
+    width="50%"
+    height="75%"
+    preserveAspectRatio="{preserve_aspect_ratio}"
+    patternUnits="{pattern_units}"
+    patternContentUnits="{pattern_content_units}"
+    patternTransform="matrix(1 0 0 1 1 2)"
+>
+    <content />
+</pattern>
+        "#,
+                pattern.iri()
+            ),
+        );
+    }
+}

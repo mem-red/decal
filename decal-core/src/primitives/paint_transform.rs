@@ -162,3 +162,119 @@ impl PaintTransform {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::str_sink;
+
+    fn transform_sink(tf: PaintTransform) -> String {
+        str_sink(|out| tf.write(out, "key"))
+    }
+
+    #[test]
+    fn defaults_to_identity() {
+        let tf = PaintTransform::new();
+        assert!(tf.is_identity());
+        assert!(tf.is_default());
+        assert!(transform_sink(tf).is_empty());
+    }
+
+    //
+
+    #[test]
+    fn translates_xy() {
+        let tf = PaintTransform::new().translate((1.0, 2.0)).transform();
+        assert_eq!(tf.tx, 1.0);
+        assert_eq!(tf.ty, 2.0);
+    }
+
+    #[test]
+    fn translates_x() {
+        let tf = PaintTransform::new().translate_x(1.0).transform();
+        assert_eq!(tf.tx, 1.0);
+        assert_eq!(tf.ty, 0.0);
+    }
+
+    #[test]
+    fn translates_y() {
+        let tf = PaintTransform::new().translate_y(1.0).transform();
+        assert_eq!(tf.ty, 1.0);
+        assert_eq!(tf.tx, 0.0);
+    }
+
+    //
+
+    #[test]
+    fn scales_uniformly() {
+        let tf = PaintTransform::new().scale(2.0).transform();
+        assert_eq!(tf.sx, 2.0);
+        assert_eq!(tf.sy, 2.0);
+    }
+
+    #[test]
+    fn scales_xy() {
+        let tf = PaintTransform::new().scale((2.0, 2.5)).transform();
+        assert_eq!(tf.sx, 2.0);
+        assert_eq!(tf.sy, 2.5);
+    }
+
+    #[test]
+    fn scales_x() {
+        let tf = PaintTransform::new().scale_x(2.0).transform();
+        assert_eq!(tf.sx, 2.0);
+        assert_eq!(tf.sy, 1.0);
+    }
+
+    #[test]
+    fn scales_y() {
+        let tf = PaintTransform::new().scale_y(2.0).transform();
+        assert_eq!(tf.sy, 2.0);
+        assert_eq!(tf.sx, 1.0);
+    }
+
+    //
+
+    #[test]
+    fn skews_uniformly() {
+        let tf = PaintTransform::new().skew(2.0).transform();
+        assert_eq!(tf.kx, 2.0);
+        assert_eq!(tf.ky, 2.0);
+    }
+
+    #[test]
+    fn skews_xy() {
+        let tf = PaintTransform::new().skew((2.0, 2.5)).transform();
+        assert_eq!(tf.kx, 2.0);
+        assert_eq!(tf.ky, 2.5);
+    }
+
+    #[test]
+    fn skews_x() {
+        let tf = PaintTransform::new().skew_x(1.0).transform();
+        assert_eq!(tf.kx, 1.0);
+        assert_eq!(tf.ky, 0.0);
+    }
+
+    #[test]
+    fn skews_y() {
+        let tf = PaintTransform::new().skew_y(1.0).transform();
+        assert_eq!(tf.ky, 1.0);
+        assert_eq!(tf.kx, 0.0);
+    }
+
+    //
+
+    #[test]
+    fn does_not_render_identity_matrix() {
+        assert!(transform_sink(PaintTransform::default()).is_empty());
+    }
+
+    #[test]
+    fn renders_matrix() {
+        assert_eq!(
+            transform_sink(PaintTransform::new().scale(2.5).translate((10.0, 5.0))),
+            r#" key="matrix(2.5 0 0 2.5 10 5)""#
+        );
+    }
+}

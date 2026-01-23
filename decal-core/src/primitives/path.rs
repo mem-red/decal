@@ -31,3 +31,19 @@ impl Display for Path {
             .close()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::assert_xml;
+    use std::fmt::Write;
+
+    #[test]
+    fn renders() {
+        let path = Path::build(|out| out.write_str("data")).unwrap();
+        assert_xml(
+            path.to_string(),
+            format!(r#"<path id="{}" d="data" />"#, path.iri()),
+        );
+    }
+}

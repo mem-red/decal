@@ -76,3 +76,88 @@ pub(crate) fn compute_scaled_radii(r: CornerRadius, w: f32, h: f32) -> ScaledRad
         v_bl,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::attributes::{
+        CornerRadius,
+        IntoCornerRadius,
+    };
+
+    fn corner_radius<I>(value: I) -> CornerRadius
+    where
+        I: IntoCornerRadius,
+    {
+        value.into_corner_radius().unwrap()
+    }
+
+    #[test]
+    fn defaults_to_zero() {
+        let r = compute_scaled_radii(CornerRadius::default(), 100.0, 50.0);
+        assert_eq!(r.h_tl, 0.0);
+        assert_eq!(r.v_tl, 0.0);
+        assert_eq!(r.h_tr, 0.0);
+        assert_eq!(r.v_tr, 0.0);
+        assert_eq!(r.h_br, 0.0);
+        assert_eq!(r.v_br, 0.0);
+        assert_eq!(r.h_bl, 0.0);
+        assert_eq!(r.v_bl, 0.0);
+    }
+
+    #[test]
+    fn radii_within_bounds_are_not_scaled() {
+        // top-left, top-right, bottom-right, bottom-left
+        let r = compute_scaled_radii(corner_radius([10, 11, 12, 13]), 100.0, 100.0);
+        assert_eq!(r.h_tl, 10.0);
+        assert_eq!(r.v_tl, 10.0);
+        assert_eq!(r.h_tr, 11.0);
+        assert_eq!(r.v_tr, 11.0);
+        assert_eq!(r.h_br, 12.0);
+        assert_eq!(r.v_br, 12.0);
+        assert_eq!(r.h_bl, 13.0);
+        assert_eq!(r.v_bl, 13.0);
+    }
+
+    #[test]
+    fn horizontal_radii_scales_when_exceeding_width() {
+        // top-left + top-right > width
+        let r = compute_scaled_radii(corner_radius([40, 40, 0, 0]), 40.0, 100.0);
+        assert_eq!(r.h_tl, 20.0);
+        assert_eq!(r.v_tl, 20.0);
+        assert_eq!(r.h_tr, 20.0);
+        assert_eq!(r.v_tr, 20.0);
+        assert_eq!(r.h_br, 0.0);
+        assert_eq!(r.v_br, 0.0);
+        assert_eq!(r.h_bl, 0.0);
+        assert_eq!(r.v_bl, 0.0);
+    }
+
+    #[test]
+    fn vertical_radii_scales_when_exceeding_height() {
+        // top-left + bottom-left > height
+        let r = compute_scaled_radii(corner_radius([40, 0, 0, 40]), 100.0, 40.0);
+        assert_eq!(r.h_tl, 20.0);
+        assert_eq!(r.v_tl, 20.0);
+        assert_eq!(r.h_tr, 0.0);
+        assert_eq!(r.v_tr, 0.0);
+        assert_eq!(r.h_br, 0.0);
+        assert_eq!(r.v_br, 0.0);
+        assert_eq!(r.h_bl, 20.0);
+        assert_eq!(r.v_bl, 20.0);
+    }
+
+    #[test]
+    fn minimum_scale_factor() {
+        // min scale from width, height
+        let r = compute_scaled_radii(corner_radius([40, 40, 40, 40]), 80.0, 20.0);
+        assert_eq!(r.h_tl, 10.0);
+        assert_eq!(r.v_tl, 10.0);
+        assert_eq!(r.h_tr, 10.0);
+        assert_eq!(r.v_tr, 10.0);
+        assert_eq!(r.h_br, 10.0);
+        assert_eq!(r.v_br, 10.0);
+        assert_eq!(r.h_bl, 10.0);
+        assert_eq!(r.v_bl, 10.0);
+    }
+}

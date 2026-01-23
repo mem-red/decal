@@ -168,3 +168,150 @@ impl<'a> PrimitiveBuilder<'a, ColorMatrix> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.color_matrix()
+            .luminance_to_alpha()
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feColorMatrix type="luminanceToAlpha" x="0.5" y="0.6" width="110" height="120" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.color_matrix().finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_explicit_matrix() {
+        let ctx = FilterContext::default();
+
+        ctx.color_matrix()
+            .matrix([
+                [1.0, 0.0, 0.0, 0.0, 1.0],
+                [0.0, 1.0, 0.0, 0.0, 2.0],
+                [0.0, 0.0, 1.0, 0.0, 3.0],
+                [0.0, 0.0, 0.0, 1.0, 4.0],
+            ])
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feColorMatrix type="matrix" values="1 0 0 0 1 0 1 0 0 2 0 0 1 0 3 0 0 0 1 4" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_saturate_type() {
+        let ctx = FilterContext::default();
+        ctx.color_matrix().saturate(0.5).finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feColorMatrix type="saturate" values="0.5" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_hue_rotate_type() {
+        let ctx = FilterContext::default();
+        ctx.color_matrix().hue_rotate(30.0).finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feColorMatrix type="hueRotate" values="30" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_luminance_to_alpha_type() {
+        let ctx = FilterContext::default();
+        ctx.color_matrix().luminance_to_alpha().finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feColorMatrix type="luminanceToAlpha" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_graphic();
+        let color_interpolation = ColorInterpolation::SRgb;
+
+        ctx.color_matrix()
+            .luminance_to_alpha()
+            .input(input)
+            .color_interpolation(color_interpolation)
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feColorMatrix
+    type="luminanceToAlpha"
+    in="{input}"
+    color-interpolation-filters="{color_interpolation}"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+}
