@@ -116,34 +116,35 @@ impl Display for LightSource {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_utils::assert_xml;
 
     #[test]
     fn renders_distant_light() {
-        assert_eq!(
+        assert_xml(
             LightSource::distant_light(45.0, 60.0).to_string(),
-            r#"<feDistantLight azimuth="45" elevation="60" />"#
+            r#"<feDistantLight azimuth="45" elevation="60" />"#,
         );
     }
 
     #[test]
     fn renders_point_light() {
-        assert_eq!(
+        assert_xml(
             LightSource::point_light(1.0, 2.0, 3.0).to_string(),
-            r#"<fePointLight x="1" y="2" z="3" />"#
+            r#"<fePointLight x="1" y="2" z="3" />"#,
         );
     }
 
     #[test]
     fn renders_spot_light() {
-        assert_eq!(
+        assert_xml(
             LightSource::spot_light((1.0, 2.0, 3.0), (4.0, 5.0, 6.0), None, None).to_string(),
-            r#"<feSpotLight x="1" y="2" z="3" pointsAtX="4" pointsAtY="5" pointsAtZ="6" />"#
+            r#"<feSpotLight x="1" y="2" z="3" pointsAtX="4" pointsAtY="5" pointsAtZ="6" />"#,
         );
 
-        assert_eq!(
+        assert_xml(
             LightSource::spot_light((1.0, 2.0, 3.0), (4.0, 5.0, 6.0), Some(1.5), Some(45.0))
                 .to_string(),
-            r#"<feSpotLight x="1" y="2" z="3" pointsAtX="4" pointsAtY="5" pointsAtZ="6" specularExponent="1.5" limitingConeAngle="45" />"#
+            r#"<feSpotLight x="1" y="2" z="3" pointsAtX="4" pointsAtY="5" pointsAtZ="6" specularExponent="1.5" limitingConeAngle="45" />"#,
         );
     }
 }

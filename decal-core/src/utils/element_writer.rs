@@ -282,90 +282,93 @@ mod tests {
             nf32,
             pf32,
         },
-        test_utils::str_sink,
+        test_utils::{
+            assert_xml,
+            str_sink,
+        },
     };
 
     #[test]
     fn writes_empty_element() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| ElementWriter::new(out, "path")?.close()),
-            r#"<path />"#
+            r#"<path />"#,
         );
     }
 
     #[test]
     fn writes_single_attr() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| ElementWriter::new(out, "rect")?.attr("id", "test")?.close()),
-            r#"<rect id="test" />"#
+            r#"<rect id="test" />"#,
         );
     }
 
     #[test]
     fn writes_multiple_attrs() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| {
                 ElementWriter::new(out, "rect")?
                     .attrs([("x", 10.0), ("y", 25.0), ("width", 96.0), ("height", 64.0)])?
                     .close()
             }),
-            r#"<rect x="10" y="25" width="96" height="64" />"#
+            r#"<rect x="10" y="25" width="96" height="64" />"#,
         );
     }
 
     #[test]
     fn attr_if_writes_conditionally() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| {
                 ElementWriter::new(out, "circle")?
                     .attr_if("cx", 50.0, true)?
                     .attr_if("cy", 50.0, false)?
                     .close()
             }),
-            r#"<circle cx="50" />"#
+            r#"<circle cx="50" />"#,
         );
     }
 
     #[test]
     fn element_with_content() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| {
                 ElementWriter::new(out, "text")?
                     .open()?
                     .content(|out| out.write_str("hello"))?
                     .close()
             }),
-            r#"<text>hello</text>"#
+            r#"<text>hello</text>"#,
         );
     }
 
     #[test]
     fn content_without_manually_opening() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| {
                 ElementWriter::new(out, "text")?
                     .content(|out| out.write_str("hello"))?
                     .close()
             }),
-            r#"<text>hello</text>"#
+            r#"<text>hello</text>"#,
         );
     }
 
     #[test]
     fn custom_attr_writer() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| {
                 ElementWriter::new(out, "polygon")?
                     .write_attr("points", |out| out.write_str("0,0 10,10"))?
                     .close()
             }),
-            r#"<polygon points="0,0 10,10" />"#
+            r#"<polygon points="0,0 10,10" />"#,
         );
     }
 
     #[test]
     fn writes_float_attrs() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| {
                 ElementWriter::new(out, "group")?
                     .attr("x", nf32!(0.5))?
@@ -373,52 +376,52 @@ mod tests {
                     .attr("z", ff32!(2.5))?
                     .close()
             }),
-            r#"<group x="0.5" y="1.5" z="2.5" />"#
+            r#"<group x="0.5" y="1.5" z="2.5" />"#,
         );
     }
 
     #[test]
     fn writes_length_attr() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| {
                 ElementWriter::new(out, "rect")?
                     .attr("width", Length::<false, false>::units(100.0))?
                     .close()
             }),
-            r#"<rect width="100" />"#
+            r#"<rect width="100" />"#,
         );
     }
 
     #[test]
     fn writes_positive_f32_pair() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| {
                 ElementWriter::new(out, "feMorphology")?
                     .attr("radius", PositiveF32Pair::from((1.5, 2.5)))?
                     .close()
             }),
-            r#"<feMorphology radius="1.5 2.5" />"#
+            r#"<feMorphology radius="1.5 2.5" />"#,
         );
     }
 
     #[test]
     fn writes_optional_attr() {
-        assert_eq!(
+        assert_xml(
             str_sink(|out| {
                 ElementWriter::new(out, "rect")?
                     .attr("x", Some(10.0))?
                     .close()
             }),
-            r#"<rect x="10" />"#
+            r#"<rect x="10" />"#,
         );
 
-        assert_eq!(
+        assert_xml(
             str_sink(|out| {
                 ElementWriter::new(out, "rect")?
                     .attr("x", None::<f32>)?
                     .close()
             }),
-            "<rect />"
+            "<rect />",
         );
     }
 
