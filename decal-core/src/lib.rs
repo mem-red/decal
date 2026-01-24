@@ -1,4 +1,5 @@
 // Private
+mod macros;
 mod paint;
 #[cfg(test)]
 mod test_utils;
@@ -10,7 +11,6 @@ pub mod builders;
 pub mod capabilities;
 pub mod filters;
 pub mod layout;
-pub mod macros;
 pub mod prelude;
 pub mod primitives;
 pub mod text;
