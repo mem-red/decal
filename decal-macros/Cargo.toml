@@ -8,7 +8,7 @@ rust-version = "1.87.0"
 repository = "https://github.com/mem-red/decal"
 keywords = ["svg", "macros"]
 categories = ["development-tools::procedural-macro-helpers"]
-exclude = ["/wip"]
+exclude = ["/tests", "/wip"]
 
 [lib]
 proc-macro = true
