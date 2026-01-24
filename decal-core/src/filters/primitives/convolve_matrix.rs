@@ -185,3 +185,120 @@ impl<'a> PrimitiveBuilder<'a, ConvolveMatrix> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.convolve_matrix(vec![0.0])
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feConvolveMatrix
+    x="0.5"
+    y="0.6"
+    width="110"
+    height="120"
+    kernelMatrix="0"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.convolve_matrix(vec![0.0, 0.1, 0.2]).finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feConvolveMatrix kernelMatrix="0 0.1 0.2" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_graphic();
+        let edge_mode = EdgeMode::Wrap;
+        let color_interpolation = ColorInterpolation::SRgb;
+
+        ctx.convolve_matrix(vec![0.0])
+            .input(input)
+            .order(4)
+            .divisor(1.2)
+            .bias(1.5)
+            .target_x(5)
+            .target_y(10)
+            .edge_mode(edge_mode)
+            .preserve_alpha(true)
+            .color_interpolation(color_interpolation)
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feConvolveMatrix
+    kernelMatrix="0"
+    in="{input}"
+    order="4"
+    divisor="1.2"
+    bias="1.5"
+    targetX="5"
+    targetY="10"
+    edgeMode="{edge_mode}"
+    preserveAlpha="true"
+    color-interpolation-filters="{color_interpolation}"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    //
+
+    #[test]
+    fn order_defaults_to_3() {
+        assert_eq!(Order::default().to_string(), "3");
+    }
+
+    #[test]
+    fn order_from_single_value() {
+        assert_eq!(Order::from(5).to_string(), "5");
+    }
+
+    #[test]
+    fn order_from_value_pair() {
+        assert_eq!(Order::from((1, 2)).to_string(), "1 2");
+    }
+}

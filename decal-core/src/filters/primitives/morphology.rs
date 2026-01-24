@@ -101,3 +101,80 @@ impl<'a> PrimitiveBuilder<'a, Morphology> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.morphology()
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feMorphology x="0.5" y="0.6" width="110" height="120" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.morphology().finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(r#"<feMorphology result="{}" />"#, node.iri()),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_graphic();
+        let operator = MorphologyOperator::Dilate;
+        let color_interpolation = ColorInterpolation::SRgb;
+
+        ctx.morphology()
+            .input(input)
+            .operator(operator)
+            .radius((2.5, 3.5))
+            .color_interpolation(color_interpolation)
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feMorphology
+    in="{input}"
+    operator="{operator}"
+    radius="2.5 3.5"
+    color-interpolation-filters="{color_interpolation}"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+}

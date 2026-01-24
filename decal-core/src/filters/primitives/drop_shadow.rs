@@ -129,3 +129,86 @@ impl<'a> PrimitiveBuilder<'a, DropShadow> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.drop_shadow()
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feDropShadow x="0.5" y="0.6" width="110" height="120" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.drop_shadow().finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(r#"<feDropShadow result="{}" />"#, node.iri()),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_graphic();
+        let color = Color::rgb(10, 15, 20);
+        let color_interpolation = ColorInterpolation::SRgb;
+
+        ctx.drop_shadow()
+            .input(input)
+            .dx(3.0)
+            .dy(5.0)
+            .std_deviation((2.5, 3.5))
+            .flood_color(color)
+            .flood_opacity(0.4)
+            .color_interpolation(color_interpolation)
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feDropShadow
+    in="{input}"
+    dx="3"
+    dy="5"
+    stdDeviation="2.5 3.5"
+    flood-color="{color}"
+    flood-opacity="0.4"
+    color-interpolation-filters="{color_interpolation}"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+}

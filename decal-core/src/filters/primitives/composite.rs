@@ -163,3 +163,108 @@ impl<'a> PrimitiveBuilder<'a, Composite> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.composite()
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feComposite x="0.5" y="0.6" width="110" height="120" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.composite().finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(r#"<feComposite result="{}" />"#, node.iri()),
+        );
+    }
+
+    #[test]
+    fn renders_with_arithmetic_operator() {
+        let ctx = FilterContext::default();
+        ctx.composite()
+            .operator(CompositeOperator::arithmetic(0.1, 0.2, 0.3, 0.4))
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feComposite
+    operator="arithmetic"
+    k1="0.1"
+    k2="0.2"
+    k3="0.3"
+    k4="0.4"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_graphic();
+        let input2 = FilterInput::source_alpha();
+        let operator = CompositeOperator::atop();
+        let color_interpolation = ColorInterpolation::SRgb;
+
+        ctx.composite()
+            .input(input)
+            .input2(input2)
+            .operator(operator)
+            .color_interpolation(color_interpolation)
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feComposite
+    in="{input}"
+    in2="{input2}"
+    operator="{}"
+    color-interpolation-filters="{color_interpolation}"
+    result="{}"
+/>
+"#,
+                operator.0,
+                node.iri()
+            ),
+        );
+    }
+}

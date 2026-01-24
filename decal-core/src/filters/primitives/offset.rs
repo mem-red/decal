@@ -68,3 +68,58 @@ impl<'a> PrimitiveBuilder<'a, Offset> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.offset().x(0.5).y(0.6).width(110).height(120).finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feOffset x="0.5" y="0.6" width="110" height="120" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.offset().finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(r#"<feOffset result="{}" />"#, node.iri()),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_graphic();
+        ctx.offset().input(input).dx(2.5).dy(4.5).finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feOffset in="{input}" dx="2.5" dy="4.5" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+}

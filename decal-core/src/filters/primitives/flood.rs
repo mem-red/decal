@@ -65,3 +65,78 @@ impl<'a> PrimitiveBuilder<'a, Flood> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.flood().x(0.5).y(0.6).width(110).height(120).finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feFlood
+    x="0.5"
+    y="0.6"
+    width="110"
+    height="120"
+    flood-color="{}"
+    result="{}"
+/>
+"#,
+                Color::rgb(0, 0, 0),
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.flood().finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feFlood flood-color="{}" result="{}" />"#,
+                Color::rgb(0, 0, 0),
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let color = Color::rgb(10, 15, 20);
+        ctx.flood().color(color).opacity(0.5).finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feFlood
+    flood-color="{color}"
+    flood-opacity="0.5"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+}

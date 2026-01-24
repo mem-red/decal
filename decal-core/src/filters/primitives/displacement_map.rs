@@ -130,3 +130,86 @@ impl<'a> PrimitiveBuilder<'a, DisplacementMap> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.displacement_map()
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feDisplacementMap x="0.5" y="0.6" width="110" height="120" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.displacement_map().finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(r#"<feDisplacementMap result="{}" />"#, node.iri()),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_graphic();
+        let map = FilterInput::source_alpha();
+        let x_channel = ChannelSelector::R;
+        let y_channel = ChannelSelector::B;
+        let color_interpolation = ColorInterpolation::SRgb;
+
+        ctx.displacement_map()
+            .input(input)
+            .map(map)
+            .scale(2.5)
+            .x_channel(x_channel)
+            .y_channel(y_channel)
+            .color_interpolation(color_interpolation)
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feDisplacementMap
+    in="{input}"
+    in2="{map}"
+    scale="2.5"
+    xChannelSelector="{x_channel}"
+    yChannelSelector="{y_channel}"
+    color-interpolation-filters="{color_interpolation}"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+}

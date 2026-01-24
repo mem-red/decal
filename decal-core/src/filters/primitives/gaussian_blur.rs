@@ -94,3 +94,80 @@ impl<'a> PrimitiveBuilder<'a, GaussianBlur> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.gaussian_blur()
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feGaussianBlur x="0.5" y="0.6" width="110" height="120" result="{}" />"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.gaussian_blur().finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(r#"<feGaussianBlur result="{}" />"#, node.iri()),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_graphic();
+        let edge_mode = EdgeMode::Wrap;
+        let color_interpolation = ColorInterpolation::SRgb;
+
+        ctx.gaussian_blur()
+            .input(input)
+            .std_deviation((2.5, 3.5))
+            .edge_mode(edge_mode)
+            .color_interpolation(color_interpolation)
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feGaussianBlur
+    in="{input}"
+    stdDeviation="2.5 3.5"
+    edgeMode="{edge_mode}"
+    color-interpolation-filters="{color_interpolation}"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+}

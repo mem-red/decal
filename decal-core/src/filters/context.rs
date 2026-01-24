@@ -147,3 +147,48 @@ impl<'a> FilterContext {
         PrimitiveNode { idx, iri }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn defaults_to_empty_context() {
+        assert!(FilterContext::default().into_primitives().is_empty());
+    }
+
+    #[test]
+    fn primitives_are_deduplicated() {
+        let ctx = FilterContext::default();
+
+        ctx.flood().finish();
+        ctx.flood().finish();
+
+        let primitives = ctx.into_primitives();
+        assert_eq!(primitives.len(), 1);
+    }
+
+    #[test]
+    fn adds_multiple_primitives() {
+        let ctx = FilterContext::default();
+
+        ctx.gaussian_blur().finish();
+        ctx.flood().finish();
+
+        let primitives = ctx.into_primitives();
+        assert_eq!(primitives.len(), 2);
+
+        //
+
+        let ctx = FilterContext::default();
+
+        ctx.gaussian_blur().std_deviation(5.0).finish();
+        ctx.gaussian_blur().std_deviation(2.0).finish();
+        ctx.gaussian_blur()
+            .input(ctx.gaussian_blur().finish())
+            .finish();
+
+        let primitives = ctx.into_primitives();
+        assert_eq!(primitives.len(), 4);
+    }
+}

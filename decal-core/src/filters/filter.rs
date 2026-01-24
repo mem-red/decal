@@ -136,3 +136,125 @@ impl<const N: usize> From<[Filter; N]> for Filter {
             .fold(Filter::default(), |acc, next| acc.append(next))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::assert_xml;
+
+    #[test]
+    fn renders_with_no_primitives() {
+        let filter = Filter::new(|_| {});
+        assert_xml(
+            filter.to_string(),
+            format!(r#"<filter id="{}"></filter>"#, filter.iri()),
+        );
+    }
+
+    #[test]
+    fn renders_with_filter_region() {
+        let filter = Filter::new(|_| {}).x(0.5).y(0.6).width(110).height(120);
+        assert_xml(
+            filter.to_string(),
+            format!(
+                r#"<filter id="{}" x="0.5" y="0.6" width="110" height="120"></filter>"#,
+                filter.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let filter = Filter::new(|ctx| {
+            ctx.flood().finish();
+            ctx.gaussian_blur().finish();
+        });
+        let flood = &filter.primitives[0];
+        let blur = &filter.primitives[1];
+
+        assert_xml(
+            filter.to_string(),
+            format!(
+                r#"
+<filter id="{}">
+    {flood}
+    {blur}
+</filter>
+"#,
+                filter.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let filter_units = FilterUnits::UserSpaceOnUse;
+        let primitive_units = PrimitiveUnits::ObjectBoundingBox;
+        let color_interpolation = ColorInterpolation::SRgb;
+        let filter = Filter::new(|_| {})
+            .filter_units(filter_units)
+            .primitive_units(primitive_units)
+            .color_interpolation(color_interpolation);
+
+        assert_xml(
+            filter.to_string(),
+            format!(
+                r#"
+<filter
+    id="{}"
+    filterUnits="{filter_units}"
+    primitiveUnits="{primitive_units}"
+    color-interpolation-filters="{color_interpolation}">
+</filter>
+"#,
+                filter.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn appends_filter() {
+        let filter = Filter::from(vec![
+            Filter::new(|ctx| {
+                ctx.flood().finish();
+            }),
+            Filter::new(|ctx| {
+                ctx.gaussian_blur().finish();
+            }),
+            Filter::new(|ctx| {
+                ctx.flood().finish();
+            }),
+        ]);
+        let primitives = &filter.primitives;
+
+        assert_xml(
+            filter.to_string(),
+            format!(
+                r#"
+<filter id="{}">
+    {}{}{}
+</filter>
+"#,
+                filter.iri(),
+                primitives[0],
+                primitives[1],
+                primitives[2]
+            ),
+        );
+    }
+
+    #[test]
+    fn overwrites_metadata_from_last_filter() {
+        let filter = Filter::from([Filter::new(|_| {}).x(-45), Filter::new(|_| {}).x(-30)]);
+
+        assert_xml(
+            filter.to_string(),
+            format!(
+                r#"
+<filter id="{}" x="-30"></filter>
+"#,
+                filter.iri()
+            ),
+        );
+    }
+}

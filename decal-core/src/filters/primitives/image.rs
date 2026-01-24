@@ -58,3 +58,78 @@ impl<'a> PrimitiveBuilder<'a, Image> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.image("test")
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feImage
+    x="0.5"
+    y="0.6"
+    width="110"
+    height="120"
+    href="test"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.image("test").finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(r#"<feImage href="test" result="{}" />"#, node.iri()),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let cross_origin = CrossOrigin::UseCredentials;
+        ctx.image("test").cross_origin(cross_origin).finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feImage
+    href="test"
+    crossorigin="{cross_origin}"
+    result="{}"
+/>
+"#,
+                node.iri()
+            ),
+        );
+    }
+}

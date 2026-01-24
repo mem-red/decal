@@ -200,16 +200,6 @@ impl<'a> PrimitiveBuilder<'a, ComponentTransfer> {
         self
     }
 
-    pub fn source_graphic(mut self) -> Self {
-        self.inner.input = Some(FilterInput::source_graphic());
-        self
-    }
-
-    pub fn source_alpha(mut self) -> Self {
-        self.inner.input = Some(FilterInput::source_alpha());
-        self
-    }
-
     pub fn func_r(mut self, func: TransferFunction) -> Self {
         self.inner.func_r = func;
         self
@@ -233,5 +223,214 @@ impl<'a> PrimitiveBuilder<'a, ComponentTransfer> {
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        ctx.component_transfer()
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feComponentTransfer
+    x="0.5"
+    y="0.6"
+    width="110"
+    height="120"
+    result="{}">
+</feComponentTransfer>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        ctx.component_transfer().finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feComponentTransfer result="{}"></feComponentTransfer>"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_transfer_functions() {
+        let ctx = FilterContext::default();
+        ctx.component_transfer()
+            .func_r(TransferFunction::table(vec![0.01, 0.02, 0.03]))
+            .func_g(TransferFunction::table(vec![0.11, 0.12, 0.13]))
+            .func_b(TransferFunction::table(vec![0.21, 0.22, 0.23]))
+            .func_a(TransferFunction::table(vec![0.31, 0.32, 0.33]))
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feComponentTransfer result="{}">
+    <feFuncR type="table" tableValues="0.01 0.02 0.03" />
+    <feFuncG type="table" tableValues="0.11 0.12 0.13" />
+    <feFuncB type="table" tableValues="0.21 0.22 0.23" />
+    <feFuncA type="table" tableValues="0.31 0.32 0.33" />
+</feComponentTransfer>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn does_not_render_identity_function() {
+        let ctx = FilterContext::default();
+        ctx.component_transfer()
+            .func_r(TransferFunction::identity())
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feComponentTransfer result="{}"></feComponentTransfer>"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_table_function() {
+        let ctx = FilterContext::default();
+        ctx.component_transfer()
+            .func_r(TransferFunction::table(vec![0.1, 0.2, 0.3]))
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feComponentTransfer result="{}">
+    <feFuncR type="table" tableValues="0.1 0.2 0.3" />
+</feComponentTransfer>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_discrete_function() {
+        let ctx = FilterContext::default();
+        ctx.component_transfer()
+            .func_r(TransferFunction::discrete(vec![0.1, 0.2]))
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feComponentTransfer result="{}">
+    <feFuncR type="discrete" tableValues="0.1 0.2" />
+</feComponentTransfer>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_linear_function() {
+        let ctx = FilterContext::default();
+        ctx.component_transfer()
+            .func_r(TransferFunction::linear(0.2, 0.5))
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feComponentTransfer result="{}">
+    <feFuncR type="linear" slope="0.2" intercept="0.5" />
+</feComponentTransfer>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_gamma_function() {
+        let ctx = FilterContext::default();
+        ctx.component_transfer()
+            .func_r(TransferFunction::gamma(1.2, 0.5, 0.2))
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feComponentTransfer result="{}">
+    <feFuncR type="gamma" amplitude="1.2" exponent="0.5" offset="0.2" />
+</feComponentTransfer>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_graphic();
+        let color_interpolation = ColorInterpolation::SRgb;
+        ctx.component_transfer()
+            .input(input)
+            .color_interpolation(color_interpolation)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feComponentTransfer
+    in="{input}"
+    color-interpolation-filters="{color_interpolation}"
+    result="{}">
+</feComponentTransfer>
+"#,
+                node.iri()
+            ),
+        );
     }
 }

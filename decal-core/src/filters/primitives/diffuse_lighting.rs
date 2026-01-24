@@ -118,3 +118,93 @@ impl<'a> PrimitiveBuilder<'a, DiffuseLighting> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        let light_source = LightSource::point_light(1.0, 2.0, 3.0);
+        ctx.diffuse_lighting(light_source)
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feDiffuseLighting x="0.5" y="0.6" width="110" height="120" result="{}">
+    {light_source}
+</feDiffuseLighting>"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders() {
+        let ctx = FilterContext::default();
+        let light_source = LightSource::point_light(1.0, 2.0, 3.0);
+        ctx.diffuse_lighting(light_source).finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"<feDiffuseLighting result="{}">{light_source}</feDiffuseLighting>"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let light_source = LightSource::point_light(1.0, 2.0, 3.0);
+        let input = FilterInput::source_graphic();
+        let color = Color::rgb(10, 15, 20);
+        let color_interpolation = ColorInterpolation::SRgb;
+
+        ctx.diffuse_lighting(light_source)
+            .input(input)
+            .lighting_color(color)
+            .surface_scale(5.0)
+            .diffuse_constant(2.5)
+            .color_interpolation(color_interpolation)
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feDiffuseLighting
+    in="{input}"
+    lighting-color="{color}"
+    surfaceScale="5"
+    diffuseConstant="2.5"
+    color-interpolation-filters="{color_interpolation}"
+    result="{}"
+>
+    {light_source}
+</feDiffuseLighting>
+"#,
+                node.iri()
+            ),
+        );
+    }
+}

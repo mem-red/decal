@@ -87,3 +87,135 @@ impl<'a> PrimitiveBuilder<'a, Merge> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        filters::{
+            FilterContext,
+            FilterRegionConfig,
+        },
+        test_utils::assert_xml,
+    };
+
+    #[test]
+    fn renders_with_filter_region() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_alpha();
+
+        ctx.merge()
+            .input(input)
+            .x(0.5)
+            .y(0.6)
+            .width(110)
+            .height(120)
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feMerge x="0.5" y="0.6" width="110" height="120" result="{}">
+    <feMergeNode in="{input}" />
+</feMerge>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn does_not_render_when_empty() {
+        let ctx = FilterContext::default();
+        ctx.merge().finish();
+        let node = &ctx.into_primitives()[0];
+        assert!(node.to_string().is_empty());
+    }
+
+    #[test]
+    fn renders_with_single_input() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_graphic();
+        ctx.merge().input(input).finish();
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feMerge result="{}">
+    <feMergeNode in="{input}" />
+</feMerge>
+"#,
+                node.iri()
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_multiple_inputs() {
+        let ctx = FilterContext::default();
+
+        ctx.merge()
+            .input(FilterInput::source_graphic())
+            .input(FilterInput::source_alpha())
+            .inputs([
+                FilterInput::source_graphic(),
+                FilterInput::source_alpha(),
+                FilterInput::background_image(),
+            ])
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feMerge result="{}">
+    <feMergeNode in="{}" />
+    <feMergeNode in="{}" />
+    <feMergeNode in="{}" />
+    <feMergeNode in="{}" />
+    <feMergeNode in="{}" />
+</feMerge>
+"#,
+                node.iri(),
+                FilterInput::source_graphic(),
+                FilterInput::source_alpha(),
+                FilterInput::source_graphic(),
+                FilterInput::source_alpha(),
+                FilterInput::background_image(),
+            ),
+        );
+    }
+
+    #[test]
+    fn renders_with_attrs() {
+        let ctx = FilterContext::default();
+        let input = FilterInput::source_alpha();
+        let color_interpolation = ColorInterpolation::SRgb;
+
+        ctx.merge()
+            .input(input)
+            .color_interpolation(color_interpolation)
+            .finish();
+
+        let node = &ctx.into_primitives()[0];
+
+        assert_xml(
+            node.to_string(),
+            format!(
+                r#"
+<feMerge color-interpolation-filters="{color_interpolation}" result="{}">
+    <feMergeNode in="{input}" />
+</feMerge>
+"#,
+                node.iri()
+            ),
+        );
+    }
+}
