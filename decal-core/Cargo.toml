@@ -7,6 +7,10 @@ license.workspace = true
 rust-version = "1.87.0"
 repository = "https://github.com/mem-red/decal"
 
+[features]
+default = ["helpers"]
+helpers = []
+
 [dependencies]
 base64 = "0.22.1"
 color = "0.3.2"

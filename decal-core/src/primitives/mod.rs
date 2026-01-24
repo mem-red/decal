@@ -77,6 +77,7 @@ pub(crate) use mask::*;
 pub(crate) use mask_type::*;
 pub(crate) use path::*;
 
-// TODO: re-export under a feature
+#[cfg(feature = "helpers")]
 pub use color::helpers::*;
+#[cfg(feature = "helpers")]
 pub use length::helpers::*;
