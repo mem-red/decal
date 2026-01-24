@@ -1,11 +1,14 @@
 [package]
 name = "decal-macros"
 description = "Macros for constructing Decal nodes"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
 license.workspace = true
 rust-version = "1.87.0"
 repository = "https://github.com/mem-red/decal"
+keywords = ["svg", "macros"]
+categories = ["development-tools::procedural-macro-helpers"]
+exclude = ["/wip"]
 
 [lib]
 proc-macro = true
