@@ -5,15 +5,7 @@
 
 A declarative library for building and rendering vector graphics.
 
-<table>
-
-<tr>
-    <th> Markup </th>
-    <th> Render </th>
-</tr>
-
-<tr>
-<td>
+## Markup
 
 ```rust
 decal! {
@@ -44,15 +36,9 @@ decal! {
 }
 ```
 
-</td>
-<td>
+## Render
 
-![Rendered image](https://github.com/mem-red/decal/blob/main/assets/example.png)
-
-</td>
-</tr>
-
-</table>
+<img src="https://github.com/mem-red/decal/blob/main/assets/example.png" style="width: 100%;" />
 
 Explore more [examples](https://github.com/mem-red/decal/tree/main/decal-core/examples).
 
