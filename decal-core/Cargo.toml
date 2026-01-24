@@ -1,7 +1,7 @@
 [package]
 name = "decal"
 description = "Declarative SVG rendering with layout and rasterization"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 license.workspace = true
 rust-version = "1.87.0"
@@ -9,6 +9,7 @@ repository = "https://github.com/mem-red/decal"
 keywords = ["svg", "graphics", "rendering", "image", "vector"]
 categories = ["graphics", "rendering", "multimedia::images"]
 exclude = ["/examples"]
+readme = "../README.md"
 
 [features]
 default = ["helpers"]
