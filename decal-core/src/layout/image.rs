@@ -11,12 +11,7 @@ use taffy::Size;
 #[derive(Debug, Clone, EnumDisplay)]
 pub enum ImageSource {
     #[display("{0}")]
-    Url(String),
-    #[display("{0}")]
-    DataUri(String),
-    // TODO support raw image data
-    // #[display("{0}")]
-    // Binary(u64, Vec<u8>), // (img_key, data)
+    Href(String),
     #[display("{0}")]
     Svg(String),
 }
@@ -70,8 +65,8 @@ impl ImageMeta {
     {
         let Size { width, height } = layout.size;
         match &self.source {
-            ImageSource::Url(_) | ImageSource::DataUri(_) => ElementWriter::new(ctx.out, "image")?
-                .attr("href", (&self.source,))?
+            ImageSource::Href(href) => ElementWriter::new(ctx.out, "image")?
+                .attr("href", href.as_str())?
                 .attrs([("width", width), ("height", height)])?
                 .attr("crossorigin", self.cross_origin.map(|x| (x,)))?
                 .close(),
@@ -81,50 +76,32 @@ impl ImageMeta {
 }
 
 impl ImageSource {
-    pub fn url<S>(url: S) -> Self
+    pub fn href<S>(url: S) -> Self
     where
-        S: Into<String>,
+        S: AsRef<str>,
     {
-        ImageSource::Url(escape(url.into()).to_string())
+        ImageSource::Href(escape(url.as_ref()).to_string())
     }
-
-    pub fn data_uri<S>(data_uri: S) -> Self
-    where
-        S: Into<String>,
-    {
-        ImageSource::DataUri(data_uri.into())
-    }
-
-    // TODO
-    // pub fn binary<T>(data: T) -> Self
-    // where
-    //     T: Into<Vec<u8>>,
-    // {
-    //     ImageSource::Binary(0, data.into())
-    // }
 
     pub fn svg<S>(svg: S) -> Self
     where
-        S: Into<String>,
+        S: AsRef<str>,
     {
-        ImageSource::Svg(svg.into())
+        ImageSource::Svg(svg.as_ref().to_string())
     }
 }
 
 impl Default for ImageSource {
     fn default() -> Self {
-        ImageSource::url("")
+        ImageSource::href("")
     }
 }
 
-impl From<String> for ImageSource {
-    fn from(value: String) -> Self {
-        ImageSource::url(value)
-    }
-}
-
-impl From<&str> for ImageSource {
-    fn from(value: &str) -> Self {
-        ImageSource::url(value)
+impl<T> From<T> for ImageSource
+where
+    T: AsRef<str>,
+{
+    fn from(value: T) -> Self {
+        ImageSource::href(value.as_ref())
     }
 }
