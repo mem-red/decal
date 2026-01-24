@@ -8,4 +8,4 @@ default-members = ["decal-core"]
 resolver = "2"
 
 [workspace.package]
-license = "MIT"
+license = "MIT OR Apache-2.0"
