@@ -8,7 +8,7 @@ use std::fmt::{
 };
 use strict_num::FiniteF32;
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 enum LightSourceInner {
     DistantLight {
         azimuth: FiniteF32,
@@ -69,7 +69,7 @@ impl Display for LightSourceInner {
     }
 }
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 pub struct LightSource(LightSourceInner);
 
 impl LightSource {
