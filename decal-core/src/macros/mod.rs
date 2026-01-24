@@ -7,6 +7,3 @@ pub(crate) use finite_f32::*;
 pub(crate) use node_builder::*;
 pub(crate) use normalized_f32::*;
 pub(crate) use positive_f32::*;
-
-// Public macros re-export
-pub use decal_macros::*;

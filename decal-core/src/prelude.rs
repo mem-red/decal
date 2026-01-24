@@ -4,7 +4,9 @@ pub use crate::{
     capabilities::*,
     filters::*,
     layout::*,
-    macros::*,
     primitives::*,
     text::*,
 };
+
+// Public macros re-export
+pub use decal_macros::*;
