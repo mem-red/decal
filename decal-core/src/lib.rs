@@ -14,3 +14,6 @@ pub mod macros;
 pub mod prelude;
 pub mod primitives;
 pub mod text;
+
+// Public macros re-export
+pub use decal_macros::*;
