@@ -67,6 +67,11 @@ impl Filter {
         self
     }
 
+    pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
+        self.color_interpolation = value;
+        self
+    }
+
     //
 
     fn append(mut self, next: Filter) -> Self {
