@@ -129,11 +129,12 @@ impl<'a> PrimitiveBuilder<'a, SpecularLighting> {
         self
     }
 
-    pub fn kernel_unit_length<T>(mut self, value: T) -> Self
+    pub fn kernel_unit_length<T, P>(mut self, value: T) -> Self
     where
-        T: Into<Option<PositiveF32Pair>>,
+        T: Into<Option<P>>,
+        P: Into<PositiveF32Pair>,
     {
-        self.inner.kernel_unit_length = value.into();
+        self.inner.kernel_unit_length = value.into().map(Into::into);
         self
     }
 
