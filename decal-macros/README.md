@@ -1,0 +1,1 @@
+Proc-macros for [Decal](https://crates.io/crates/decal).
