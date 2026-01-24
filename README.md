@@ -38,7 +38,7 @@ decal! {
 
 ## Render
 
-<img src="https://github.com/mem-red/decal/blob/main/assets/example.png" style="width: 100%;" />
+<img src="https://raw.githubusercontent.com/mem-red/decal/refs/heads/main/assets/example.png" style="width: 100%;"  alt="Rendered image" />
 
 Explore more [examples](https://github.com/mem-red/decal/tree/main/decal-core/examples).
 
