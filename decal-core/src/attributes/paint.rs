@@ -33,6 +33,14 @@ where
     }
 }
 
+// allow `None` for default paint stack
+impl IntoPaintStack for Option<()> {
+    #[inline]
+    fn into_paint_stack(self) -> PaintStack {
+        PaintStack::default()
+    }
+}
+
 impl<T, const N: usize> IntoPaintStack for [T; N]
 where
     T: IntoPaintLayer,
