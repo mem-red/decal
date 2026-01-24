@@ -35,9 +35,10 @@ impl_node_builder!(
 );
 
 impl Root {
-    pub fn new<T>(width: T, height: T) -> Self
+    pub fn new<W, H>(width: W, height: H) -> Self
     where
-        T: Into<Option<f32>>,
+        W: Into<Option<f32>>,
+        H: Into<Option<f32>>,
     {
         Self {
             layout: Style {
