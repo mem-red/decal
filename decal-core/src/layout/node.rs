@@ -2,7 +2,6 @@ use crate::{
     layout::{
         ImageMeta,
         RenderContext,
-        SvgDimensions,
         TextVectorizeError,
         Typography,
         text::TextMeta,
@@ -20,7 +19,6 @@ use crate::{
     primitives::{
         ClipPath,
         Rect,
-        ViewBox,
     },
     utils::{
         ElementWriter,
@@ -33,8 +31,10 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum VectorizeError {
-    #[error("cannot vectorize a fragment")]
-    NonRootNode,
+    #[error("cannot vectorize an empty scene")]
+    EmptyScene,
+    #[error("scene does not have a valid size")]
+    InvalidSize,
     #[error("failed to write to the output stream")]
     Write(#[from] std::fmt::Error),
     #[error("failed to vectorize text")]
@@ -43,7 +43,6 @@ pub enum VectorizeError {
 
 #[derive(Debug, Clone, EnumDisplay)]
 pub(crate) enum NodeKind {
-    Root,
     Block,
     Flex,
     Column,
@@ -222,16 +221,22 @@ impl Node {
             return Ok(());
         }
 
-        let taffy::Size {
-            width: w,
-            height: h,
-        } = self.final_layout.size;
+        let taffy::Size { width, height } = self.final_layout.size;
         let radius = self.scaled_radii;
         let border = Rect::from(self.final_layout.border);
         let clip = ClipPath::build(|out| {
             ElementWriter::new(out, "path")?
                 .write_attr("d", |out| {
-                    write_clip_path(out, w, h, radius, border, clip_x, clip_y, ctx.root_size)
+                    write_clip_path(
+                        out,
+                        width,
+                        height,
+                        radius,
+                        border,
+                        clip_x,
+                        clip_y,
+                        ctx.root_size,
+                    )
                 })?
                 .close()
         })?;
@@ -261,31 +266,6 @@ impl Node {
         T: Write,
     {
         match &self.kind {
-            NodeKind::Root => {
-                let taffy::Size { width, height } = self.final_layout.size;
-                let view_box = ViewBox::new(0.0, 0.0, width, height);
-                let mut svg = ElementWriter::new(ctx.out, "svg")?
-                    .attr_if(
-                        "xmlns",
-                        "http://www.w3.org/2000/svg",
-                        !ctx.options.omit_svg_xmlns,
-                    )?
-                    .attr("viewBox", (view_box,))?;
-
-                match &ctx.options.svg_dimensions {
-                    SvgDimensions::Omit => {}
-                    SvgDimensions::Layout => {
-                        svg = svg.attrs([("width", width), ("height", height)])?;
-                    }
-                    SvgDimensions::Custom { width, height } => {
-                        svg =
-                            svg.attrs([("width", width.as_str()), ("height", height.as_str())])?;
-                    }
-                };
-
-                svg.open()?;
-            }
-            //
             NodeKind::Block
             | NodeKind::Flex
             | NodeKind::Column
@@ -324,18 +304,6 @@ impl Node {
         T: Write,
     {
         match &self.kind {
-            NodeKind::Root => {
-                let resources = ctx.resources.lock();
-
-                if !resources.is_empty() {
-                    ElementWriter::new(ctx.out, "defs")?
-                        .content(|out| out.write_fmt(format_args!("{resources}")))?
-                        .close()?;
-                }
-
-                ElementWriter::close_tag(ctx.out, "svg")?;
-            }
-            //
             NodeKind::Block
             | NodeKind::Flex
             | NodeKind::Column

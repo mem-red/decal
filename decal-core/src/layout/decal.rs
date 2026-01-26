@@ -8,12 +8,15 @@ use crate::{
         NodeKind,
         RasterizeOptions,
         RenderContext,
+        SvgDimensions,
         Typography,
         VectorizeError,
         VectorizeOptions,
     },
     paint::Resources,
+    prelude::ViewBox,
     primitives::Size,
+    utils::ElementWriter,
 };
 use parking_lot::Mutex;
 use resvg::render;
@@ -52,8 +55,6 @@ const INLINE_FRAG_CASCADE: usize = 16;
 
 #[derive(Debug, Error)]
 pub enum RasterizeError {
-    #[error("cannot rasterize a fragment")]
-    NonRootNode,
     #[error("failed to vectorize")]
     Vectorize(#[from] VectorizeError),
     #[error("failed to write to the output stream")]
@@ -69,16 +70,21 @@ pub struct Decal {
     fonts: Arc<Mutex<FontRegistry>>,
     resources: Mutex<Resources>,
     nodes: Vec<Node>,
-    is_fragment: bool,
 }
 
 impl Decal {
-    pub fn new(root: Node, is_fragment: bool) -> Self {
+    pub fn new(root: Node) -> Self {
+        let mut resources = Resources::default();
+
+        // register resources
+        for resource in &root.resources {
+            resources.get_or_add_resource(resource.clone());
+        }
+
         Self {
             fonts: Arc::new(Mutex::new(FontRegistry::new())),
-            resources: Default::default(),
+            resources: Mutex::new(resources),
             nodes: vec![root],
-            is_fragment,
         }
     }
 
@@ -161,25 +167,63 @@ impl Decal {
     where
         T: Write,
     {
-        if self.is_fragment {
-            return Err(VectorizeError::NonRootNode);
+        if self.nodes.is_empty() {
+            return Err(VectorizeError::EmptyScene);
         }
 
         let root = &self.nodes[ROOT_ID];
-        let root_size = Size::from(root.final_layout.size);
+        let size = Size::from(root.final_layout.size);
+
+        if size.width == 0.0 || size.height == 0.0 {
+            return Err(VectorizeError::InvalidSize);
+        }
+
+        let view_box = ViewBox::new(0.0, 0.0, size.width, size.height);
+        let mut svg = ElementWriter::new(out, "svg")?
+            .attr_if(
+                "xmlns",
+                "http://www.w3.org/2000/svg",
+                !options.omit_svg_xmlns,
+            )?
+            .attr("viewBox", (view_box,))?;
+
+        match &options.svg_dimensions {
+            SvgDimensions::Omit => {}
+            SvgDimensions::Layout => {
+                svg = svg.attrs([("width", size.width), ("height", size.height)])?;
+            }
+            SvgDimensions::Custom { width, height } => {
+                svg = svg.attrs([("width", width.as_str()), ("height", height.as_str())])?;
+            }
+        };
+
+        svg.open()?;
+
+        //
 
         self.emit_node(
             &mut RenderContext {
                 out,
                 fonts: self.fonts.clone(),
                 resources: &self.resources,
-                root_size,
-                options,
+                root_size: size,
             },
             taffy::NodeId::from(ROOT_ID),
         )?;
 
-        Ok(root_size)
+        //
+
+        let resources = self.resources.lock();
+
+        if !resources.is_empty() {
+            ElementWriter::new(out, "defs")?
+                .content(|out| out.write_fmt(format_args!("{resources}")))?
+                .close()?;
+        }
+
+        ElementWriter::close_tag(out, "svg")?;
+
+        Ok(size)
     }
 
     pub(crate) fn vectorize(
@@ -196,10 +240,6 @@ impl Decal {
         image_cache: &ImageCache,
         options: &RasterizeOptions,
     ) -> Result<(Pixmap, Size<f32>), RasterizeError> {
-        if self.is_fragment {
-            return Err(RasterizeError::NonRootNode);
-        }
-
         let tf = options.root_transform;
         let mut usvg_options = usvg::Options {
             shape_rendering: options.shape_rendering,
@@ -474,7 +514,7 @@ impl LayoutPartialTree for Decal {
         compute_cached_layout(self, node_id, inputs, |tree, node_id, inputs| {
             let node = &mut tree.nodes[usize::from(node_id)];
             match node.kind {
-                NodeKind::Root | NodeKind::Block => compute_block_layout(tree, node_id, inputs),
+                NodeKind::Block => compute_block_layout(tree, node_id, inputs),
                 NodeKind::Flex | NodeKind::Column | NodeKind::Row => {
                     compute_flexbox_layout(tree, node_id, inputs)
                 }
@@ -610,7 +650,6 @@ impl RoundTree for Decal {
 impl PrintTree for Decal {
     fn get_debug_label(&self, node_id: taffy::NodeId) -> &'static str {
         match self.node_from_id(node_id).kind {
-            NodeKind::Root => "ROOT",
             NodeKind::Block => "BLOCK",
             NodeKind::Flex => "FLEX",
             NodeKind::Column => "COLUMN",
