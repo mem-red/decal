@@ -39,17 +39,47 @@ where
     }
 }
 
-impl<T> IntoCornerRadius for [T; 1]
+impl<T> IntoCornerRadius for (T, T)
 where
     T: Into<CornerRadii> + Copy,
 {
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
         Some(Corner {
-            top_left: self[0].into(),
-            top_right: self[0].into(),
-            bottom_right: self[0].into(),
-            bottom_left: self[0].into(),
+            top_left: self.0.into(),
+            top_right: self.1.into(),
+            bottom_right: self.0.into(),
+            bottom_left: self.1.into(),
+        })
+    }
+}
+
+impl<T> IntoCornerRadius for (T, T, T)
+where
+    T: Into<CornerRadii> + Copy,
+{
+    #[inline]
+    fn into_corner_radius(self) -> Option<CornerRadius> {
+        Some(Corner {
+            top_left: self.0.into(),
+            top_right: self.1.into(),
+            bottom_right: self.2.into(),
+            bottom_left: self.1.into(),
+        })
+    }
+}
+
+impl<T> IntoCornerRadius for (T, T, T, T)
+where
+    T: Into<CornerRadii> + Copy,
+{
+    #[inline]
+    fn into_corner_radius(self) -> Option<CornerRadius> {
+        Some(Corner {
+            top_left: self.0.into(),
+            top_right: self.1.into(),
+            bottom_right: self.2.into(),
+            bottom_left: self.3.into(),
         })
     }
 }
@@ -60,12 +90,7 @@ where
 {
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
-        Some(Corner {
-            top_left: self[0].into(),
-            top_right: self[1].into(),
-            bottom_right: self[0].into(),
-            bottom_left: self[1].into(),
-        })
+        IntoCornerRadius::into_corner_radius((self[0], self[1]))
     }
 }
 
@@ -75,12 +100,7 @@ where
 {
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
-        Some(Corner {
-            top_left: self[0].into(),
-            top_right: self[1].into(),
-            bottom_right: self[2].into(),
-            bottom_left: self[1].into(),
-        })
+        IntoCornerRadius::into_corner_radius((self[0], self[1], self[2]))
     }
 }
 
@@ -90,11 +110,6 @@ where
 {
     #[inline]
     fn into_corner_radius(self) -> Option<CornerRadius> {
-        Some(Corner {
-            top_left: self[0].into(),
-            top_right: self[1].into(),
-            bottom_right: self[2].into(),
-            bottom_left: self[3].into(),
-        })
+        IntoCornerRadius::into_corner_radius((self[0], self[1], self[2], self[3]))
     }
 }

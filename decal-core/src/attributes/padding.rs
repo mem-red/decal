@@ -39,17 +39,47 @@ where
     }
 }
 
-impl<T> IntoPadding for [T; 1]
+impl<T> IntoPadding for (T, T)
 where
     T: Into<PaddingValue> + Copy,
 {
     #[inline]
     fn into_padding(self) -> Option<Padding> {
         Some(Rect {
-            top: self[0].into(),
-            right: self[0].into(),
-            bottom: self[0].into(),
-            left: self[0].into(),
+            top: self.0.into(),
+            right: self.1.into(),
+            bottom: self.0.into(),
+            left: self.1.into(),
+        })
+    }
+}
+
+impl<T> IntoPadding for (T, T, T)
+where
+    T: Into<PaddingValue> + Copy,
+{
+    #[inline]
+    fn into_padding(self) -> Option<Padding> {
+        Some(Rect {
+            top: self.0.into(),
+            right: self.1.into(),
+            bottom: self.2.into(),
+            left: self.1.into(),
+        })
+    }
+}
+
+impl<T> IntoPadding for (T, T, T, T)
+where
+    T: Into<PaddingValue> + Copy,
+{
+    #[inline]
+    fn into_padding(self) -> Option<Padding> {
+        Some(Rect {
+            top: self.0.into(),
+            right: self.1.into(),
+            bottom: self.2.into(),
+            left: self.3.into(),
         })
     }
 }
@@ -60,12 +90,7 @@ where
 {
     #[inline]
     fn into_padding(self) -> Option<Padding> {
-        Some(Rect {
-            top: self[0].into(),
-            right: self[1].into(),
-            bottom: self[0].into(),
-            left: self[1].into(),
-        })
+        IntoPadding::into_padding((self[0], self[1]))
     }
 }
 
@@ -75,12 +100,7 @@ where
 {
     #[inline]
     fn into_padding(self) -> Option<Padding> {
-        Some(Rect {
-            top: self[0].into(),
-            right: self[1].into(),
-            bottom: self[2].into(),
-            left: self[1].into(),
-        })
+        IntoPadding::into_padding((self[0], self[1], self[2]))
     }
 }
 
@@ -90,12 +110,7 @@ where
 {
     #[inline]
     fn into_padding(self) -> Option<Padding> {
-        Some(Rect {
-            top: self[0].into(),
-            right: self[1].into(),
-            bottom: self[2].into(),
-            left: self[3].into(),
-        })
+        IntoPadding::into_padding((self[0], self[1], self[2], self[3]))
     }
 }
 
@@ -117,13 +132,13 @@ where
     }
 }
 
-impl<T> IntoPaddingPair for [T; 1]
+impl<T> IntoPaddingPair for (T, T)
 where
     T: Into<PaddingValue> + Copy,
 {
     #[inline]
     fn into_padding_pair(self) -> Option<PaddingPair> {
-        Some((self[0].into(), self[0].into()))
+        Some((self.0.into(), self.1.into()))
     }
 }
 
@@ -133,6 +148,6 @@ where
 {
     #[inline]
     fn into_padding_pair(self) -> Option<PaddingPair> {
-        Some((self[0].into(), self[1].into()))
+        IntoPaddingPair::into_padding_pair((self[0], self[1]))
     }
 }

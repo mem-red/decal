@@ -36,15 +36,15 @@ where
     }
 }
 
-impl<T> IntoDimensions for [T; 1]
+impl<T> IntoDimensions for (T, T)
 where
     T: Into<Length> + Copy,
 {
     #[inline]
     fn into_dimensions(self) -> Option<Dimensions> {
         Some(Size {
-            width: self[0].into(),
-            height: self[0].into(),
+            width: self.0.into(),
+            height: self.1.into(),
         })
     }
 }
@@ -55,9 +55,6 @@ where
 {
     #[inline]
     fn into_dimensions(self) -> Option<Dimensions> {
-        Some(Size {
-            width: self[0].into(),
-            height: self[1].into(),
-        })
+        IntoDimensions::into_dimensions((self[0], self[1]))
     }
 }

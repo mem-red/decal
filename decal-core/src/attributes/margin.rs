@@ -38,17 +38,47 @@ where
     }
 }
 
-impl<T> IntoMargin for [T; 1]
+impl<T> IntoMargin for (T, T)
 where
     T: Into<Length> + Copy,
 {
     #[inline]
     fn into_margin(self) -> Option<Margin> {
         Some(Rect {
-            top: self[0].into(),
-            right: self[0].into(),
-            bottom: self[0].into(),
-            left: self[0].into(),
+            top: self.0.into(),
+            right: self.1.into(),
+            bottom: self.0.into(),
+            left: self.1.into(),
+        })
+    }
+}
+
+impl<T> IntoMargin for (T, T, T)
+where
+    T: Into<Length> + Copy,
+{
+    #[inline]
+    fn into_margin(self) -> Option<Margin> {
+        Some(Rect {
+            top: self.0.into(),
+            right: self.1.into(),
+            bottom: self.2.into(),
+            left: self.1.into(),
+        })
+    }
+}
+
+impl<T> IntoMargin for (T, T, T, T)
+where
+    T: Into<Length> + Copy,
+{
+    #[inline]
+    fn into_margin(self) -> Option<Margin> {
+        Some(Rect {
+            top: self.0.into(),
+            right: self.1.into(),
+            bottom: self.2.into(),
+            left: self.3.into(),
         })
     }
 }
@@ -59,12 +89,7 @@ where
 {
     #[inline]
     fn into_margin(self) -> Option<Margin> {
-        Some(Rect {
-            top: self[0].into(),
-            right: self[1].into(),
-            bottom: self[0].into(),
-            left: self[1].into(),
-        })
+        IntoMargin::into_margin((self[0], self[1]))
     }
 }
 
@@ -74,12 +99,7 @@ where
 {
     #[inline]
     fn into_margin(self) -> Option<Margin> {
-        Some(Rect {
-            top: self[0].into(),
-            right: self[1].into(),
-            bottom: self[2].into(),
-            left: self[1].into(),
-        })
+        IntoMargin::into_margin((self[0], self[1], self[2]))
     }
 }
 
@@ -89,12 +109,7 @@ where
 {
     #[inline]
     fn into_margin(self) -> Option<Margin> {
-        Some(Rect {
-            top: self[0].into(),
-            right: self[1].into(),
-            bottom: self[2].into(),
-            left: self[3].into(),
-        })
+        IntoMargin::into_margin((self[0], self[1], self[2], self[3]))
     }
 }
 
@@ -114,13 +129,13 @@ where
     }
 }
 
-impl<T> IntoMarginPair for [T; 1]
+impl<T> IntoMarginPair for (T, T)
 where
     T: Into<Length> + Copy,
 {
     #[inline]
     fn into_margin_pair(self) -> Option<(Length, Length)> {
-        Some((self[0].into(), self[0].into()))
+        Some((self.0.into(), self.1.into()))
     }
 }
 
@@ -130,6 +145,6 @@ where
 {
     #[inline]
     fn into_margin_pair(self) -> Option<(Length, Length)> {
-        Some((self[0].into(), self[1].into()))
+        IntoMarginPair::into_margin_pair((self[0], self[1]))
     }
 }

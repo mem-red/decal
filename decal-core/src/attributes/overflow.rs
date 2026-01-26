@@ -40,12 +40,12 @@ impl IntoOverflow for Overflow {
     }
 }
 
-impl IntoOverflow for [Overflow; 1] {
+impl IntoOverflow for (Overflow, Overflow) {
     #[inline]
     fn into_overflow(self) -> Option<OverflowXY> {
         Some(Point {
-            x: self[0],
-            y: self[0],
+            x: self.0,
+            y: self.1,
         })
     }
 }
@@ -53,9 +53,6 @@ impl IntoOverflow for [Overflow; 1] {
 impl IntoOverflow for [Overflow; 2] {
     #[inline]
     fn into_overflow(self) -> Option<OverflowXY> {
-        Some(Point {
-            x: self[0],
-            y: self[1],
-        })
+        IntoOverflow::into_overflow((self[0], self[1]))
     }
 }

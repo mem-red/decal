@@ -37,15 +37,15 @@ where
     }
 }
 
-impl<T> IntoGap for [T; 1]
+impl<T> IntoGap for (T, T)
 where
     T: Into<GapSize> + Copy,
 {
     #[inline]
     fn into_gap(self) -> Option<Gap> {
         Some(Size {
-            width: self[0].into(),
-            height: self[0].into(),
+            width: self.0.into(),
+            height: self.1.into(),
         })
     }
 }
@@ -56,9 +56,6 @@ where
 {
     #[inline]
     fn into_gap(self) -> Option<Gap> {
-        Some(Size {
-            width: self[0].into(),
-            height: self[1].into(),
-        })
+        IntoGap::into_gap((self[0], self[1]))
     }
 }
