@@ -1,4 +1,3 @@
-use super::TokenGenMode;
 use crate::{
     IdentGen,
     ast::child::Tokenize,
@@ -34,7 +33,6 @@ impl Parse for CtrlExprBreak {
 impl Tokenize for CtrlExprBreak {
     fn tokenize(
         &self,
-        _mode: &mut TokenGenMode,
         _ident_gen: &mut IdentGen,
         _parent_token: Option<&proc_macro2::Ident>,
     ) -> TokenStream {

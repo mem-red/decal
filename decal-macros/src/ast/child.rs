@@ -1,9 +1,6 @@
 use super::{
     constants::VALID_NODES,
-    ctrl_expr::{
-        CtrlExpr,
-        TokenGenMode,
-    },
+    ctrl_expr::CtrlExpr,
     node::Node,
 };
 use crate::IdentGen;
@@ -30,7 +27,6 @@ use syn::{
 pub(crate) trait Tokenize {
     fn tokenize(
         &self,
-        mode: &mut TokenGenMode,
         ident_gen: &mut IdentGen,
         parent_token: Option<&proc_macro2::Ident>,
     ) -> TokenStream;
@@ -83,17 +79,16 @@ impl Parse for NodeChild {
 impl Tokenize for NodeChild {
     fn tokenize(
         &self,
-        mode: &mut TokenGenMode,
         ident_gen: &mut IdentGen,
         parent_token: Option<&proc_macro2::Ident>,
     ) -> TokenStream {
         match self {
-            NodeChild::Node(node) => node.tokenize(mode, ident_gen, parent_token),
+            NodeChild::Node(node) => node.tokenize(ident_gen, parent_token),
             NodeChild::Snippet(block) => {
                 let block_tokens = block.stmts.iter().map(|stmt| stmt.to_token_stream());
                 quote! { #(#block_tokens)* }
             }
-            NodeChild::CtrlExpr(expr) => expr.tokenize(mode, ident_gen, parent_token),
+            NodeChild::CtrlExpr(expr) => expr.tokenize(ident_gen, parent_token),
         }
     }
 }
@@ -103,26 +98,17 @@ impl NodeChild {
         &self,
         ident_gen: &mut IdentGen,
         parent_token: Option<&PM2Ident>,
-        root_found: &mut bool,
     ) -> TokenStream {
-        let mut mode = TokenGenMode::Full { root_found };
-        self.tokenize(&mut mode, ident_gen, parent_token)
-    }
-
-    pub(crate) fn to_tokens_partial(
-        &self,
-        ident_gen: &mut IdentGen,
-        parent_token: Option<&PM2Ident>,
-    ) -> TokenStream {
-        let mut mode = TokenGenMode::Partial;
-        self.tokenize(&mut mode, ident_gen, parent_token)
+        self.tokenize(ident_gen, parent_token)
     }
 }
 
 pub(crate) fn parse_children(input: ParseStream) -> SynResult<Vec<NodeChild>> {
     let mut children = Vec::new();
+
     while !input.is_empty() {
         children.push(input.parse()?);
     }
+
     Ok(children)
 }

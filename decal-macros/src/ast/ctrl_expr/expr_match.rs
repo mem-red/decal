@@ -1,4 +1,3 @@
-use super::TokenGenMode;
 use crate::{
     IdentGen,
     ast::child::{
@@ -49,7 +48,6 @@ impl Parse for CtrlExprMatch {
 impl Tokenize for CtrlExprMatch {
     fn tokenize(
         &self,
-        mode: &mut TokenGenMode,
         ident_gen: &mut IdentGen,
         parent_token: Option<&proc_macro2::Ident>,
     ) -> TokenStream {
@@ -64,8 +62,7 @@ impl Tokenize for CtrlExprMatch {
         expr.to_tokens(&mut tokens);
         brace_token.surround(&mut tokens, |tokens| {
             for (i, arm) in arms.iter().enumerate() {
-                arm.tokenize(mode, ident_gen, parent_token)
-                    .to_tokens(tokens);
+                arm.tokenize(ident_gen, parent_token).to_tokens(tokens);
                 let is_last = i == arms.len() - 1;
                 if !is_last && arm.requires_comma() && arm.comma.is_none() {
                     <Token![,]>::default().to_tokens(tokens);
@@ -138,7 +135,6 @@ impl Parse for MatchArm {
 impl Tokenize for MatchArm {
     fn tokenize(
         &self,
-        mode: &mut TokenGenMode,
         ident_gen: &mut IdentGen,
         parent_token: Option<&proc_macro2::Ident>,
     ) -> TokenStream {
@@ -151,7 +147,7 @@ impl Tokenize for MatchArm {
         self.fat_arrow_token.to_tokens(&mut tokens);
         token::Brace::default().surround(&mut tokens, |tokens| {
             self.body
-                .tokenize(mode, ident_gen, parent_token)
+                .tokenize(ident_gen, parent_token)
                 .to_tokens(tokens)
         });
         self.comma.to_tokens(&mut tokens);

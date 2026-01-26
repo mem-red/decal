@@ -1,4 +1,3 @@
-use super::TokenGenMode;
 use crate::{
     IdentGen,
     ast::child::{
@@ -57,7 +56,6 @@ impl Parse for CtrlExprForLoop {
 impl Tokenize for CtrlExprForLoop {
     fn tokenize(
         &self,
-        mode: &mut TokenGenMode,
         ident_gen: &mut IdentGen,
         parent_token: Option<&proc_macro2::Ident>,
     ) -> TokenStream {
@@ -71,7 +69,7 @@ impl Tokenize for CtrlExprForLoop {
         } = self;
         let child_tokens = body
             .iter()
-            .map(|child| child.tokenize(mode, ident_gen, parent_token));
+            .map(|child| child.tokenize(ident_gen, parent_token));
 
         quote! {
             #label #for_token #pat #in_token #expr {

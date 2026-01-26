@@ -21,12 +21,6 @@ use syn::{
     },
 };
 
-#[derive(Debug)]
-pub(crate) enum TokenGenMode<'a> {
-    Full { root_found: &'a mut bool },
-    Partial,
-}
-
 pub(crate) enum CtrlExpr {
     If(CtrlExprIf),
     Match(CtrlExprMatch),
@@ -66,17 +60,16 @@ impl Parse for CtrlExpr {
 impl Tokenize for CtrlExpr {
     fn tokenize(
         &self,
-        mode: &mut TokenGenMode,
         ident_gen: &mut IdentGen,
         parent_token: Option<&proc_macro2::Ident>,
     ) -> TokenStream {
         match self {
-            CtrlExpr::If(expr) => expr.tokenize(mode, ident_gen, parent_token),
-            CtrlExpr::Match(expr) => expr.tokenize(mode, ident_gen, parent_token),
-            CtrlExpr::Loop(expr) => expr.tokenize(mode, ident_gen, parent_token),
-            CtrlExpr::ForLoop(expr) => expr.tokenize(mode, ident_gen, parent_token),
-            CtrlExpr::While(expr) => expr.tokenize(mode, ident_gen, parent_token),
-            CtrlExpr::Break(expr) => expr.tokenize(mode, ident_gen, parent_token),
+            CtrlExpr::If(expr) => expr.tokenize(ident_gen, parent_token),
+            CtrlExpr::Match(expr) => expr.tokenize(ident_gen, parent_token),
+            CtrlExpr::Loop(expr) => expr.tokenize(ident_gen, parent_token),
+            CtrlExpr::ForLoop(expr) => expr.tokenize(ident_gen, parent_token),
+            CtrlExpr::While(expr) => expr.tokenize(ident_gen, parent_token),
+            CtrlExpr::Break(expr) => expr.tokenize(ident_gen, parent_token),
             CtrlExpr::NotAnExpr => unreachable!(),
         }
     }

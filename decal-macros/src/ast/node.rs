@@ -7,14 +7,10 @@ use crate::{
             parse_children,
         },
         constants::ATOMIC_NODES,
-        ctrl_expr::TokenGenMode,
         method_call::MethodCall,
     },
 };
-use proc_macro2::{
-    Span,
-    TokenStream,
-};
+use proc_macro2::TokenStream;
 use quote::{
     format_ident,
     quote,
@@ -85,9 +81,9 @@ impl Parse for Node {
         // Validate fragment node
         if is_fragment {
             let err_msg = if !children.is_empty() {
-                Some("[`decal::prelude::Fragment`] node cannot contain children")
+                Some("`Fragment` node cannot contain children")
             } else if args.len() != 1 {
-                Some("[`decal::prelude::Fragment`] node expects a single argument")
+                Some("`Fragment` node expects a single argument")
             } else {
                 None
             };
@@ -115,57 +111,24 @@ impl Parse for Node {
 impl Tokenize for Node {
     fn tokenize(
         &self,
-        mode: &mut TokenGenMode,
         ident_gen: &mut IdentGen,
         parent_token: Option<&proc_macro2::Ident>,
     ) -> TokenStream {
-        // Validation
-        if let TokenGenMode::Full { root_found } = mode {
-            match parent_token {
-                None => {
-                    if self.name != "Root" {
-                        return SynError::new_spanned(
-                            &self.name,
-                            "expected the top-level node to be a [`decal::prelude::Root`] node",
-                        )
-                        .to_compile_error();
-                    }
-                    if **root_found {
-                        return SynError::new_spanned(
-                            &self.name,
-                            "only one [`decal::prelude::Root`] node is allowed",
-                        )
-                        .to_compile_error();
-                    }
-                    **root_found = true;
-                }
-                Some(_) if self.name == "Root" => {
-                    return SynError::new_spanned(
-                        &self.name,
-                        "nested [`decal::prelude::Root`] nodes are not allowed",
-                    )
+        // this is a root node
+        if parent_token.is_none() {
+            if self.name == "Fragment" {
+                return SynError::new_spanned(&self.name, "top-level node most not be a fragment")
                     .to_compile_error();
-                }
-                _ => {}
             }
-        } else {
-            if self.name == "Root" {
-                return SynError::new_spanned(
-                    &self.name,
-                    "[`decal::prelude::Root`] node is not allowed inside fragments",
-                )
-                .to_compile_error();
+
+            if self.name == "Snippet" {
+                return SynError::new_spanned(&self.name, "top-level node most not be a snippet")
+                    .to_compile_error();
             }
         }
 
-        let is_root = self.name == "Root";
-        let name_lowercased = self.name.to_string().to_lowercase();
         let node_kind_ident = format_ident!("{}", self.name);
-        let node_token = if is_root {
-            format_ident!("{}", name_lowercased, span = Span::call_site())
-        } else {
-            ident_gen.uniq(&format!("{}_node", name_lowercased))
-        };
+        let node_token = ident_gen.uniq(&format!("{}_node", self.name.to_string().to_lowercase()));
         let ctor_args = &self.args;
 
         // Chain method calls for the node
@@ -174,23 +137,20 @@ impl Tokenize for Node {
             .iter()
             .map(|MethodCall { name, args }| quote! { .#name(#args) });
 
+        let children_tokens = self
+            .children
+            .iter()
+            .map(|child| child.to_tokens(ident_gen, Some(&node_token)))
+            .collect::<Vec<_>>();
+
+        if self.name == "Snippet" {
+            return quote! { #(#children_tokens)* };
+        }
+
         let node_expr = quote! {
             #node_kind_ident::new(#ctor_args)
                 #(#method_call_tokens)*
             .finish()
-        };
-
-        let is_fragment = matches!(mode, TokenGenMode::Partial);
-        let children_tokens = if let TokenGenMode::Full { root_found } = mode {
-            self.children
-                .iter()
-                .map(|child| child.to_tokens(ident_gen, Some(&node_token), root_found))
-                .collect::<Vec<_>>()
-        } else {
-            self.children
-                .iter()
-                .map(|child| child.to_tokens_partial(ident_gen, Some(&node_token)))
-                .collect::<Vec<_>>()
         };
 
         match parent_token {
@@ -198,54 +158,26 @@ impl Tokenize for Node {
             None => quote! {
                 {
                     use decal::prelude::*;
-                    let mut decal = Decal::new(#node_expr, #is_fragment);
+                    let mut decal = Decal::new(#node_expr);
                     let mut #node_token = decal.root_id();
                     #(#children_tokens)*
                     decal
                 }
             },
             // Child node
-            Some(parent_id) => self.generate_non_root_node_tokens(
-                parent_id,
-                &node_token,
-                &node_expr,
-                quote! { #(#children_tokens)* },
-            ),
-        }
-    }
-}
-
-impl Node {
-    /// Generates token stream for non-root nodes.
-    ///
-    /// # Parameters
-    /// - `parent_id`: The parent node's identifier.
-    /// - `node_token`: The unique identifier variable for this node's token.
-    /// - `node_expr`: The expression that constructs this node.
-    /// - `children_tokens`: The generated token stream for this node's
-    ///   children.
-    ///
-    /// # Returns
-    /// A [`TokenStream`] for the non-root node.
-    fn generate_non_root_node_tokens(
-        &self,
-        parent_id: &proc_macro2::Ident,
-        node_token: &Ident,
-        node_expr: &TokenStream,
-        children_tokens: TokenStream,
-    ) -> TokenStream {
-        if self.name == "Fragment" {
-            let args = &self.args;
-            quote! { decal.append_fragment(#parent_id, #args); }
-        } else if self.name == "Snippet" {
-            quote! { #children_tokens }
-        } else {
-            quote! {
-                let #node_token = decal.append_child(
-                    #parent_id,
-                    #node_expr
-                );
-                #children_tokens
+            Some(parent_id) => {
+                if self.name == "Fragment" {
+                    let args = &self.args;
+                    quote! { decal.append_fragment(#parent_id, #args); }
+                } else {
+                    quote! {
+                        let #node_token = decal.append_child(
+                            #parent_id,
+                            #node_expr
+                        );
+                        #(#children_tokens)*
+                    }
+                }
             }
         }
     }
