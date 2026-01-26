@@ -32,7 +32,7 @@ use strict_num::{
 };
 
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, EnumDisplay)]
-pub enum ColorMatrixType {
+enum ColorMatrixType {
     Matrix([[FiniteF32; 5]; 4]),
     Saturate(PositiveF32),
     HueRotate(FiniteF32),
@@ -60,7 +60,7 @@ impl ColorMatrixType {
         Self::Matrix(ff32_matrix)
     }
 
-    pub fn identity() -> Self {
+    fn identity() -> Self {
         Self::matrix([
             [1.0, 0.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0, 0.0],
