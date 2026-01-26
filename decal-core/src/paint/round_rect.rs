@@ -59,9 +59,9 @@ where
         (false, false) => Ok(()),
         // full clipping
         (true, true) => write_round_rect(out, x1, y1, x2, y2, ir),
-        // clip x
+        // clip x (entire height of element is visible, bounded by root height)
         (true, false) => write_round_rect(out, x1, 0.0, x2, root_h, ir),
-        // clip y
+        // clip y (entire width of element is visible, bounded by root width)
         (false, true) => write_round_rect(out, 0.0, y1, root_w, y2, ir),
     }
 }
