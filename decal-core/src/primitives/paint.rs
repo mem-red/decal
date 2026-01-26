@@ -419,7 +419,6 @@ impl IntoResources for PaintStack {
 mod tests {
     use super::*;
     use crate::{
-        layout::VectorizeOptions,
         paint::Resources,
         test_utils::assert_xml,
     };
@@ -520,11 +519,10 @@ mod tests {
         let stack = PaintStack::new([Color::rgb(0, 0, 0)]);
         let mut out = String::new();
         let resources = Mutex::new(Resources::default());
-        let options = VectorizeOptions::default();
 
         stack
             .render(
-                &mut RenderContext::new(&mut out, &resources, &options),
+                &mut RenderContext::new(&mut out, &resources),
                 |out| out.write_str("path_data"),
                 |out| out.write_str("path_data"),
                 |layer, _| Ok(layer),
@@ -540,11 +538,10 @@ mod tests {
         let stack = PaintStack::new([Color::rgb(0, 0, 0)]);
         let mut out = String::new();
         let resources = Mutex::new(Resources::default());
-        let options = VectorizeOptions::default();
 
         stack
             .render(
-                &mut RenderContext::new(&mut out, &resources, &options),
+                &mut RenderContext::new(&mut out, &resources),
                 |out| out.write_str("path_data"),
                 |out| out.write_str("path_data"),
                 |layer, _| layer.attr("visited", "true"),
@@ -567,11 +564,10 @@ mod tests {
 
         let mut out = String::new();
         let resources = Mutex::new(Resources::default());
-        let options = VectorizeOptions::default();
 
         stack
             .render(
-                &mut RenderContext::new(&mut out, &resources, &options),
+                &mut RenderContext::new(&mut out, &resources),
                 |out| out.write_str("path_data"),
                 |out| out.write_str("path_data"),
                 |layer, _| Ok(layer),
@@ -605,11 +601,10 @@ mod tests {
         ]);
         let mut out = String::new();
         let resources = Mutex::new(Resources::default());
-        let options = VectorizeOptions::default();
 
         stack
             .render(
-                &mut RenderContext::new(&mut out, &resources, &options),
+                &mut RenderContext::new(&mut out, &resources),
                 |out| out.write_str("path_data"),
                 |out| out.write_str("path_data"),
                 |layer, _| Ok(layer),
@@ -643,11 +638,10 @@ mod tests {
         ]);
         let mut out = String::new();
         let resources = Mutex::new(Resources::default());
-        let options = VectorizeOptions::default();
 
         stack
             .render(
-                &mut RenderContext::new(&mut out, &resources, &options),
+                &mut RenderContext::new(&mut out, &resources),
                 |out| out.write_str("path_data"),
                 |out| out.write_str("path_data"),
                 |layer, _| layer.attr("visited", "true"),
