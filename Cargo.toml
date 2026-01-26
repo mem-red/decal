@@ -1,9 +1,7 @@
 [workspace]
-members = [
-    "decal-core",
-    "decal-macros"
-]
+members = ["decal-core", "decal-macros"]
 default-members = ["decal-core"]
+exclude = ["examples"]
 resolver = "2"
 
 [workspace.package]

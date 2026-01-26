@@ -1,6 +1,8 @@
 use decal::prelude::*;
-use std::f32::consts::FRAC_1_SQRT_2;
-use std::fs;
+use std::{
+    f32::consts::FRAC_1_SQRT_2,
+    fs,
+};
 
 fn main() {
     let mut engine = Engine::new(EngineOptions::default());
@@ -15,11 +17,9 @@ fn main() {
     ];
 
     let mut gradients = decal! {
-        Root(640.0, 480.0) {
-            Block {}
-                .size(pct(100.0))
-                .background(gradient_list)
-        }
+        Block {}
+            .size((640, 480))
+            .background(gradient_list)
     };
 
     let (svg, _size) = engine
