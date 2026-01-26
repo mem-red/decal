@@ -5,16 +5,31 @@ use crate::{
 };
 use enum_display::EnumDisplay;
 use quick_xml::escape::escape;
-use std::fmt::Write;
+use std::fmt::{
+    Display,
+    Formatter,
+    Write,
+};
 use taffy::Size;
 
 #[derive(Debug, Clone, EnumDisplay)]
-pub enum ImageSource {
+enum ImageSourceInner {
     #[display("{0}")]
     Href(String),
     #[display("{0}")]
     Svg(String),
 }
+
+#[derive(Debug, Clone)]
+pub struct ImageSource(ImageSourceInner);
+
+impl Display for ImageSource {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+//
 
 #[derive(Debug, Clone, Default)]
 pub(crate) struct ImageMeta {
@@ -64,13 +79,13 @@ impl ImageMeta {
         W: Write,
     {
         let Size { width, height } = layout.size;
-        match &self.source {
-            ImageSource::Href(href) => ElementWriter::new(ctx.out, "image")?
+        match &self.source.inner() {
+            ImageSourceInner::Href(href) => ElementWriter::new(ctx.out, "image")?
                 .attr("href", href.as_str())?
                 .attrs([("width", width), ("height", height)])?
                 .attr("crossorigin", self.cross_origin.map(|x| (x,)))?
                 .close(),
-            ImageSource::Svg(svg) => ctx.out.write_str(svg.as_str()),
+            ImageSourceInner::Svg(svg) => ctx.out.write_str(svg.as_str()),
         }
     }
 }
@@ -80,14 +95,20 @@ impl ImageSource {
     where
         S: AsRef<str>,
     {
-        ImageSource::Href(escape(url.as_ref()).to_string())
+        Self(ImageSourceInner::Href(escape(url.as_ref()).to_string()))
     }
 
     pub fn svg<S>(svg: S) -> Self
     where
         S: AsRef<str>,
     {
-        ImageSource::Svg(svg.as_ref().to_string())
+        Self(ImageSourceInner::Svg(svg.as_ref().to_string()))
+    }
+
+    //
+
+    fn inner(&self) -> &ImageSourceInner {
+        &self.0
     }
 }
 
