@@ -1,5 +1,0 @@
-error: nested [`decal::prelude::Root`] nodes are not allowed
- --> tests/ui/fail/nested_root.rs:6:13
-  |
-6 |             Root(32.0, 32.0) {
-  |             ^^^^

@@ -1,5 +1,0 @@
-error: [`decal::prelude::Root`] node is not allowed inside fragments
- --> tests/ui/fail/fragment_with_root.rs:5:9
-  |
-5 |         Root(32.0, 32.0) {
-  |         ^^^^

@@ -1,11 +1,11 @@
-error: [`decal::prelude::Fragment`] node expects a single argument
- --> tests/ui/fail/fragment_invalid_args.rs:6:13
+error: `Fragment` node expects a single argument
+ --> tests/ui/fail/fragment_invalid_args.rs:5:9
   |
-6 |             Fragment()
-  |             ^^^^^^^^
+5 |         Fragment()
+  |         ^^^^^^^^
 
-error: [`decal::prelude::Fragment`] node expects a single argument
-  --> tests/ui/fail/fragment_invalid_args.rs:12:13
-   |
-12 |             Fragment(1, 2)
-   |             ^^^^^^^^
+error: `Fragment` node expects a single argument
+ --> tests/ui/fail/fragment_invalid_args.rs:9:9
+  |
+9 |         Fragment(1, 2)
+  |         ^^^^^^^^

@@ -1,4 +1,4 @@
-error: `Spaghetti` is not a valid node. Expected one of: Root, Fragment, Snippet, Block, Flex, Column, Row, Grid, Text, Image
+error: `Spaghetti` is not a valid node. Expected one of: Fragment, Snippet, Block, Flex, Column, Row, Grid, Text, Image
  --> tests/ui/fail/invalid_node.rs:6:13
   |
 6 |             Spaghetti {

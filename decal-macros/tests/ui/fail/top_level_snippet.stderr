@@ -1,0 +1,5 @@
+error: top-level node most not be a snippet
+ --> tests/ui/fail/top_level_snippet.rs:5:9
+  |
+5 |         Snippet { let x = 5; }
+  |         ^^^^^^^

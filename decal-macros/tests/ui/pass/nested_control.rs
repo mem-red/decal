@@ -6,7 +6,7 @@ fn flag() -> bool {
 
 fn main() {
     let _ = decal! {
-        Root(64.0, 64.0) {
+        Block {
             if flag() {
                 for i in 0..3 {
                     while flag() {

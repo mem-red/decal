@@ -1,5 +1,0 @@
-error: expected the top-level node to be a [`decal::prelude::Root`] node
- --> tests/ui/fail/top_level_non_root.rs:5:9
-  |
-5 |         Column() {
-  |         ^^^^^^

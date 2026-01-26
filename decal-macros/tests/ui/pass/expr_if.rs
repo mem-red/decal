@@ -6,7 +6,7 @@ fn condition() -> bool {
 
 fn main() {
     let _ = decal! {
-        Root(64.0, 64.0) {
+        Block {
             if condition() {
                 Column {}
             } else if !condition() {

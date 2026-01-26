@@ -1,17 +1,15 @@
-use decal::{decal, fragment};
+use decal::decal;
 
 fn main() {
-    let frag = fragment! {
-        Column() {
+    let frag = decal! {
+        Column {
             Text("content")
         }
     };
 
     let _ = decal! {
-        Root(64.0, 64.0) {
-            Column {
-                Fragment(frag)
-            }
+        Column {
+            Fragment(frag)
         }
     };
 }

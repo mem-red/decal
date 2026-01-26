@@ -6,7 +6,7 @@ fn vec_3() -> Vec<i32> {
 
 fn main() {
     let _ = decal! {
-        Root(64.0, 64.0) {
+        Column {
             for x in vec_3() {
                 Text(format!("loop with x: {x}"))
             }

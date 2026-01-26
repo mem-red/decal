@@ -1,13 +1,15 @@
-use decal::fragment;
+use decal::decal;
 
 fn main() {
-    let frag = fragment! {
+    let frag = decal! {
         Column {}
     };
 
-    let _ = fragment! {
-        Fragment(frag) {
-            Text("child")
+    let _ = decal! {
+        Block {
+            Fragment(frag) {
+                Text("child")
+            }
         }
     };
 }
