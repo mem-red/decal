@@ -1,6 +1,6 @@
 [package]
 name = "decal"
-description = "Declarative SVG rendering with layout and rasterization"
+description = "Declarative DSL for describing scenes and rendering them to SVG or PNG"
 version = "0.2.0"
 edition = "2021"
 license.workspace = true
