@@ -13,6 +13,7 @@ use crate::{
 };
 use taffy::prelude::*;
 
+/// Horizontal flex container node.
 #[derive(Debug, Default)]
 pub struct Row {
     layout: Style,
@@ -35,6 +36,10 @@ impl_node_builder!(
 );
 
 impl Row {
+    /// Creates a new [`Row`] node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new() -> Self {
         Self {
             layout: Style {

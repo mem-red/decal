@@ -17,13 +17,14 @@ use crate::{
 };
 use taffy::Style;
 
+/// Block node.
 #[derive(Debug, Default)]
 pub struct Block {
     layout: Style,
     visual: Appearance,
     typography: Typography,
     resources: Vec<Resource>,
-    //
+    /// Last non-none display value preserved for visibility toggling.
     last_display: taffy::Display,
 }
 
@@ -41,6 +42,10 @@ impl_node_builder! {
 }
 
 impl Block {
+    /// Creates a new block node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new() -> Self {
         Self {
             layout: Style {
@@ -51,23 +56,45 @@ impl Block {
         }
     }
 
+    /// Sets the display mode of the block.
+    ///
+    /// # Arguments
+    /// - `display`: The [`Display`] property for the block.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn display(mut self, display: Display) -> Self {
         self.layout.display = display.into();
         self
     }
 
+    /// Sets the flex direction used when the block is set to [`Display::Flex`].
+    ///
+    /// # Arguments
+    /// - `direction`: The [`FlexDirection`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn flex_direction(mut self, direction: FlexDirection) -> Self {
         self.layout.flex_direction = direction.into();
         self
     }
 
-    //
-
+    /// Sets display property of the block to [`Display::Flex`] with direction
+    /// set to [`FlexDirection::Column`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn flex_col(self) -> Self {
         self.display(Display::Flex)
             .flex_direction(FlexDirection::Column)
     }
 
+    /// Sets display property of the block to [`Display::Flex`] with direction
+    /// set to [`FlexDirection::Row`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn flex_row(self) -> Self {
         self.display(Display::Flex)
             .flex_direction(FlexDirection::Row)

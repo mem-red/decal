@@ -13,8 +13,12 @@ use crate::{
 };
 use taffy::prelude::*;
 
-// TODO: impl grid layout
+// TODO: implement grid layout
 
+/// Grid container node.
+///
+/// # Note
+/// Not implemented yet.
 #[derive(Debug, Default)]
 pub struct Grid {
     layout: Style,
@@ -37,6 +41,10 @@ impl_node_builder! {
 }
 
 impl Grid {
+    /// Creates a new [`Grid`] node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new() -> Self {
         Self {
             layout: Style {

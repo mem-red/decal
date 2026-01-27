@@ -13,6 +13,7 @@ use crate::{
 };
 use taffy::prelude::*;
 
+/// Vertical flex container node.
 #[derive(Debug, Default)]
 pub struct Column {
     layout: Style,
@@ -35,6 +36,10 @@ impl_node_builder! {
 }
 
 impl Column {
+    /// Creates a new [`Column`] node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new() -> Self {
         Self {
             layout: Style {

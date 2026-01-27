@@ -16,12 +16,13 @@ use crate::{
 };
 use taffy::prelude::*;
 
+/// Image node.
 #[derive(Debug, Default)]
 pub struct Image {
     meta: ImageMeta,
     layout: Style,
     visual: Appearance,
-    typography: Typography, // unused, only for satisfying the Sealed trait
+    typography: Typography, // unused, only for satisfying the [`Sealed`] trait
     resources: Vec<Resource>,
 }
 
@@ -39,6 +40,15 @@ impl_node_builder! {
 }
 
 impl Image {
+    /// Creates a new image node with a fixed intrinsic size.
+    ///
+    /// # Arguments
+    /// - `source`: The [`ImageSource`] value.
+    /// - `width`: The intrinsic width of the image.
+    /// - `height`: The intrinsic height of the image.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new<S>(source: S, width: f32, height: f32) -> Self
     where
         S: Into<ImageSource>,
@@ -56,6 +66,13 @@ impl Image {
         }
     }
 
+    /// Sets the cross-origin policy used when loading the image.
+    ///
+    /// # Arguments
+    /// - `cross_origin`: The [`CrossOrigin`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn cross_origin<T>(mut self, cross_origin: T) -> Self
     where
         T: Into<Option<CrossOrigin>>,

@@ -17,6 +17,7 @@ use taffy::{
     Style,
 };
 
+/// Flex container node.
 #[derive(Debug, Default)]
 pub struct Flex {
     layout: Style,
@@ -39,6 +40,10 @@ impl_node_builder! {
 }
 
 impl Flex {
+    /// Creates a new [`Flex`] node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new(direction: FlexDirection) -> Self {
         Self {
             layout: Style {
