@@ -1,0 +1,5 @@
+error[E0425]: cannot find value `scene` in this scope
+ --> tests/ui/fail/scene_recursion.rs:6:19
+  |
+6 |             Scene(scene)
+  |                   ^^^^^ not found in this scope
