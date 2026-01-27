@@ -28,6 +28,7 @@ use std::fmt::{
     Formatter,
 };
 
+/// The filter primitive wrapper.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub enum FilterPrimitive {
     Flood(Flood),

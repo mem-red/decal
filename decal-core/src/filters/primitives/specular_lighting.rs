@@ -27,6 +27,7 @@ use strict_num::{
     PositiveF32,
 };
 
+/// The specular lighting filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct SpecularLighting {
     input: Option<FilterInput>,
@@ -41,6 +42,14 @@ pub struct SpecularLighting {
 }
 
 impl SpecularLighting {
+    /// Creates a new [`SpecularLighting`] primitive with the given light
+    /// source.
+    ///
+    /// # Arguments
+    /// - `light_source`: The [`LightSource`] used for lighting.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new(light_source: LightSource) -> Self {
         SpecularLighting {
             input: None,
@@ -98,6 +107,13 @@ impl Display for SpecularLighting {
 }
 
 impl<'a> PrimitiveBuilder<'a, SpecularLighting> {
+    /// Sets the input for the lighting computation.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -106,6 +122,13 @@ impl<'a> PrimitiveBuilder<'a, SpecularLighting> {
         self
     }
 
+    /// Sets the lighting color applied to the specular lighting result.
+    ///
+    /// # Arguments
+    /// - `color`: The [`Color`] used for lighting.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn lighting_color<T>(mut self, color: T) -> Self
     where
         T: Into<Option<Color>>,
@@ -114,21 +137,49 @@ impl<'a> PrimitiveBuilder<'a, SpecularLighting> {
         self
     }
 
+    /// Sets the surface scale factor.
+    ///
+    /// # Arguments
+    /// - `scale`: The scale applied to the surface geometry.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn surface_scale(mut self, scale: f32) -> Self {
         self.inner.surface_scale = ff32!(scale);
         self
     }
 
+    /// Sets the specular reflection constant.
+    ///
+    /// # Arguments
+    /// - `constant`: The specular constant value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn specular_constant(mut self, constant: f32) -> Self {
         self.inner.specular_constant = pf32!(constant);
         self
     }
 
+    /// Sets the specular exponent controlling highlight sharpness.
+    ///
+    /// # Arguments
+    /// - `exponent`: The specular exponent value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn specular_exponent(mut self, exponent: f32) -> Self {
         self.inner.specular_exponent = pf32!(exponent);
         self
     }
 
+    /// Sets the kernel unit length used for normal calculation.
+    ///
+    /// # Arguments
+    /// - `value`: The kernel unit length value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn kernel_unit_length<T, P>(mut self, value: T) -> Self
     where
         T: Into<Option<P>>,
@@ -138,6 +189,13 @@ impl<'a> PrimitiveBuilder<'a, SpecularLighting> {
         self
     }
 
+    /// Sets the color interpolation space used during lighting.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

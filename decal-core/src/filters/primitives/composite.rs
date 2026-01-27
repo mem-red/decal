@@ -49,34 +49,69 @@ enum CompositeOperatorInner {
 
 impl IsDefault for CompositeOperatorInner {}
 
+/// The composite operator.
 #[derive(Debug, Copy, Clone, Default)]
 pub struct CompositeOperator(CompositeOperatorInner);
 
 impl CompositeOperator {
+    /// Creates an `over` composite operator.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn over() -> Self {
         Self(CompositeOperatorInner::Over)
     }
 
+    /// Creates an `in` composite operator.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn r#in() -> Self {
         Self(CompositeOperatorInner::In)
     }
 
+    /// Creates an `out` composite operator.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn out() -> Self {
         Self(CompositeOperatorInner::Out)
     }
 
+    /// Creates an `atop` composite operator.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn atop() -> Self {
         Self(CompositeOperatorInner::Atop)
     }
 
+    /// Creates an `xor` composite operator.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn xor() -> Self {
         Self(CompositeOperatorInner::Xor)
     }
 
+    /// Creates an `lighter` composite operator.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn lighter() -> Self {
         Self(CompositeOperatorInner::Lighter)
     }
 
+    /// Creates an `arithmetic` composite operator.
+    ///
+    /// # Arguments
+    /// - `k1`: The first arithmetic coefficient.
+    /// - `k2`: The second arithmetic coefficient.
+    /// - `k3`: The third arithmetic coefficient.
+    /// - `k4`: The fourth arithmetic coefficient.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn arithmetic(k1: f32, k2: f32, k3: f32, k4: f32) -> Self {
         Self(CompositeOperatorInner::Arithmetic {
             k1: ff32!(k1),
@@ -87,6 +122,7 @@ impl CompositeOperator {
     }
 }
 
+/// The composite filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Composite {
     input: Option<FilterInput>,
@@ -98,6 +134,10 @@ pub struct Composite {
 }
 
 impl Composite {
+    /// Creates a new [`Composite`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         Composite::default()
     }
@@ -137,6 +177,13 @@ impl Display for Composite {
 }
 
 impl<'a> PrimitiveBuilder<'a, Composite> {
+    /// Sets the first input for the composite operation.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the first operand.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -145,6 +192,13 @@ impl<'a> PrimitiveBuilder<'a, Composite> {
         self
     }
 
+    /// Sets the second input for the composite operation.
+    ///
+    /// # Arguments
+    /// - `input2`: The [`FilterInput`] used as the second operand.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input2<T>(mut self, input2: T) -> Self
     where
         T: Into<FilterInput>,
@@ -153,11 +207,26 @@ impl<'a> PrimitiveBuilder<'a, Composite> {
         self
     }
 
+    /// Sets the composite operator.
+    ///
+    /// # Arguments
+    /// - `operator`: The [`CompositeOperator`] defining how inputs are
+    ///   combined.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn operator(mut self, operator: CompositeOperator) -> Self {
         self.inner.operator = operator.0;
         self
     }
 
+    /// Sets the color interpolation space used during compositing.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

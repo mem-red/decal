@@ -70,6 +70,7 @@ impl ColorMatrixType {
     }
 }
 
+/// The color matrix filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct ColorMatrix {
     input: Option<FilterInput>,
@@ -80,6 +81,10 @@ pub struct ColorMatrix {
 }
 
 impl ColorMatrix {
+    /// Creates a new [`ColorMatrix`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         ColorMatrix::default()
     }
@@ -130,6 +135,13 @@ impl Display for ColorMatrix {
 }
 
 impl<'a> PrimitiveBuilder<'a, ColorMatrix> {
+    /// Sets the input for the color matrix operation.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -138,31 +150,67 @@ impl<'a> PrimitiveBuilder<'a, ColorMatrix> {
         self
     }
 
+    /// Sets an explicit `4x5` color transformation matrix.
+    ///
+    /// # Arguments
+    /// - `matrix`: The color matrix values in row-major order.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn matrix(mut self, matrix: [[f32; 5]; 4]) -> Self {
         self.inner.kind = ColorMatrixType::matrix(matrix);
         self
     }
 
+    /// Applies a saturation adjustment.
+    ///
+    /// # Arguments
+    /// - `amount`: The saturation multiplier.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn saturate(mut self, amount: f32) -> Self {
         self.inner.kind = ColorMatrixType::Saturate(pf32!(amount));
         self
     }
 
+    /// Applies a hue rotation.
+    ///
+    /// # Arguments
+    /// - `angle`: The rotation angle in degrees.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn hue_rotate(mut self, angle: f32) -> Self {
         self.inner.kind = ColorMatrixType::HueRotate(ff32!(angle));
         self
     }
 
+    /// Converts luminance values to alpha.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn luminance_to_alpha(mut self) -> Self {
         self.inner.kind = ColorMatrixType::LuminanceToAlpha;
         self
     }
 
+    /// Resets the color matrix to the identity transform.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn identity(mut self) -> Self {
         self.inner.kind = ColorMatrixType::identity();
         self
     }
 
+    /// Sets the color interpolation space used during filtering.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

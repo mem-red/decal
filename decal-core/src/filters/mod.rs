@@ -21,6 +21,7 @@ pub use primitives::{
     TurbulenceType,
 };
 
+/// Collection of filter primitive nodes
 pub mod filter_primitives {
     pub use super::primitives::*;
 }

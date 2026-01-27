@@ -26,6 +26,7 @@ use strict_num::{
     PositiveF32,
 };
 
+/// The diffuse lighting filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct DiffuseLighting {
     input: Option<FilterInput>,
@@ -38,6 +39,13 @@ pub struct DiffuseLighting {
 }
 
 impl DiffuseLighting {
+    /// Creates a new [`DiffuseLighting`] primitive with the given light source.
+    ///
+    /// # Arguments
+    /// - `light_source`: The [`LightSource`] used for the lighting.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new(light_source: LightSource) -> Self {
         DiffuseLighting {
             input: None,
@@ -87,6 +95,13 @@ impl Display for DiffuseLighting {
 }
 
 impl<'a> PrimitiveBuilder<'a, DiffuseLighting> {
+    /// Sets the input for the lighting computation.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -95,6 +110,13 @@ impl<'a> PrimitiveBuilder<'a, DiffuseLighting> {
         self
     }
 
+    /// Sets the lighting color applied to the diffuse lighting result.
+    ///
+    /// # Arguments
+    /// - `color`: The [`Color`] used for lighting.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn lighting_color<T>(mut self, color: T) -> Self
     where
         T: Into<Option<Color>>,
@@ -103,16 +125,37 @@ impl<'a> PrimitiveBuilder<'a, DiffuseLighting> {
         self
     }
 
+    /// Sets the surface scale factor.
+    ///
+    /// # Arguments
+    /// - `scale`: The scale applied to the surface geometry.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn surface_scale(mut self, scale: f32) -> Self {
         self.inner.surface_scale = ff32!(scale);
         self
     }
 
+    /// Sets the diffuse reflection constant.
+    ///
+    /// # Arguments
+    /// - `constant`: The diffuse constant controlling light intensity.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn diffuse_constant(mut self, constant: f32) -> Self {
         self.inner.diffuse_constant = pf32!(constant);
         self
     }
 
+    /// Sets the color interpolation space used during lighting.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

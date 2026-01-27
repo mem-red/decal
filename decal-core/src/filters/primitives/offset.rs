@@ -15,6 +15,7 @@ use std::fmt::{
 };
 use strict_num::FiniteF32;
 
+/// The offset filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
 pub struct Offset {
     input: Option<FilterInput>,
@@ -24,6 +25,10 @@ pub struct Offset {
 }
 
 impl Offset {
+    /// Creates a new [`Offset`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         Offset::default()
     }
@@ -50,6 +55,13 @@ impl Display for Offset {
 }
 
 impl<'a> PrimitiveBuilder<'a, Offset> {
+    /// Sets the input for the offset operation.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -58,11 +70,25 @@ impl<'a> PrimitiveBuilder<'a, Offset> {
         self
     }
 
+    /// Sets the horizontal offset.
+    ///
+    /// # Arguments
+    /// - `dx`: The horizontal offset distance.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn dx(mut self, dx: f32) -> Self {
         self.inner.dx = ff32!(dx);
         self
     }
 
+    /// Sets the vertical offset.
+    ///
+    /// # Arguments
+    /// - `dx`: The vertical offset distance.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn dy(mut self, dy: f32) -> Self {
         self.inner.dy = ff32!(dy);
         self

@@ -21,6 +21,7 @@ use std::fmt::{
     Formatter,
 };
 
+/// The blend filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Blend {
     input: Option<FilterInput>,
@@ -32,6 +33,10 @@ pub struct Blend {
 }
 
 impl Blend {
+    /// Creates a new [`Blend`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         Blend::default()
     }
@@ -65,6 +70,13 @@ impl Display for Blend {
 }
 
 impl<'a> PrimitiveBuilder<'a, Blend> {
+    /// Sets the first input for the blend operation.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the first operand.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -73,6 +85,13 @@ impl<'a> PrimitiveBuilder<'a, Blend> {
         self
     }
 
+    /// Sets the second input for the blend operation.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the second operand.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input2<T>(mut self, input2: T) -> Self
     where
         T: Into<FilterInput>,
@@ -81,11 +100,25 @@ impl<'a> PrimitiveBuilder<'a, Blend> {
         self
     }
 
+    /// Sets the blend mode used to combine the two inputs.
+    ///
+    /// # Arguments
+    /// - `mode`: The [`BlendMode`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn mode(mut self, mode: BlendMode) -> Self {
         self.inner.mode = mode;
         self
     }
 
+    /// Sets the color interpolation space used during blending.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

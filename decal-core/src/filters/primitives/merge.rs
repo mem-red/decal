@@ -17,6 +17,7 @@ use std::fmt::{
     Formatter,
 };
 
+/// The merge filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct Merge {
     inputs: Vec<FilterInput>,
@@ -26,6 +27,12 @@ pub struct Merge {
 }
 
 impl Merge {
+    /// Creates a new [`Merge`] primitive.
+    ///
+    /// The primitive produces no output until at least one input is added.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         Merge::default()
     }
@@ -65,6 +72,15 @@ impl Display for Merge {
 }
 
 impl<'a> PrimitiveBuilder<'a, Merge> {
+    /// Appends a single input to the merge primitive.
+    ///
+    /// Inputs are merged in the order they are added.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] to append.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -73,6 +89,15 @@ impl<'a> PrimitiveBuilder<'a, Merge> {
         self
     }
 
+    /// Appends multiple inputs to the merge primitive.
+    ///
+    /// Inputs are merged in the order they are provided.
+    ///
+    /// # Arguments
+    /// - `inputs`: An iterator of [`FilterInput`] values.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn inputs<I, T>(mut self, inputs: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -82,6 +107,13 @@ impl<'a> PrimitiveBuilder<'a, Merge> {
         self
     }
 
+    /// Sets the color interpolation space used when merging inputs.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

@@ -98,26 +98,54 @@ impl TransferFunctionInner {
     }
 }
 
+/// The channel component transfer function for the [`ComponentTransfer`] filter
+/// primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
 pub struct TransferFunction(TransferFunctionInner);
 
 impl TransferFunction {
+    /// Returns an identity transfer function.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn identity() -> Self {
         Self(TransferFunctionInner::Identity)
     }
 
+    /// Creates a table-based transfer function.
+    ///
+    /// # Arguments
+    /// - `values`: The table values.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn table(values: Vec<f32>) -> Self {
         Self(TransferFunctionInner::Table(
             values.into_iter().map(|x| nf32!(x)).collect(),
         ))
     }
 
+    /// Creates a discrete transfer function.
+    ///
+    /// # Arguments
+    /// - `values`: The discrete values.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn discrete(values: Vec<f32>) -> Self {
         Self(TransferFunctionInner::Discrete(
             values.into_iter().map(|x| nf32!(x)).collect(),
         ))
     }
 
+    /// Creates a linear transfer function.
+    ///
+    /// # Arguments
+    /// - `slope`: The linear slope.
+    /// - `intercept`: The linear intercept.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn linear(slope: f32, intercept: f32) -> Self {
         Self(TransferFunctionInner::Linear {
             slope: ff32!(slope, 1.0),
@@ -125,6 +153,15 @@ impl TransferFunction {
         })
     }
 
+    /// Creates a gamma transfer function.
+    ///
+    /// # Arguments
+    /// - `amplitude`: The gamma amplitude.
+    /// - `exponent`: The gamma exponent.
+    /// - `offset`: The gamma offset.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn gamma(amplitude: f32, exponent: f32, offset: f32) -> Self {
         Self(TransferFunctionInner::Gamma {
             amplitude: ff32!(amplitude, 1.0),
@@ -133,8 +170,7 @@ impl TransferFunction {
         })
     }
 
-    //
-
+    /// Serializes the transfer function.
     fn serialize<T>(&self, out: &mut T, element_name: &str) -> std::fmt::Result
     where
         T: Write,
@@ -143,6 +179,7 @@ impl TransferFunction {
     }
 }
 
+/// The component transfer filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct ComponentTransfer {
     input: Option<FilterInput>,
@@ -156,6 +193,10 @@ pub struct ComponentTransfer {
 }
 
 impl ComponentTransfer {
+    /// Creates a new [`ComponentTransfer`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         ComponentTransfer::default()
     }
@@ -192,6 +233,13 @@ impl Display for ComponentTransfer {
 }
 
 impl<'a> PrimitiveBuilder<'a, ComponentTransfer> {
+    /// Sets the input for the component transfer operation.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -200,26 +248,61 @@ impl<'a> PrimitiveBuilder<'a, ComponentTransfer> {
         self
     }
 
+    /// Sets the red channel transfer function.
+    ///
+    /// # Arguments
+    /// - `func`: The [`TransferFunction`] applied to the red channel.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn func_r(mut self, func: TransferFunction) -> Self {
         self.inner.func_r = func;
         self
     }
 
+    /// Sets the green channel transfer function.
+    ///
+    /// # Arguments
+    /// - `func`: The [`TransferFunction`] applied to the green channel.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn func_g(mut self, func: TransferFunction) -> Self {
         self.inner.func_g = func;
         self
     }
 
+    /// Sets the blue channel transfer function.
+    ///
+    /// # Arguments
+    /// - `func`: The [`TransferFunction`] applied to the blue channel.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn func_b(mut self, func: TransferFunction) -> Self {
         self.inner.func_b = func;
         self
     }
 
+    /// Sets the alpha channel transfer function.
+    ///
+    /// # Arguments
+    /// - `func`: The [`TransferFunction`] applied to the alpha channel.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn func_a(mut self, func: TransferFunction) -> Self {
         self.inner.func_a = func;
         self
     }
 
+    /// Sets the color interpolation space used during filtering.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

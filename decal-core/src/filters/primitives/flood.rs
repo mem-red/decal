@@ -16,6 +16,7 @@ use std::fmt::{
 };
 use strict_num::NormalizedF32;
 
+/// The flood filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Flood {
     #[default(Color::rgb(0, 0, 0))]
@@ -26,6 +27,10 @@ pub struct Flood {
 }
 
 impl Flood {
+    /// Creates a new [`Flood`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         Flood::default()
     }
@@ -55,11 +60,25 @@ impl Display for Flood {
 }
 
 impl<'a> PrimitiveBuilder<'a, Flood> {
+    /// Sets the flood fill color.
+    ///
+    /// # Arguments
+    /// - `color`: The [`Color`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color(mut self, color: Color) -> Self {
         self.inner.color = color;
         self
     }
 
+    /// Sets the opacity of the flood fill.
+    ///
+    /// # Arguments
+    /// - `opacity`: The opacity value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn opacity(mut self, opacity: f32) -> Self {
         self.inner.opacity = nf32!(opacity);
         self

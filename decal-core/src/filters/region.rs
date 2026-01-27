@@ -17,6 +17,7 @@ mod private {
     };
     use smart_default::SmartDefault;
 
+    /// The filter region.
     #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
     pub struct FilterRegion {
         #[default(Length::percent(-10.0))]
@@ -39,7 +40,15 @@ mod private {
 
 pub(crate) use private::*;
 
-pub trait FilterRegionConfig: private::HasFilterRegion {
+/// Configuration trait for modifying the filter region.
+pub trait FilterRegionConfig: HasFilterRegion {
+    /// Sets the x-offset of the filter region.
+    ///
+    /// # Arguments
+    /// - `x`: The horizontal offset of the region.
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn x<T>(mut self, x: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -48,6 +57,13 @@ pub trait FilterRegionConfig: private::HasFilterRegion {
         self
     }
 
+    /// Sets the y-offset of the filter region.
+    ///
+    /// # Arguments
+    /// - `y`: The vertical offset of the region.
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn y<T>(mut self, y: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -56,6 +72,13 @@ pub trait FilterRegionConfig: private::HasFilterRegion {
         self
     }
 
+    /// Sets the width of the filter region.
+    ///
+    /// # Arguments
+    /// - `width`: The width of the region.
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn width<T>(mut self, width: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -66,6 +89,13 @@ pub trait FilterRegionConfig: private::HasFilterRegion {
         self
     }
 
+    /// Sets the height of the filter region.
+    ///
+    /// # Arguments
+    /// - `height`: The height of the region.
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn height<T>(mut self, height: T) -> Self
     where
         T: IntoOptionalLength<false, true>,

@@ -27,6 +27,7 @@ use strict_num::{
     NormalizedF32,
 };
 
+/// The drop shadow filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct DropShadow {
     input: Option<FilterInput>,
@@ -44,6 +45,10 @@ pub struct DropShadow {
 }
 
 impl DropShadow {
+    /// Creates a new [`DropShadow`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         DropShadow::default()
     }
@@ -82,6 +87,13 @@ impl Display for DropShadow {
 }
 
 impl<'a> PrimitiveBuilder<'a, DropShadow> {
+    /// Sets the input for the drop shadow.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -90,16 +102,37 @@ impl<'a> PrimitiveBuilder<'a, DropShadow> {
         self
     }
 
+    /// Sets the horizontal offset of the shadow.
+    ///
+    /// # Arguments
+    /// - `dx`: The horizontal displacement value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn dx(mut self, dx: f32) -> Self {
         self.inner.dx = ff32!(dx);
         self
     }
 
+    /// Sets the vertical offset of the shadow.
+    ///
+    /// # Arguments
+    /// - `dx`: The vertical displacement value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn dy(mut self, dy: f32) -> Self {
         self.inner.dy = ff32!(dy);
         self
     }
 
+    /// Sets the standard deviation for the shadow blur.
+    ///
+    /// # Arguments
+    /// - `std_deviation`: The standard deviation for the shadow blur.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn std_deviation<T>(mut self, std_deviation: T) -> Self
     where
         T: Into<PositiveF32Pair>,
@@ -108,6 +141,13 @@ impl<'a> PrimitiveBuilder<'a, DropShadow> {
         self
     }
 
+    /// Sets the shadow fill color.
+    ///
+    /// # Arguments
+    /// - `color`: The [`Color`] applied to the shadow.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn flood_color<T>(mut self, color: T) -> Self
     where
         T: Into<Option<Color>>,
@@ -116,6 +156,13 @@ impl<'a> PrimitiveBuilder<'a, DropShadow> {
         self
     }
 
+    /// Sets the opacity of the shadow color.
+    ///
+    /// # Arguments
+    /// - `opacity`: The opacity value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn flood_opacity<T>(mut self, opacity: T) -> Self
     where
         T: Into<Option<f32>>,
@@ -124,6 +171,13 @@ impl<'a> PrimitiveBuilder<'a, DropShadow> {
         self
     }
 
+    /// Sets the color interpolation space used during filtering.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

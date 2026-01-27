@@ -26,6 +26,7 @@ use std::{
     hash::Hash,
 };
 
+/// The container for one or more [`FilterPrimitive`].
 #[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct Filter {
     filter_units: FilterUnits,
@@ -37,6 +38,39 @@ pub struct Filter {
 }
 
 impl Filter {
+    /// Creates a new [`Filter`] by executing a builder function on a fresh
+    /// [`FilterContext`].
+    ///
+    /// The provided closure receives a mutable reference to a
+    /// [`FilterContext`], which is used to construct and configure filter
+    /// primitives.
+    ///
+    /// # Note
+    /// Primitives are deduplicated automatically by the context, so
+    /// extra care is needed when defining multiple instances of similar filter
+    /// primitives, expecting them to use the result of the previous filter
+    /// primitive as their input.
+    ///
+    /// # Arguments
+    /// - `build`: The closure used to populate the filter with primitives.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use decal::prelude::*;
+    ///
+    /// let filter = Filter::new(|ctx| {
+    ///     let background = ctx.flood().color(Color::rgb(255, 255, 0)).finish();
+    ///
+    ///     ctx.gaussian_blur()
+    ///         .input(background)
+    ///         .std_deviation(5.0)
+    ///         .finish();
+    /// });
+    /// ```
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new<T>(build: T) -> Self
     where
         T: FnOnce(&mut FilterContext),
@@ -51,6 +85,13 @@ impl Filter {
         }
     }
 
+    /// Sets the coordinate system used for interpreting the filter region.
+    ///
+    /// # Arguments
+    /// - `value`: The [`FilterUnits`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn filter_units<I>(mut self, value: I) -> Self
     where
         I: Into<Option<FilterUnits>>,
@@ -59,6 +100,14 @@ impl Filter {
         self
     }
 
+    /// Sets the coordinate system used for interpreting filter primitive
+    /// subregions.
+    ///
+    /// # Arguments
+    /// - `value`: The [`PrimitiveUnits`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn primitive_units<I>(mut self, value: I) -> Self
     where
         I: Into<Option<PrimitiveUnits>>,
@@ -67,13 +116,20 @@ impl Filter {
         self
     }
 
+    /// Sets the color interpolation space used during filter evaluation.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.color_interpolation = value;
         self
     }
 
-    //
-
+    /// Appends another filter into this filter. Metadata is overwritten by the
+    /// appended filter.
     fn append(mut self, next: Filter) -> Self {
         self.filter_units = next.filter_units;
         self.primitive_units = next.primitive_units;
@@ -127,6 +183,7 @@ impl Display for Filter {
 //
 
 impl From<Vec<Filter>> for Filter {
+    #[inline]
     fn from(value: Vec<Filter>) -> Self {
         value
             .into_iter()
@@ -135,6 +192,7 @@ impl From<Vec<Filter>> for Filter {
 }
 
 impl<const N: usize> From<[Filter; N]> for Filter {
+    #[inline]
     fn from(value: [Filter; N]) -> Self {
         value
             .into_iter()

@@ -23,14 +23,20 @@ use std::fmt::{
 };
 use strict_num::FiniteF32;
 
+/// The color channel, used when sampling values from the [`DisplacementMap`]
+/// filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default, EnumDisplay)]
 pub enum ChannelSelector {
+    /// Use the red channel.
     #[display("R")]
     R,
+    /// Use the green channel.
     #[display("G")]
     G,
+    /// Use the blue channel.
     #[display("B")]
     B,
+    /// Use the alpha channel.
     #[default]
     #[display("A")]
     A,
@@ -38,6 +44,7 @@ pub enum ChannelSelector {
 
 impl IsDefault for ChannelSelector {}
 
+/// The displacement map filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct DisplacementMap {
     input: Option<FilterInput>,
@@ -51,6 +58,10 @@ pub struct DisplacementMap {
 }
 
 impl DisplacementMap {
+    /// Creates a new [`DisplacementMap`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         DisplacementMap::default()
     }
@@ -94,6 +105,13 @@ impl Display for DisplacementMap {
 }
 
 impl<'a> PrimitiveBuilder<'a, DisplacementMap> {
+    /// Sets the primary input to be displaced.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -102,6 +120,13 @@ impl<'a> PrimitiveBuilder<'a, DisplacementMap> {
         self
     }
 
+    /// Sets the displacement map input.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the displacement map.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn map<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -110,21 +135,49 @@ impl<'a> PrimitiveBuilder<'a, DisplacementMap> {
         self
     }
 
+    /// Sets the displacement scale factor.
+    ///
+    /// # Arguments
+    /// - `scale`: The amount of displacement applied to pixels.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn scale(mut self, scale: f32) -> Self {
         self.inner.scale = ff32!(scale);
         self
     }
 
+    /// Sets the channel used for horizontal displacement.
+    ///
+    /// # Arguments
+    /// - `channel_selector`: The [`ChannelSelector`] for the X axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn x_channel(mut self, channel_selector: ChannelSelector) -> Self {
         self.inner.x_channel_selector = channel_selector;
         self
     }
 
+    /// Sets the channel used for vertical displacement.
+    ///
+    /// # Arguments
+    /// - `channel_selector`: The [`ChannelSelector`] for the Y axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn y_channel(mut self, channel_selector: ChannelSelector) -> Self {
         self.inner.y_channel_selector = channel_selector;
         self
     }
 
+    /// Sets the color interpolation space used during displacement.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

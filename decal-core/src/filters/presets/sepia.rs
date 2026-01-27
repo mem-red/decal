@@ -1,7 +1,17 @@
 use crate::filters::Filter;
 
-// https://www.w3.org/TR/filter-effects-1/#sepiaEquivalent
-
+/// Creates a sepia filter effect with the specified intensity.
+///
+/// # Arguments
+/// - `amount`: The sepia intensity where `0.0` leaves the image unchanged and
+///   `1.0` applies a full sepia tone.
+///
+/// # Returns
+/// - [`Filter`] applying a sepia tone effect.
+///
+/// # Reference
+///
+/// https://www.w3.org/TR/filter-effects-1/#sepiaEquivalent
 pub fn sepia(amount: f32) -> Filter {
     let x = 1.0 - amount.clamp(0.0, 1.0);
 

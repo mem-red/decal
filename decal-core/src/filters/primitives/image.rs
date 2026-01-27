@@ -8,11 +8,13 @@ use crate::{
     primitives::CrossOrigin,
     utils::ElementWriter,
 };
+use quick_xml::escape::escape;
 use std::fmt::{
     Display,
     Formatter,
 };
 
+/// The image filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct Image {
     href: String,
@@ -21,9 +23,16 @@ pub struct Image {
 }
 
 impl Image {
+    /// Creates a new [`Image`] primitive.
+    ///
+    /// # Arguments
+    /// - `href`: The image source.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new(href: &str) -> Self {
         Image {
-            href: href.to_string(),
+            href: escape(href).to_string(),
             cross_origin: None,
             region: Default::default(),
         }
@@ -50,6 +59,13 @@ impl Display for Image {
 }
 
 impl<'a> PrimitiveBuilder<'a, Image> {
+    /// Sets the cross-origin policy used when loading the image.
+    ///
+    /// # Arguments
+    /// - `cross_origin`: The [`CrossOrigin`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn cross_origin<T>(mut self, cross_origin: T) -> Self
     where
         T: Into<Option<CrossOrigin>>,

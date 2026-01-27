@@ -13,6 +13,7 @@ use std::fmt::{
     Formatter,
 };
 
+/// The tile filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default)]
 pub struct Tile {
     input: Option<FilterInput>,
@@ -20,6 +21,10 @@ pub struct Tile {
 }
 
 impl Tile {
+    /// Creates a new [`Tile`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         Tile::default()
     }
@@ -44,6 +49,13 @@ impl Display for Tile {
 }
 
 impl<'a> PrimitiveBuilder<'a, Tile> {
+    /// Sets the input to be tiled.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,

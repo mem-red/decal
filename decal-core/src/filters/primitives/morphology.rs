@@ -22,6 +22,7 @@ use std::fmt::{
     Formatter,
 };
 
+/// The morphology operator for [`Morphology`] filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default, EnumDisplay)]
 pub enum MorphologyOperator {
     #[display("erode")]
@@ -33,6 +34,7 @@ pub enum MorphologyOperator {
 
 impl IsDefault for MorphologyOperator {}
 
+/// The morphology filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Morphology {
     input: Option<FilterInput>,
@@ -44,6 +46,10 @@ pub struct Morphology {
 }
 
 impl Morphology {
+    /// Creates a new [`Morphology`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         Morphology::default()
     }
@@ -75,6 +81,13 @@ impl Display for Morphology {
 }
 
 impl<'a> PrimitiveBuilder<'a, Morphology> {
+    /// Sets the input for the morphology operation.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -83,11 +96,25 @@ impl<'a> PrimitiveBuilder<'a, Morphology> {
         self
     }
 
+    /// Sets the morphology operator.
+    ///
+    /// # Arguments
+    /// - `operator`: The [`MorphologyOperator`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn operator(mut self, operator: MorphologyOperator) -> Self {
         self.inner.operator = operator;
         self
     }
 
+    /// Sets the radius of the morphology operation.
+    ///
+    /// # Arguments
+    /// - `radius`: The radius value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn radius<T>(mut self, radius: T) -> Self
     where
         T: Into<PositiveF32Pair>,
@@ -96,6 +123,13 @@ impl<'a> PrimitiveBuilder<'a, Morphology> {
         self
     }
 
+    /// Sets the color interpolation space used during morphology.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

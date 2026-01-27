@@ -21,17 +21,22 @@ use std::fmt::{
     Formatter,
 };
 
+/// The type of the turbulence function used by the [`Turbulence`] filter
+/// primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, Default, EnumDisplay)]
 pub enum TurbulenceType {
+    /// The standard turbulence function.
     #[default]
     #[display("turbulence")]
     Turbulence,
+    /// The fractal noise variant.
     #[display("fractalNoise")]
     FractalNoise,
 }
 
 impl IsDefault for TurbulenceType {}
 
+/// The turbulence filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Turbulence {
     base_freq: PositiveF32Pair,
@@ -45,6 +50,10 @@ pub struct Turbulence {
 }
 
 impl Turbulence {
+    /// Creates a new [`Turbulence`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         Turbulence::default()
     }
@@ -77,6 +86,13 @@ impl Display for Turbulence {
 }
 
 impl<'a> PrimitiveBuilder<'a, Turbulence> {
+    /// Sets the base frequency of the turbulence noise.
+    ///
+    /// # Arguments
+    /// - `base_freq`: The base frequency for the noise function.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn base_freq<T>(mut self, base_freq: T) -> Self
     where
         T: Into<PositiveF32Pair>,
@@ -85,26 +101,58 @@ impl<'a> PrimitiveBuilder<'a, Turbulence> {
         self
     }
 
+    /// Sets the number of octaves used to generate the noise.
+    ///
+    /// # Arguments
+    /// - `num_octaves`: The number of noise octaves.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn num_octaves(mut self, num_octaves: u64) -> Self {
         self.inner.num_octaves = num_octaves;
         self
     }
 
+    /// Sets the seed used for noise generation.
+    ///
+    /// # Arguments
+    /// - `seed`: The seed value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn seed(mut self, seed: u64) -> Self {
         self.inner.seed = seed;
         self
     }
 
+    /// Sets the turbulence function type.
+    ///
+    /// # Arguments
+    /// - `kind`: The [`TurbulenceType`] to use.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn kind(mut self, kind: TurbulenceType) -> Self {
         self.inner.kind = kind;
         self
     }
 
+    /// Configures the turbulence to use fractal noise.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn fractal_noise(mut self) -> Self {
         self.inner.kind = TurbulenceType::FractalNoise;
         self
     }
 
+    /// Sets the color interpolation space used during filtering.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

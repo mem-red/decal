@@ -22,6 +22,7 @@ use std::fmt::{
     Formatter,
 };
 
+/// The gaussian blur filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct GaussianBlur {
     input: Option<FilterInput>,
@@ -33,6 +34,10 @@ pub struct GaussianBlur {
 }
 
 impl GaussianBlur {
+    /// Creates a new [`GaussianBlur`] primitive.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new() -> Self {
         GaussianBlur::default()
     }
@@ -68,6 +73,13 @@ impl Display for GaussianBlur {
 }
 
 impl<'a> PrimitiveBuilder<'a, GaussianBlur> {
+    /// Sets the input for the gaussian blur.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -76,6 +88,13 @@ impl<'a> PrimitiveBuilder<'a, GaussianBlur> {
         self
     }
 
+    /// Sets the standard deviation of the gaussian blur.
+    ///
+    /// # Arguments
+    /// - `std_deviation`: The standard deviation for the shadow blur.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn std_deviation<T>(mut self, std_deviation: T) -> Self
     where
         T: Into<PositiveF32Pair>,
@@ -84,11 +103,25 @@ impl<'a> PrimitiveBuilder<'a, GaussianBlur> {
         self
     }
 
+    /// Sets the edge handling mode.
+    ///
+    /// # Arguments
+    /// - `edge_mode`: The [`EdgeMode`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn edge_mode(mut self, edge_mode: EdgeMode) -> Self {
         self.inner.edge_mode = edge_mode;
         self
     }
 
+    /// Sets the color interpolation space used during the blur computation.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self

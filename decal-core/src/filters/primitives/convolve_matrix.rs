@@ -25,6 +25,7 @@ use std::fmt::{
 };
 use strict_num::FiniteF32;
 
+/// The kernel order for the [`ConvolveMatrix`] filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct Order(u32, u32);
 
@@ -37,12 +38,14 @@ impl Default for Order {
 impl IsDefault for Order {}
 
 impl From<u32> for Order {
+    #[inline]
     fn from(value: u32) -> Self {
         Self(value, value)
     }
 }
 
 impl From<(u32, u32)> for Order {
+    #[inline]
     fn from((x, y): (u32, u32)) -> Self {
         Self(x, y)
     }
@@ -60,8 +63,7 @@ impl Display for Order {
     }
 }
 
-//
-
+/// The convolve matrix filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct ConvolveMatrix {
     input: Option<FilterInput>,
@@ -79,6 +81,14 @@ pub struct ConvolveMatrix {
 }
 
 impl ConvolveMatrix {
+    /// Creates a new [`ConvolveMatrix`] primitive with the provided kernel
+    /// matrix.
+    ///
+    /// # Arguments
+    /// - `kernel_matrix`: The convolution kernel values.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new(kernel_matrix: Vec<f32>) -> Self {
         ConvolveMatrix {
             kernel_matrix: kernel_matrix.into_iter().map(|x| ff32!(x)).collect(),
@@ -125,6 +135,13 @@ impl Display for ConvolveMatrix {
 }
 
 impl<'a> PrimitiveBuilder<'a, ConvolveMatrix> {
+    /// Sets the input for the convolution operation.
+    ///
+    /// # Arguments
+    /// - `input`: The [`FilterInput`] used as the source graphic.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn input<T>(mut self, input: T) -> Self
     where
         T: Into<FilterInput>,
@@ -133,6 +150,13 @@ impl<'a> PrimitiveBuilder<'a, ConvolveMatrix> {
         self
     }
 
+    /// Sets the kernel order for the convolution.
+    ///
+    /// # Arguments
+    /// - `order`: The convolution [`Order`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn order<T>(mut self, order: T) -> Self
     where
         T: Into<Order>,
@@ -141,6 +165,13 @@ impl<'a> PrimitiveBuilder<'a, ConvolveMatrix> {
         self
     }
 
+    /// Sets the divisor applied to the kernel sum.
+    ///
+    /// # Arguments
+    /// - `divisor`: The divisor value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn divisor<T>(mut self, divisor: T) -> Self
     where
         T: Into<Option<f32>>,
@@ -149,11 +180,25 @@ impl<'a> PrimitiveBuilder<'a, ConvolveMatrix> {
         self
     }
 
+    /// Sets the bias added to the convolution result.
+    ///
+    /// # Arguments
+    /// - `bias`: The bias value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn bias(mut self, bias: f32) -> Self {
         self.inner.bias = ff32!(bias);
         self
     }
 
+    /// Sets the target X coordinate within the kernel.
+    ///
+    /// # Arguments
+    /// - `target_x`: The target X index.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn target_x<T>(mut self, target_x: T) -> Self
     where
         T: Into<Option<u32>>,
@@ -162,6 +207,13 @@ impl<'a> PrimitiveBuilder<'a, ConvolveMatrix> {
         self
     }
 
+    /// Sets the target Y coordinate within the kernel.
+    ///
+    /// # Arguments
+    /// - `target_y`: The target Y index.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn target_y<T>(mut self, target_y: T) -> Self
     where
         T: Into<Option<u32>>,
@@ -170,16 +222,37 @@ impl<'a> PrimitiveBuilder<'a, ConvolveMatrix> {
         self
     }
 
+    /// Sets the edge handling mode.
+    ///
+    /// # Arguments
+    /// - `edge_mode`: The [`EdgeMode`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn edge_mode(mut self, edge_mode: EdgeMode) -> Self {
         self.inner.edge_mode = edge_mode;
         self
     }
 
+    /// Controls whether the alpha channel is preserved.
+    ///
+    /// # Arguments
+    /// - `value`: Whether to preserve the alpha channel.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn preserve_alpha(mut self, value: bool) -> Self {
         self.inner.preserve_alpha = value;
         self
     }
 
+    /// Sets the color interpolation space used during filtering.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation(mut self, value: ColorInterpolation) -> Self {
         self.inner.color_interpolation = value;
         self
