@@ -130,7 +130,7 @@ impl Tokenize for Node {
             }
         }
 
-        let scene_ident = Ident::new("scene", Span::mixed_site());
+        let scene_ident = Ident::new("main_scene", Span::mixed_site());
         let node_kind_ident = format_ident!("{}", self.name);
         let node_token = ident_gen.uniq(&format!("{}_node", self.name.to_string().to_lowercase()));
         let ctor_args = &self.args;
