@@ -42,8 +42,6 @@ fn main() {
 
 ## Examples
 
-### Basic layout
-
 <details open>
 <summary>Basic layout</summary>
 
