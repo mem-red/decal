@@ -44,6 +44,9 @@ fn main() {
 
 ### Basic layout
 
+<details open>
+<summary>Basic layout</summary>
+
 ```rust
 decal! {
   Row {
@@ -78,9 +81,10 @@ decal! {
 
 <img src="https://raw.githubusercontent.com/mem-red/decal/refs/heads/main/assets/example_1.png" style="width: 100%;"  alt="Rendered image" />
 
-***
+</details>
 
-### Filters
+<details>
+<summary>Filters</summary>
 
 ```rust
 decal! {
@@ -118,9 +122,7 @@ decal! {
 
 <img src="https://raw.githubusercontent.com/mem-red/decal/refs/heads/main/assets/example_2.png" style="width: 100%;"  alt="Rendered image" />
 
-***
-
-<br />
+</details>
 
 Explore more [examples](https://github.com/mem-red/decal/tree/main/decal-core/examples).
 
