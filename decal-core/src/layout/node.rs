@@ -235,7 +235,7 @@ impl Node {
                         border,
                         clip_x,
                         clip_y,
-                        ctx.root_size,
+                        ctx.scene_size,
                     )
                 })?
                 .close()

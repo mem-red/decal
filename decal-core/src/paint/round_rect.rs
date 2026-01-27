@@ -43,13 +43,13 @@ pub(crate) fn write_clip_path<T>(
     border: Rect<f32>,
     clip_x: bool,
     clip_y: bool,
-    root_size: Size<f32>,
+    scene_size: Size<f32>,
 ) -> std::fmt::Result
 where
     T: std::fmt::Write,
 {
     let (bt, br, bb, bl) = border.tuple();
-    let (root_w, root_h) = (root_size.width(), root_size.height());
+    let (scene_w, scene_h) = (scene_size.width(), scene_size.height());
     let ir = inset_radii(r, border);
     let (x1, y1) = (bl, bt);
     let (x2, y2) = (w - br, h - bb);
@@ -60,9 +60,9 @@ where
         // full clipping
         (true, true) => write_round_rect(out, x1, y1, x2, y2, ir),
         // clip x (entire height of element is visible, bounded by root height)
-        (true, false) => write_round_rect(out, x1, 0.0, x2, root_h, ir),
+        (true, false) => write_round_rect(out, x1, 0.0, x2, scene_h, ir),
         // clip y (entire width of element is visible, bounded by root width)
-        (false, true) => write_round_rect(out, 0.0, y1, root_w, y2, ir),
+        (false, true) => write_round_rect(out, 0.0, y1, scene_w, y2, ir),
     }
 }
 

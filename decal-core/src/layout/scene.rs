@@ -53,26 +53,40 @@ use usvg::{
 const ROOT_ID: usize = 0;
 const INLINE_FRAG_CASCADE: usize = 16;
 
+/// The error that may occur during rasterization of a scene.
 #[derive(Debug, Error)]
 pub enum RasterizeError {
+    /// Failure while vectorizing the scene into SVG.
     #[error("failed to vectorize")]
     Vectorize(#[from] VectorizeError),
+    /// Failure while writing SVG output to the target stream.
     #[error("failed to write to the output stream")]
     Write(#[from] std::fmt::Error),
+    /// Failure while parsing the generated SVG.
     #[error("failed to parse svg")]
     Parse(#[from] usvg::Error),
+    /// Failure to allocate a raster image buffer.
     #[error("failed to allocate pixmap")]
     PixmapAlloc,
 }
 
+/// The central scene container responsible for layout, rendering, and resource
+/// management.
 #[derive(Debug)]
-pub struct Decal {
+pub struct Scene {
     fonts: Arc<Mutex<FontRegistry>>,
     resources: Mutex<Resources>,
     nodes: Vec<Node>,
 }
 
-impl Decal {
+impl Scene {
+    /// Creates a new scene with the given root node.
+    ///
+    /// # Arguments
+    /// - `root`: The root [`Node`] of the scene.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new(root: Node) -> Self {
         let mut resources = Resources::default();
 
@@ -88,14 +102,33 @@ impl Decal {
         }
     }
 
+    /// Returns the [`NodeId`] of the root node.
+    ///
+    /// # Returns
+    /// - [`NodeId`] corresponding to the root.
     pub fn root_id(&self) -> NodeId {
         ROOT_ID.into()
     }
 
+    /// Returns the total number of nodes in the scene.
+    ///
+    /// # Returns
+    /// - The number of nodes.
     pub fn node_count(&self) -> usize {
         self.nodes.len()
     }
 
+    /// Appends a child node to the scene under the given parent node.
+    ///
+    /// # Arguments
+    /// - `parent_id`: The [`NodeId`] of the parent node.
+    /// - `child`: The child [`Node`] to append.
+    ///
+    /// # Returns
+    /// - [`NodeId`] of the newly added child.
+    ///
+    /// # Warning
+    /// Panics if the parent node is atomic and cannot contain children.
     pub fn append_child(&mut self, parent_id: NodeId, mut child: Node) -> NodeId {
         self.assert_non_atomic(parent_id);
         let parent = &self.nodes[parent_id];
@@ -120,21 +153,29 @@ impl Decal {
         child_id.into()
     }
 
-    pub fn append_fragment(&mut self, parent_id: NodeId, mut fragment: Decal) {
-        if fragment.nodes.is_empty() {
+    /// Appends an entire scene as a subtree to the current scene under the
+    /// given parent node.
+    ///
+    /// All node indices and typography cascades are adjusted accordingly.
+    ///
+    /// # Arguments
+    /// - `parent_id`: The [`NodeId`] of the parent node.
+    /// - `scene`: The scene to append.
+    pub fn append_scene(&mut self, parent_id: NodeId, mut scene: Scene) {
+        if scene.nodes.is_empty() {
             return;
         }
 
         self.assert_non_atomic(parent_id);
 
         let parent_typography = &self.nodes[parent_id].typography;
-        cascade_typography_subtree(&mut fragment.nodes, parent_typography);
+        cascade_typography_subtree(&mut scene.nodes, parent_typography);
 
-        let root_id = self.nodes.len(); // fragment root node
-        self.nodes.reserve(fragment.nodes.len()); // pre-allocation
+        let root_id = self.nodes.len(); // scene root node
+        self.nodes.reserve(scene.nodes.len()); // pre-allocation
         self.nodes[parent_id].children.push(root_id);
 
-        for mut node in fragment.nodes {
+        for mut node in scene.nodes {
             // update child indices after adding them to main arena
             for child_id in node.children.iter_mut() {
                 *child_id += root_id;
@@ -152,13 +193,21 @@ impl Decal {
         }
     }
 
+    /// Prints the scene graph in a tree format.
     #[allow(dead_code)]
     pub(crate) fn print_tree(&self) {
         print_tree(self, taffy::NodeId::from(ROOT_ID));
     }
 
-    //
-
+    /// Streams the vectorized SVG representation into the given output writer.
+    ///
+    /// # Arguments
+    /// - `out`: The output writer.
+    /// - `options`: The [`VectorizeOptions`] value.
+    ///
+    /// # Returns
+    /// - Final scene size on success.
+    /// - [`VectorizeError`] on failure.
     pub(crate) fn stream_vector<T>(
         &self,
         out: &mut T,
@@ -206,7 +255,7 @@ impl Decal {
                 out,
                 fonts: self.fonts.clone(),
                 resources: &self.resources,
-                root_size: size,
+                scene_size: size,
             },
             taffy::NodeId::from(ROOT_ID),
         )?;
@@ -226,15 +275,32 @@ impl Decal {
         Ok(size)
     }
 
+    /// Vectorizes the scene into an SVG string.
+    ///
+    /// # Arguments
+    /// - `options`: The [`VectorizeOptions`] value.
+    ///
+    /// # Returns
+    /// - `(svg_string, scene_size)` on success.
+    /// - [`VectorizeError`] on failure.
     pub(crate) fn vectorize(
         &self,
         options: &VectorizeOptions,
     ) -> Result<(String, Size<f32>), VectorizeError> {
         let mut out = String::new();
         self.stream_vector(&mut out, options)
-            .map(|root_size| (out, root_size))
+            .map(|scene_size| (out, scene_size))
     }
 
+    /// Rasterizes the scene into a [`Pixmap`].
+    ///
+    /// # Arguments
+    /// - `image_cache`: Shared image cache.
+    /// - `options`: The [`RasterizeOptions`] value.
+    ///
+    /// # Returns
+    /// - `(pixmap, scene_size)` on success.
+    /// - [`RasterizeError`] on failure.
     pub(crate) fn rasterize(
         &self,
         image_cache: &ImageCache,
@@ -295,12 +361,17 @@ impl Decal {
         Ok((pixmap, size))
     }
 
+    /// Computes layout for all nodes in the scene.
     pub(crate) fn compute_layout(&mut self) {
         let root_id = taffy::NodeId::from(self.root_id());
         compute_root_layout(self, root_id, taffy::Size::MAX_CONTENT);
         round_layout(self, root_id);
     }
 
+    /// Sets the font registry used for layout and rendering.
+    ///
+    /// # Arguments
+    /// - `fonts`: The next font registry.
     pub(crate) fn set_fonts(&mut self, fonts: Arc<Mutex<FontRegistry>>) {
         self.fonts = fonts;
     }
@@ -325,6 +396,7 @@ impl Decal {
         &mut self.nodes[usize::from(node_id)]
     }
 
+    /// Emits a node and its subtree into the render context.
     fn emit_node<T>(
         &self,
         ctx: &mut RenderContext<T>,
@@ -350,6 +422,14 @@ impl Decal {
     }
 }
 
+/// Converts raw image bytes into [`ImageKind`].
+///
+/// # Arguments
+/// - `data`: The raw image data.
+///
+/// # Returns
+/// - `Some(ImageKind)` on success.
+/// - `None` when kind of image cannot be inferred.
 fn to_image_kind(data: Arc<Vec<u8>>) -> Option<ImageKind> {
     match infer::get(&data)?.mime_type() {
         "image/png" => Some(ImageKind::PNG(data)),
@@ -360,7 +440,19 @@ fn to_image_kind(data: Arc<Vec<u8>>) -> Option<ImageKind> {
     }
 }
 
-//noinspection HttpUrlsUsage
+/// Resolves and caches external images referenced by `href`.
+///
+/// # Arguments
+/// - `image_cache`: The shared image cache.
+/// - `href`: The image reference.
+/// - `opts`: The [`ImageOptions`] value.
+/// - `usvg_opts`: The [`Options`] value.
+///
+/// # Returns
+/// - `Some(ImageKind)` on success
+/// - `None` during failure
+///
+/// [`Options`]: usvg::Options
 fn fetch_image_cached(
     image_cache: &ImageCache,
     href: &str,
@@ -402,6 +494,11 @@ fn fetch_image_cached(
     image
 }
 
+/// Cascades typography values through a subtree rooted at the first node.
+///
+/// # Arguments
+/// - `nodes`: The node list.
+/// - `parent_typography`: The parent node's [`Typography`].
 fn cascade_typography_subtree(nodes: &mut [Node], parent_typography: &Typography) {
     let mut stack: SmallVec<[(usize, Typography); INLINE_FRAG_CASCADE]> = SmallVec::new();
     stack.push((ROOT_ID, parent_typography.clone()));
@@ -424,6 +521,7 @@ fn cascade_typography_subtree(nodes: &mut [Node], parent_typography: &Typography
     }
 }
 
+/// Collects bounding boxes and stroke bounding boxes for debugging output.
 fn collect_bboxes(
     parent: &usvg::Group,
     bboxes: &mut Vec<usvg::Rect>,
@@ -446,6 +544,7 @@ fn collect_bboxes(
 
 impl std::ops::Index<NodeId> for Vec<Node> {
     type Output = Node;
+
     fn index(&self, id: NodeId) -> &Self::Output {
         &self[usize::from(id)]
     }
@@ -468,7 +567,7 @@ impl Iterator for sealed::ChildIter<'_> {
     }
 }
 
-impl TraversePartialTree for Decal {
+impl TraversePartialTree for Scene {
     type ChildIter<'a> = sealed::ChildIter<'a>;
 
     fn child_ids(&self, node_id: taffy::NodeId) -> Self::ChildIter<'_> {
@@ -484,9 +583,9 @@ impl TraversePartialTree for Decal {
     }
 }
 
-impl TraverseTree for Decal {}
+impl TraverseTree for Scene {}
 
-impl LayoutPartialTree for Decal {
+impl LayoutPartialTree for Scene {
     type CoreContainerStyle<'a>
         = &'a taffy::Style
     where
@@ -538,7 +637,7 @@ impl LayoutPartialTree for Decal {
     }
 }
 
-impl CacheTree for Decal {
+impl CacheTree for Scene {
     fn cache_get(
         &self,
         node_id: taffy::NodeId,
@@ -572,7 +671,7 @@ impl CacheTree for Decal {
     }
 }
 
-impl taffy::LayoutBlockContainer for Decal {
+impl taffy::LayoutBlockContainer for Scene {
     type BlockContainerStyle<'a>
         = &'a taffy::Style
     where
@@ -592,7 +691,7 @@ impl taffy::LayoutBlockContainer for Decal {
     }
 }
 
-impl taffy::LayoutFlexboxContainer for Decal {
+impl taffy::LayoutFlexboxContainer for Scene {
     type FlexboxContainerStyle<'a>
         = &'a taffy::Style
     where
@@ -615,7 +714,7 @@ impl taffy::LayoutFlexboxContainer for Decal {
     }
 }
 
-impl taffy::LayoutGridContainer for Decal {
+impl taffy::LayoutGridContainer for Scene {
     type GridContainerStyle<'a>
         = &'a taffy::Style
     where
@@ -635,7 +734,7 @@ impl taffy::LayoutGridContainer for Decal {
     }
 }
 
-impl RoundTree for Decal {
+impl RoundTree for Scene {
     fn get_unrounded_layout(&self, node_id: taffy::NodeId) -> taffy::Layout {
         self.node_from_id(node_id).unrounded_layout
     }
@@ -647,7 +746,7 @@ impl RoundTree for Decal {
     }
 }
 
-impl PrintTree for Decal {
+impl PrintTree for Scene {
     fn get_debug_label(&self, node_id: taffy::NodeId) -> &'static str {
         match self.node_from_id(node_id).kind {
             NodeKind::Block => "BLOCK",

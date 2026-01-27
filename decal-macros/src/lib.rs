@@ -6,7 +6,7 @@ mod text;
 use crate::text::text_impl;
 use ast::{
     child::Tokenize,
-    tree::DecalTree,
+    tree::SceneTree,
 };
 use ident_gen::IdentGen;
 use proc_macro::TokenStream;
@@ -23,7 +23,7 @@ pub fn text(input: TokenStream) -> TokenStream {
 }
 
 fn decal_impl(input: TokenStream) -> TokenStream {
-    let DecalTree { root } = parse_macro_input!(input as DecalTree);
+    let SceneTree { root } = parse_macro_input!(input as SceneTree);
     let mut ident_gen = IdentGen::new();
     TokenStream::from(root.tokenize(&mut ident_gen, None))
 }

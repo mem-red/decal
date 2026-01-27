@@ -17,7 +17,7 @@ where
     pub(crate) out: &'a mut T,
     pub(crate) fonts: Arc<Mutex<FontRegistry>>,
     pub(crate) resources: &'a Mutex<Resources>,
-    pub(crate) root_size: Size<f32>,
+    pub(crate) scene_size: Size<f32>,
 }
 
 impl<'a, T> RenderContext<'a, T>
@@ -30,7 +30,7 @@ where
             out,
             fonts: Default::default(),
             resources,
-            root_size: Size::from_values(0.0, 0.0),
+            scene_size: Size::from_values(0.0, 0.0),
         }
     }
 }

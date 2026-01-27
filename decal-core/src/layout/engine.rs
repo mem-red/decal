@@ -3,6 +3,7 @@ use crate::{
         Decal,
         RasterizeError,
         RasterizeOptions,
+        Scene,
         VectorizeError,
         VectorizeOptions,
         font::FontRegistry,
@@ -54,37 +55,38 @@ impl Engine {
 
     pub fn rasterize(
         &mut self,
-        decal: &mut Decal,
+        scene: &mut Scene,
         options: &RasterizeOptions,
     ) -> Result<(Pixmap, Size<f32>), RasterizeError> {
-        self.prepare(decal).rasterize(&self.image_cache, options)
+        self.prepare(scene).rasterize(&self.image_cache, options)
     }
 
     pub fn vectorize(
         &mut self,
-        decal: &mut Decal,
+        scene: &mut Scene,
         options: &VectorizeOptions,
     ) -> Result<(String, Size<f32>), VectorizeError> {
-        self.prepare(decal).vectorize(options)
+        self.prepare(scene).vectorize(options)
     }
 
     pub fn stream_vector<T>(
         &mut self,
         destination: &mut T,
-        decal: &mut Decal,
+        scene: &mut Scene,
         options: &VectorizeOptions,
     ) -> Result<Size<f32>, VectorizeError>
     where
         T: Write,
     {
-        self.prepare(decal).stream_vector(destination, options)
+        self.prepare(scene).stream_vector(destination, options)
     }
 
-    //
-
-    fn prepare<'a>(&self, decal: &'a mut Decal) -> &'a mut Decal {
-        decal.set_fonts(self.fonts.clone());
-        decal.compute_layout();
-        decal
+    /// Prepares the scene for rendering.
+    ///
+    /// This injects the engine font registry and computes layout.
+    fn prepare<'a>(&self, scene: &'a mut Scene) -> &'a mut Scene {
+        scene.set_fonts(self.fonts.clone());
+        scene.compute_layout();
+        scene
     }
 }

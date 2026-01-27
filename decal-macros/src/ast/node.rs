@@ -10,7 +10,10 @@ use crate::{
         method_call::MethodCall,
     },
 };
-use proc_macro2::TokenStream;
+use proc_macro2::{
+    Span,
+    TokenStream,
+};
 use quote::{
     format_ident,
     quote,
@@ -45,7 +48,7 @@ pub(crate) struct Node {
 impl Parse for Node {
     fn parse(input: ParseStream) -> SynResult<Self> {
         let name: Ident = input.parse()?;
-        let is_fragment = name == "Fragment";
+        let is_scene = name == "Scene";
         let is_snippet = name == "Snippet";
 
         let args = if input.peek(token::Paren) {
@@ -78,12 +81,12 @@ impl Parse for Node {
             Vec::new()
         };
 
-        // Validate fragment node
-        if is_fragment {
+        // Validate scene node
+        if is_scene {
             let err_msg = if !children.is_empty() {
-                Some("`Fragment` node cannot contain children")
+                Some("`Scene` node cannot contain children")
             } else if args.len() != 1 {
-                Some("`Fragment` node expects a single argument")
+                Some("`Scene` node expects a single argument")
             } else {
                 None
             };
@@ -116,8 +119,8 @@ impl Tokenize for Node {
     ) -> TokenStream {
         // this is a root node
         if parent_token.is_none() {
-            if self.name == "Fragment" {
-                return SynError::new_spanned(&self.name, "top-level node most not be a fragment")
+            if self.name == "Scene" {
+                return SynError::new_spanned(&self.name, "top-level node most not be a scene")
                     .to_compile_error();
             }
 
@@ -127,6 +130,7 @@ impl Tokenize for Node {
             }
         }
 
+        let scene_ident = Ident::new("scene", Span::mixed_site());
         let node_kind_ident = format_ident!("{}", self.name);
         let node_token = ident_gen.uniq(&format!("{}_node", self.name.to_string().to_lowercase()));
         let ctor_args = &self.args;
@@ -158,20 +162,20 @@ impl Tokenize for Node {
             None => quote! {
                 {
                     use decal::prelude::*;
-                    let mut decal = Decal::new(#node_expr);
-                    let mut #node_token = decal.root_id();
+                    let mut #scene_ident = Scene::new(#node_expr);
+                    let mut #node_token = #scene_ident.root_id();
                     #(#children_tokens)*
-                    decal
+                    #scene_ident
                 }
             },
             // Child node
             Some(parent_id) => {
-                if self.name == "Fragment" {
+                if self.name == "Scene" {
                     let args = &self.args;
-                    quote! { decal.append_fragment(#parent_id, #args); }
+                    quote! { #scene_ident.append_scene(#parent_id, #args); }
                 } else {
                     quote! {
-                        let #node_token = decal.append_child(
+                        let #node_token = #scene_ident.append_child(
                             #parent_id,
                             #node_expr
                         );

@@ -7,11 +7,11 @@ use syn::{
     },
 };
 
-pub(crate) struct DecalTree {
+pub(crate) struct SceneTree {
     pub(crate) root: Node,
 }
 
-impl Parse for DecalTree {
+impl Parse for SceneTree {
     fn parse(input: ParseStream) -> SynResult<Self> {
         Ok(Self {
             root: input.parse()?,
