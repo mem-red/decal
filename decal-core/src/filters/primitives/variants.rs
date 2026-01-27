@@ -89,102 +89,119 @@ impl ResourceIri for FilterPrimitive {
 //
 
 impl From<Flood> for FilterPrimitive {
+    #[inline]
     fn from(value: Flood) -> Self {
         Self::Flood(value)
     }
 }
 
 impl From<Image> for FilterPrimitive {
+    #[inline]
     fn from(value: Image) -> Self {
         Self::Image(value)
     }
 }
 
 impl From<GaussianBlur> for FilterPrimitive {
+    #[inline]
     fn from(value: GaussianBlur) -> Self {
         Self::GaussianBlur(value)
     }
 }
 
 impl From<Turbulence> for FilterPrimitive {
+    #[inline]
     fn from(value: Turbulence) -> Self {
         Self::Turbulence(value)
     }
 }
 
 impl From<ColorMatrix> for FilterPrimitive {
+    #[inline]
     fn from(value: ColorMatrix) -> Self {
         Self::ColorMatrix(value)
     }
 }
 
 impl From<ComponentTransfer> for FilterPrimitive {
+    #[inline]
     fn from(value: ComponentTransfer) -> Self {
         Self::ComponentTransfer(value)
     }
 }
 
 impl From<DisplacementMap> for FilterPrimitive {
+    #[inline]
     fn from(value: DisplacementMap) -> Self {
         Self::DisplacementMap(value)
     }
 }
 
 impl From<Composite> for FilterPrimitive {
+    #[inline]
     fn from(value: Composite) -> Self {
         Self::Composite(value)
     }
 }
 
 impl From<Blend> for FilterPrimitive {
+    #[inline]
     fn from(value: Blend) -> Self {
         Self::Blend(value)
     }
 }
 
 impl From<Merge> for FilterPrimitive {
+    #[inline]
     fn from(value: Merge) -> Self {
         Self::Merge(value)
     }
 }
 
 impl From<SpecularLighting> for FilterPrimitive {
+    #[inline]
     fn from(value: SpecularLighting) -> Self {
         Self::SpecularLighting(value)
     }
 }
 
 impl From<DiffuseLighting> for FilterPrimitive {
+    #[inline]
     fn from(value: DiffuseLighting) -> Self {
         Self::DiffuseLighting(value)
     }
 }
 
 impl From<ConvolveMatrix> for FilterPrimitive {
+    #[inline]
     fn from(value: ConvolveMatrix) -> Self {
         Self::ConvolveMatrix(value)
     }
 }
 
 impl From<DropShadow> for FilterPrimitive {
+    #[inline]
     fn from(value: DropShadow) -> Self {
         Self::DropShadow(value)
     }
 }
 
 impl From<Morphology> for FilterPrimitive {
+    #[inline]
     fn from(value: Morphology) -> Self {
         Self::Morphology(value)
     }
 }
 
 impl From<Offset> for FilterPrimitive {
+    #[inline]
     fn from(value: Offset) -> Self {
         Self::Offset(value)
     }
 }
 
 impl From<Tile> for FilterPrimitive {
+    #[inline]
     fn from(value: Tile) -> Self {
         Self::Tile(value)
     }
