@@ -1,12 +1,10 @@
 use super::Drawable;
-use crate::{
-    primitives::Paint,
-    text::{
-        FontStyle,
-        FontWeight,
-        TextAlign,
-        TextWrap,
-    },
+use crate::primitives::{
+    FontStyle,
+    FontWeight,
+    Paint,
+    TextAlign,
+    TextWrap,
 };
 
 /// Capability for configuring text appearance and typography on a node.

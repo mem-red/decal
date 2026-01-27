@@ -19,12 +19,10 @@ use crate::{
     },
     primitives::{
         Color,
-        Mask,
-        PaintStack,
-    },
-    text::{
         FontStyle,
         FontWeight,
+        Mask,
+        PaintStack,
     },
     utils::{
         ElementWriter,

@@ -5,7 +5,6 @@ pub use crate::{
     filters::*,
     layout::*,
     primitives::*,
-    text::*,
 };
 
 // Public macros re-export

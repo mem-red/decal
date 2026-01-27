@@ -15,10 +15,10 @@ use crate::{
         IntoResources,
         Resource,
     },
-    primitives::Paint,
-    text::{
+    primitives::{
         FontStyle,
         FontWeight,
+        Paint,
     },
 };
 use taffy::prelude::*;

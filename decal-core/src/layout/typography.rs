@@ -1,11 +1,9 @@
-use crate::{
-    primitives::Paint,
-    text::{
-        FontStyle,
-        FontWeight,
-        TextAlign,
-        TextWrap,
-    },
+use crate::primitives::{
+    FontStyle,
+    FontWeight,
+    Paint,
+    TextAlign,
+    TextWrap,
 };
 
 /// Stores both explicitly specified text properties and values inherited from
