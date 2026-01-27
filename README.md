@@ -3,7 +3,8 @@
 [![Latest Version](https://img.shields.io/crates/v/decal.svg)](https://crates.io/crates/decal)
 [![Rust Documentation](https://docs.rs/decal/badge.svg)](https://docs.rs/decal)
 
-A declarative that lets you describe scene using a Rust DSL, then render it to SVG or PNG.
+A declarative graphics rendering library that lets you describe scenes using a Rust-native DSL and render them to SVG or
+PNG.
 
 ## Usage
 
