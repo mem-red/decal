@@ -1,14 +1,21 @@
 use ryu::Buffer;
 use std::fmt::Write;
 
+/// Utility trait for pretty-writing floating point values with controlled
+/// precision.
 pub(crate) trait FloatWriter<T>
 where
     T: Write,
 {
     const FLOAT_SCALE: f32 = 10_000.0;
 
+    /// Returns a mutable reference to the underlying output writer.
     fn out_mut(&mut self) -> &mut T;
 
+    /// Writes a float value using the default precision.
+    ///
+    /// # Arguments
+    /// - `value`: The float value to write.
     fn write_float(&mut self, value: f32) -> std::fmt::Result
     where
         T: Write,
@@ -16,10 +23,20 @@ where
         self.write_float_precise(value, Self::FLOAT_SCALE)
     }
 
+    /// Writes a float value using a custom precision.
+    ///
+    /// Values are rounded to the nearest multiple of `1 / scale` before being
+    /// written.
+    ///
+    /// # Arguments
+    /// - `value`: The float value to write.
+    /// - `scale`: Rounding scale.
     fn write_float_precise(&mut self, mut value: f32, scale: f32) -> std::fmt::Result
     where
         T: Write,
     {
+        debug_assert_ne!(scale, 0.0);
+
         value = (value * scale).round() / scale;
 
         if value.fract() == 0.0 {

@@ -29,6 +29,7 @@ use enum_display::EnumDisplay;
 use std::fmt::Write;
 use thiserror::Error;
 
+/// The error that may occur during vectorization of a scene.
 #[derive(Debug, Error)]
 pub enum VectorizeError {
     #[error("cannot vectorize an empty scene")]
@@ -60,6 +61,7 @@ impl NodeKind {
     }
 }
 
+/// A single node in the scene graph.
 #[derive(Debug, Clone)]
 pub struct Node {
     pub(crate) kind: NodeKind,
@@ -76,6 +78,17 @@ pub struct Node {
 }
 
 impl Node {
+    /// Creates a new [`Node`].
+    ///
+    /// # Arguments
+    /// - `kind`: The [`NodeKind`] value.
+    /// - `layout`: The layout style.
+    /// - `visual`: The [`Appearance`] value.
+    /// - `typography`: Optional [`Typography`] value.
+    /// - `resources`: Resources referenced by the node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new(
         kind: NodeKind,
         layout: taffy::Style,
@@ -97,6 +110,7 @@ impl Node {
         }
     }
 
+    /// Applies layout-dependent visual effects after layout resolution.
     pub(crate) fn apply_layout_effects(&mut self) {
         self.scaled_radii = compute_scaled_radii(
             self.visual.corner_radius,
@@ -105,6 +119,7 @@ impl Node {
         );
     }
 
+    /// Returns `true` if the node has a visible border.
     fn has_border(&self) -> bool {
         let taffy::Rect {
             top,
@@ -115,6 +130,7 @@ impl Node {
         !self.visual.border.is_none() && (top + right + bottom + left) > 0.0
     }
 
+    /// Returns `true` if any corner radius is non-zero.
     fn has_radius(&self) -> bool {
         let radius = self.visual.corner_radius;
         !radius.top_left.is_zero()
@@ -123,12 +139,14 @@ impl Node {
             || !radius.bottom_right.is_zero()
     }
 
+    /// Determines whether clipping should be applied on each axis.
     fn should_clip(&self) -> (bool, bool) {
         let clip_x = self.layout.overflow.x == taffy::Overflow::Hidden;
         let clip_y = self.layout.overflow.y == taffy::Overflow::Hidden;
         (clip_x, clip_y)
     }
 
+    /// Opens the root SVG group for a block-level node.
     fn open_block_group<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
     where
         T: Write,
@@ -161,6 +179,7 @@ impl Node {
             .map_err(Into::into)
     }
 
+    /// Renders the background fill of a block-level node.
     fn render_block_background<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
     where
         T: Write,
@@ -183,6 +202,7 @@ impl Node {
             .map_err(Into::into)
     }
 
+    /// Renders the border of a block-level node if present.
     fn render_block_border<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
     where
         T: Write,
@@ -209,6 +229,7 @@ impl Node {
             .map_err(Into::into)
     }
 
+    /// Opens a clipping group for the node when overflow clipping is required.
     fn open_block_clip<T>(
         &self,
         ctx: &mut RenderContext<T>,
@@ -250,6 +271,7 @@ impl Node {
         Ok(())
     }
 
+    /// Closes the SVG groups opened for a block-level node.
     fn close_block_group<T>(clipped: bool, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
     where
         T: Write,
@@ -261,6 +283,7 @@ impl Node {
         ElementWriter::close_tag(ctx.out, "g").map_err(Into::into)
     }
 
+    /// Starts SVG emission for the node.
     pub(crate) fn pre_emit<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
     where
         T: Write,
@@ -299,6 +322,7 @@ impl Node {
         Ok(())
     }
 
+    /// Ends SVG emission for the node.
     pub(crate) fn post_emit<T>(&self, ctx: &mut RenderContext<T>) -> Result<(), VectorizeError>
     where
         T: Write,

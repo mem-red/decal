@@ -7,6 +7,16 @@ use png::{
 use std::io::Cursor;
 use swash::scale::image::Image;
 
+/// Encodes a raster image into 8-bit PNG format.
+///
+/// # Arguments
+/// - `image`: The [`Image`] instance.
+///
+/// # Returns
+/// - [`Vec<u8>`]: PNG data on success.
+/// - [`EncodingError`] on failure.
+///
+/// [`Image`]: swash::scale::image::Image
 pub(crate) fn encode_image(image: &Image) -> Result<Vec<u8>, EncodingError> {
     let mut out = Vec::new();
     let cursor = Cursor::new(&mut out);

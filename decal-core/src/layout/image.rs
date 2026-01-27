@@ -14,12 +14,15 @@ use taffy::Size;
 
 #[derive(Debug, Clone, EnumDisplay)]
 enum ImageSourceInner {
+    /// External image reference.
     #[display("{0}")]
     Href(String),
+    /// Inline SVG content rendered verbatim.
     #[display("{0}")]
     Svg(String),
 }
 
+/// Represents the source of an image node.
 #[derive(Debug, Clone)]
 pub struct ImageSource(ImageSourceInner);
 
@@ -40,6 +43,15 @@ pub(crate) struct ImageMeta {
 }
 
 impl ImageMeta {
+    /// Creates a new [`ImageMeta`] instance.
+    ///
+    /// # Arguments
+    /// - `source`: The [`ImageSource`] value.
+    /// - `width`: The intrinsic width of the image.
+    /// - `height`: The intrinsic height of the image.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new<S>(source: S, width: f32, height: f32) -> Self
     where
         S: Into<ImageSource>,
@@ -52,6 +64,17 @@ impl ImageMeta {
         }
     }
 
+    /// Computes the final size of the image.
+    ///
+    /// # Note
+    /// Aspect ratio is preserved when only a single dimension is constrained.
+    ///
+    /// # Arguments
+    /// - `known_dimensions`: The known layout dimensions provided by the
+    ///   `taffy`.
+    ///
+    /// # Returns
+    /// - The resolved image size.
     pub(crate) fn measure(&mut self, known_dimensions: Size<Option<f32>>) -> Size<f32> {
         match (known_dimensions.width, known_dimensions.height) {
             (Some(width), Some(height)) => Size { width, height },
@@ -70,6 +93,11 @@ impl ImageMeta {
         }
     }
 
+    /// Renders the image into the output stream.
+    ///
+    /// # Arguments
+    /// - `ctx`: The current [`RenderContext`].
+    /// - `layout`: The computed layout for the image node.
     pub(crate) fn render<W>(
         &self,
         ctx: &mut RenderContext<W>,
@@ -91,6 +119,14 @@ impl ImageMeta {
 }
 
 impl ImageSource {
+    /// Creates an [`ImageSource`] referencing an external URL. The URL is
+    /// escaped before being embedded in the output.
+    ///
+    /// # Arguments
+    /// - `url`: The image URL.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn href<S>(url: S) -> Self
     where
         S: AsRef<str>,
@@ -98,6 +134,14 @@ impl ImageSource {
         Self(ImageSourceInner::Href(escape(url.as_ref()).to_string()))
     }
 
+    /// Creates an [`ImageSource`] from raw SVG markup. The SVG content is
+    /// emitted verbatim during rendering.
+    ///
+    /// # Arguments
+    /// - `svg`: The SVG markup.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn svg<S>(svg: S) -> Self
     where
         S: AsRef<str>,
@@ -105,8 +149,7 @@ impl ImageSource {
         Self(ImageSourceInner::Svg(svg.as_ref().to_string()))
     }
 
-    //
-
+    /// Returns the underlying image source representation.
     fn inner(&self) -> &ImageSourceInner {
         &self.0
     }
@@ -122,6 +165,7 @@ impl<T> From<T> for ImageSource
 where
     T: AsRef<str>,
 {
+    #[inline]
     fn from(value: T) -> Self {
         ImageSource::href(value.as_ref())
     }

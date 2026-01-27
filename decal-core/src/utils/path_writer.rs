@@ -2,6 +2,7 @@ use super::writer::Writer;
 use crate::utils::FloatWriter;
 use std::fmt::Write;
 
+/// Utility writer for constructing SVG path data commands.
 #[derive(Debug)]
 pub(crate) struct PathWriter<'a, T>(&'a mut T)
 where
@@ -22,26 +23,73 @@ impl<'a, T> PathWriter<'a, T>
 where
     T: Write,
 {
+    /// Creates a new [`PathWriter`] instance.
+    ///
+    /// # Arguments
+    /// - `out`: The output sink receiving path commands.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new(out: &'a mut T) -> Self {
         Self(out)
     }
 
+    /// Writes an absolute move-to command.
+    ///
+    /// # Arguments
+    /// - `x`: X coordinate of the target point.
+    /// - `y`: Y coordinate of the target point.
+    ///
+    /// # Returns
+    /// - `Ok(&mut Self)` for chaining.
     pub(crate) fn move_to(&mut self, x: f32, y: f32) -> Result<&mut Self, std::fmt::Error> {
         self.char('M')?.float(x)?.space()?.float(y)?.space()
     }
 
+    /// Writes an absolute line-to command.
+    ///
+    /// # Arguments
+    /// - `x`: X coordinate of the target point.
+    /// - `y`: Y coordinate of the target point.
+    ///
+    /// # Returns
+    /// - `Ok(&mut Self)` for chaining.
     pub(crate) fn line_to(&mut self, x: f32, y: f32) -> Result<&mut Self, std::fmt::Error> {
         self.char('L')?.float(x)?.space()?.float(y)?.space()
     }
 
+    /// Writes an absolute horizontal line command.
+    ///
+    /// # Arguments
+    /// - `x`: Target X coordinate.
+    ///
+    /// # Returns
+    /// - `Ok(&mut Self)` for chaining.
     pub(crate) fn horizontal_to(&mut self, x: f32) -> Result<&mut Self, std::fmt::Error> {
         self.char('H')?.float(x)?.space()
     }
 
+    /// Writes an absolute vertical line command.
+    ///
+    /// # Arguments
+    /// - `y`: Target Y coordinate.
+    ///
+    /// # Returns
+    /// - `Ok(&mut Self)` for chaining.
     pub(crate) fn vertical_to(&mut self, y: f32) -> Result<&mut Self, std::fmt::Error> {
         self.char('V')?.float(y)?.space()
     }
 
+    /// Writes an absolute quadratic Bézier curve command.
+    ///
+    /// # Arguments
+    /// - `cx`: X coordinate of the control point.
+    /// - `cy`: Y coordinate of the control point.
+    /// - `x`: X coordinate of the end point.
+    /// - `y`: Y coordinate of the end point.
+    ///
+    /// # Returns
+    /// - `Ok(&mut Self)` for chaining.
     pub(crate) fn quad_to(
         &mut self,
         cx: f32,
@@ -60,6 +108,18 @@ where
             .space()
     }
 
+    /// Writes an absolute cubic Bézier curve command.
+    ///
+    /// # Arguments
+    /// - `cx1`: X coordinate of the first control point.
+    /// - `cy1`: Y coordinate of the first control point.
+    /// - `cx2`: X coordinate of the second control point.
+    /// - `cy2`: Y coordinate of the second control point.
+    /// - `x`: X coordinate of the end point.
+    /// - `y`: Y coordinate of the end point.
+    ///
+    /// # Returns
+    /// - `Ok(&mut Self)` for chaining.
     pub(crate) fn curve_to(
         &mut self,
         cx1: f32,
@@ -84,6 +144,16 @@ where
             .space()
     }
 
+    /// Writes an absolute arc command with fixed flags.
+    ///
+    /// # Arguments
+    /// - `rx`: X axis radius.
+    /// - `ry`: Y axis radius.
+    /// - `x`: X coordinate of the end point.
+    /// - `y`: Y coordinate of the end point.
+    ///
+    /// # Returns
+    /// - `Ok(&mut Self)` for chaining.
     pub(crate) fn arc_to(
         &mut self,
         rx: f32,
@@ -102,6 +172,7 @@ where
             .space()
     }
 
+    /// Writes a close-path command.
     pub(crate) fn close(&mut self) -> std::fmt::Result {
         self.char('Z').map(|_| ())
     }

@@ -84,7 +84,9 @@ impl Engine {
     /// - `options`: The [`RasterizeOptions`] value.
     ///
     /// # Returns
-    /// - `(pixmap, scene_size)` on success.
+    /// - On success, a tuple containing:
+    ///     - [`Pixmap`]: Pixmap containing the image data.
+    ///     - [`Size<f32>`]: Scene size.
     /// - [`RasterizeError`] on failure.
     pub fn rasterize(
         &mut self,
@@ -101,7 +103,9 @@ impl Engine {
     /// - `options`: The [`VectorizeOptions`] value.
     ///
     /// # Returns
-    /// - `(svg_string, scene_size)` on success.
+    /// - On success, a tuple containing:
+    ///     - [`String`]: The SVG string.
+    ///     - [`Size<f32>`]: Scene size.
     /// - [`VectorizeError`] on failure.
     pub fn vectorize(
         &mut self,
@@ -120,7 +124,7 @@ impl Engine {
     /// - `options`: The [`VectorizeOptions`] value.
     ///
     /// # Returns
-    /// - Final scene size on success.
+    /// - Scene size on success.
     /// - [`VectorizeError`] on failure.
     pub fn stream_vector<T>(
         &mut self,

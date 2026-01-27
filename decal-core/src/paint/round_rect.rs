@@ -7,6 +7,14 @@ use crate::{
     utils::PathWriter,
 };
 
+/// Writes a path describing the filled area of a rectangle with optional
+/// rounded corners.
+///
+/// # Arguments
+/// - `out`: The output sink for the generated path commands.
+/// - `w`: The width of the rectangle.
+/// - `h`: The height of the rectangle.
+/// - `r`: The [`ScaledRadii`] applied to the rectangle.
 pub(crate) fn write_fill_path<T>(out: &mut T, w: f32, h: f32, r: ScaledRadii) -> std::fmt::Result
 where
     T: std::fmt::Write,
@@ -14,6 +22,17 @@ where
     write_round_rect(out, 0.0, 0.0, w, h, r)
 }
 
+/// Writes a path describing the border area of a rectangle.
+///
+/// The path consists of an outer ring and an inner ring inset by the border
+/// widths.
+///
+/// # Arguments
+/// - `out`: The output sink for the generated path commands.
+/// - `w`: The outer width of the rectangle.
+/// - `h`: The outer height of the rectangle.
+/// - `r`: The outer [`ScaledRadii`].
+/// - `border`: The border widths.
 pub(crate) fn write_border_path<T>(
     out: &mut T,
     w: f32,
@@ -35,6 +54,21 @@ where
     Ok(())
 }
 
+/// Writes a clipping path based on overflow rules and root scene bounds.
+///
+/// The resulting path restricts rendering to the specified axes while
+/// respecting border insets and corner radii.
+///
+/// # Arguments
+/// - `out`: The output sink for the generated path commands.
+/// - `w`: The width of the element.
+/// - `h`: The height of the element.
+/// - `r`: The outer [`ScaledRadii`].
+/// - `border`: The border widths applied to the element.
+/// - `clip_x`: Whether clipping is applied along the horizontal axis.
+/// - `clip_y`: Whether clipping is applied along the vertical axis.
+/// - `scene_size`: The size of the root scene used when clipping extends beyond
+///   the element.
 pub(crate) fn write_clip_path<T>(
     out: &mut T,
     w: f32,
@@ -66,6 +100,17 @@ where
     }
 }
 
+/// Computes [`ScaledRadii`] inset by the provided border widths.
+///
+/// # Note
+/// Radii are clamped to zero to avoid negative values.
+///
+/// # Arguments
+/// - `r`: The initial [`ScaledRadii`].
+/// - `border`: The border widths.
+///
+/// # Returns
+/// - The inset [`ScaledRadii`].
 fn inset_radii(r: ScaledRadii, border: Rect<f32>) -> ScaledRadii {
     let (bt, br, bb, bl) = border.tuple();
     ScaledRadii {
@@ -81,6 +126,15 @@ fn inset_radii(r: ScaledRadii, border: Rect<f32>) -> ScaledRadii {
     }
 }
 
+/// Writes a rectangular path with optional rounded corners.
+///
+/// # Arguments
+/// - `out`: The output sink for the generated path commands.
+/// - `x1`: The left coordinate.
+/// - `y1`: The top coordinate.
+/// - `x2`: The right coordinate.
+/// - `y2`: The bottom coordinate.
+/// - `r`: The [`ScaledRadii`] value.
 fn write_round_rect<T>(
     out: &mut T,
     x1: f32,

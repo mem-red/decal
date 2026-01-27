@@ -1,4 +1,10 @@
+/// Helper trait for checking whether a value equals its default state.
 pub(crate) trait IsDefault: Default + PartialEq {
+    /// Returns `true` if the value is equal to its default.
+    ///
+    /// # Returns
+    /// - `true` when `self == Self::default()`.
+    /// - `false` otherwise.
     fn is_default(&self) -> bool {
         *self == Self::default()
     }

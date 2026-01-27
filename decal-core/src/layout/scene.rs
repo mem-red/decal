@@ -56,16 +56,12 @@ const INLINE_FRAG_CASCADE: usize = 16;
 /// The error that may occur during rasterization of a scene.
 #[derive(Debug, Error)]
 pub enum RasterizeError {
-    /// Failure while vectorizing the scene into SVG.
     #[error("failed to vectorize")]
     Vectorize(#[from] VectorizeError),
-    /// Failure while writing SVG output to the target stream.
     #[error("failed to write to the output stream")]
     Write(#[from] std::fmt::Error),
-    /// Failure while parsing the generated SVG.
     #[error("failed to parse svg")]
     Parse(#[from] usvg::Error),
-    /// Failure to allocate a raster image buffer.
     #[error("failed to allocate pixmap")]
     PixmapAlloc,
 }
@@ -206,7 +202,7 @@ impl Scene {
     /// - `options`: The [`VectorizeOptions`] value.
     ///
     /// # Returns
-    /// - Final scene size on success.
+    /// - Scene size on success.
     /// - [`VectorizeError`] on failure.
     pub(crate) fn stream_vector<T>(
         &self,
@@ -281,7 +277,9 @@ impl Scene {
     /// - `options`: The [`VectorizeOptions`] value.
     ///
     /// # Returns
-    /// - `(svg_string, scene_size)` on success.
+    /// - On success, a tuple containing:
+    ///     - [`String`]: The SVG string.
+    ///     - [`Size<f32>`]: Scene size.
     /// - [`VectorizeError`] on failure.
     pub(crate) fn vectorize(
         &self,
@@ -299,7 +297,9 @@ impl Scene {
     /// - `options`: The [`RasterizeOptions`] value.
     ///
     /// # Returns
-    /// - `(pixmap, scene_size)` on success.
+    /// - On success, a tuple containing:
+    ///     - [`Pixmap`]: Pixmap containing the image data.
+    ///     - [`Size<f32>`]: Scene size.
     /// - [`RasterizeError`] on failure.
     pub(crate) fn rasterize(
         &self,

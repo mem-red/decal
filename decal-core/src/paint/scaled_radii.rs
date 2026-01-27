@@ -1,5 +1,6 @@
 use crate::attributes::CornerRadius;
 
+/// Represents corner radii scaled to fit within the bounds of an element.
 #[derive(Debug, Clone, Copy, Default)]
 pub(crate) struct ScaledRadii {
     pub(crate) h_tl: f32,
@@ -12,6 +13,15 @@ pub(crate) struct ScaledRadii {
     pub(crate) v_bl: f32,
 }
 
+/// Computes scaled corner radii that fit within the given `width` and `height`.
+///
+/// # Arguments
+/// - `r`: The [`CornerRadius`] value.
+/// - `w`: The width of the element.
+/// - `h`: The height of the element.
+///
+/// # Returns
+/// - The clamped [`ScaledRadii`].
 pub(crate) fn compute_scaled_radii(r: CornerRadius, w: f32, h: f32) -> ScaledRadii {
     let (mut h_tl, mut v_tl) = (
         r.top_left.resolve_abs(w).unwrap_or_default(),

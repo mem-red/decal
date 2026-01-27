@@ -3,8 +3,19 @@ use std::f32::consts::PI;
 const CX: f32 = 0.5;
 const CY: f32 = 0.5;
 
-// https://observablehq.com/@danburzo/css-gradient-line
-
+/// Converts an angle in degrees into a normalized line segment (centered)
+/// within a unit square.
+///
+/// # Arguments
+/// - `angle`: The angle in degrees.
+///
+/// # Returns
+/// - `(x1, y1, x2, y2)` representing the start and end points of the line in
+///   normalized coordinates.
+///
+/// # Reference
+///
+/// https://observablehq.com/@danburzo/css-gradient-line
 pub(crate) fn angle_to_line(angle: f32) -> (f32, f32, f32, f32) {
     let rad = (90.0 - angle) * PI / 180.0;
     let cos = rad.cos();

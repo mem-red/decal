@@ -3,6 +3,7 @@ use std::fmt::{
     Formatter,
 };
 
+/// Stable identifier used to reference nodes within a scene graph.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct NodeId(u64);
 

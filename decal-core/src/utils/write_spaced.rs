@@ -1,5 +1,12 @@
 use std::fmt::Write;
 
+/// Writes elements from an iterator separated by single spaces.
+///
+/// # Arguments
+/// - `out`: The output sink receiving the content.
+/// - `itr`: The element iterator.
+/// - `write_element`: The closure called with each element to write them to the
+///   output sink.
 pub(crate) fn write_spaced<W, I, F, T>(
     out: &mut W,
     mut itr: I,

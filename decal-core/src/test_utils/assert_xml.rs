@@ -1,5 +1,10 @@
 use xmltree::Element;
 
+/// Asserts equality between two XML documents.
+///
+/// # Arguments
+/// - `left`: The source for first XML document.
+/// - `right`: The source for second XML document.
 pub(crate) fn assert_xml<L, R>(left: L, right: R)
 where
     L: AsRef<str>,

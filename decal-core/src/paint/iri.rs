@@ -12,10 +12,19 @@ use twox_hash::XxHash3_64;
 
 const PREFIX: &'static str = "decal";
 
+/// Opaque identifier representing a stable, hashed resource IRI.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 pub(crate) struct Iri(u64);
 
+/// Trait for types that can be deterministically mapped to a resource IRI.
 pub(crate) trait ResourceIri: Hash {
+    /// Computes a stable IRI for the value based on its hash.
+    ///
+    /// The resulting IRI is deterministic and suitable for identifying
+    /// resources across renders.
+    ///
+    /// # Returns
+    /// - [`Iri`] derived from the hashed value.
     fn iri(&self) -> Iri {
         let mut hasher = XxHash3_64::with_seed(0);
         self.hash(&mut hasher);

@@ -60,6 +60,7 @@ use zeno::Point;
 
 const DEFAULT_COLOR: Color = Color::rgb(0, 0, 0);
 
+/// Errors that can occur while vectorizing text nodes.
 #[derive(Error, Debug)]
 pub enum TextVectorizeError {
     #[error("failed to write to the output stream")]
@@ -68,11 +69,15 @@ pub enum TextVectorizeError {
     EncodeEmoji(#[from] EncodingError),
 }
 
+/// Controls which kind of glyphs are rendered during text vectorization.
 #[derive(Debug, Default)]
 pub(crate) enum GlyphRenderMode {
+    /// Render both vector and bitmap glyphs.
     #[default]
     All,
+    /// Render only vector glyphs.
     Vector,
+    /// Render only bitmap glyphs.
     Bitmap,
 }
 
@@ -85,6 +90,10 @@ pub(crate) struct TextMeta {
 }
 
 impl TextMeta {
+    /// Creates a new [`TextMeta`] instance.
+    ///
+    /// # Arguments
+    /// - `spans`: The list of [`TextSpan`] values.
     pub(crate) fn new(spans: Vec<TextSpan>) -> Self {
         Self {
             spans,
@@ -92,22 +101,50 @@ impl TextMeta {
         }
     }
 
+    /// Mutates the typography of the current text.
+    ///
+    /// # Arguments
+    /// - `typography`: The next [`Typography`] value.
     pub(crate) fn typography(&mut self, typography: Typography) {
         self.typography = typography;
     }
 
+    /// Sets the paint used for stencil masking.
+    ///
+    /// The text will be rendered into a stencil mask and the paint will be
+    /// applied through that mask.
+    ///
+    /// # Arguments
+    /// - `value`: The [`PaintStack`] source.
     pub(crate) fn stencil_paint(&mut self, value: PaintStack) {
         self.stencil.paint = value;
     }
 
+    /// Sets the scope of the stencil.
+    ///
+    /// # Arguments
+    /// - `value`: The [`StencilScope`] value.
     pub(crate) fn stencil_scope(&mut self, value: StencilScope) {
         self.stencil.scope = value;
     }
 
+    /// Sets the type of the stencil.
+    ///
+    /// # Arguments
+    /// - `value`: The [`StencilType`] value.
     pub(crate) fn stencil_type(&mut self, value: StencilType) {
         self.stencil.r#type = value;
     }
 
+    /// Measures the intrinsic size of the text based on layout constraints.
+    ///
+    /// # Arguments
+    /// - `known_dimensions`: Known size constraints from `taffy`.
+    /// - `available_space`: Available layout space from the parent.
+    /// - `fonts`: Shared [`FontRegistry`].
+    ///
+    /// # Returns
+    /// - The resolved size of the text node.
     pub(crate) fn measure(
         &mut self,
         known_dimensions: Size<Option<f32>>,
@@ -148,6 +185,15 @@ impl TextMeta {
         Size { width, height }
     }
 
+    /// Renders the text node.
+    ///
+    /// # Arguments
+    /// - `ctx`: The current [`RenderContext`].
+    /// - `layout`: The computed layout for the node.
+    ///
+    /// # Returns
+    /// - Empty tuple on success.
+    /// - [`TextVectorizeError`] if rendering or bitmap encoding fails.
     pub(crate) fn render<W>(
         &self,
         ctx: &mut RenderContext<W>,
@@ -188,8 +234,13 @@ impl TextMeta {
         }
     }
 
-    //
-
+    /// Initializes the internal text shaping buffer.
+    ///
+    /// The buffer is cached after initialization and reused for measurement and
+    /// rendering.
+    ///
+    /// # Arguments
+    /// - `fonts`: The mutable [`FontRegistry`] reference.
     fn init_buffer(&mut self, fonts: &mut FontRegistry) {
         if self.buffer.is_some() {
             return;
@@ -226,6 +277,16 @@ impl TextMeta {
         self.buffer = Some(brw.to_owned());
     }
 
+    /// Renders glyphs according to the specified render `mode`.
+    ///
+    /// # Arguments
+    /// - `out`: The output writer.
+    /// - `font_registry`: Shared [`FontRegistry`].
+    /// - `mode`: The [`GlyphRenderMode`] value.
+    ///
+    /// # Returns
+    /// - Empty tuple on success.
+    /// - [`TextVectorizeError`] if rendering or bitmap encoding fails.
     fn render_text<W>(
         &self,
         out: &mut W,
@@ -341,6 +402,13 @@ impl TextMeta {
         Ok(())
     }
 
+    /// Renders the stencil source using the generated text mask.
+    ///
+    /// # Arguments
+    /// - `ctx`: The current [`RenderContext`].
+    /// - `mask_iri`: The IRI of the generated stencil mask.
+    /// - `width`: The width of the text bounding box.
+    /// - `height`: The height of the text bounding box.
     fn render_stencil<W>(
         &self,
         ctx: &mut RenderContext<W>,
@@ -380,6 +448,18 @@ impl std::fmt::Display for TextMeta {
     }
 }
 
+/// Determines whether a glyph outline contains drawable vector geometry.
+///
+/// Some glyphs, most notably emoji and other color glyphs, often return outline
+/// commands consisting only of non-drawing commands. These outlines do not
+/// produce any visible vector output and are instead rendered as bitmap images.
+///
+/// # Arguments
+/// - `cmds`: A slice of glyph outline [`Command`] values.
+///
+/// # Returns
+/// - `true` if the outline contains drawable vector segments.
+/// - `false` if the outline does not produce visible vector geometry.
 fn is_drawable(cmds: &[Command]) -> bool {
     for cmd in cmds {
         match cmd {
@@ -391,6 +471,19 @@ fn is_drawable(cmds: &[Command]) -> bool {
     false
 }
 
+/// Converts a [`Typography`] value into [`cosmic-text`] shaping attributes.
+///
+/// The resolved font family name is cached into the provided [`Typography`]
+/// instance for later reuse.
+///
+/// # Arguments
+/// - `tp`: The mutable reference to [`Typography`] instance.
+/// - `fonts`: The [`FontRegistry`] used for resolving font families.
+///
+/// # Returns
+/// - A tuple containing:
+///     - [`Attrs`]: Shaping attributes for [`cosmic-text`].
+///     - [`Metrics`]: Computed text metrics.
 fn typography_to_attrs<'a>(
     tp: &'a mut Typography,
     fonts: &mut FontRegistry,

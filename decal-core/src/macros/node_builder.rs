@@ -1,3 +1,11 @@
+/// Wires a node type into the builder system by providing sealed accessors for
+/// layout, visual state, typography, and resources, and by generating the final
+/// [`Drawable`] implementation.
+///
+/// # Parameters
+/// - `$node`: The concrete node type.
+/// - `build($this)`: A block that consumes the builder state and produces a
+///   [`Node`].
 macro_rules! impl_node_builder {
     (
         $node:ty,

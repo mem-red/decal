@@ -9,6 +9,7 @@ use crate::{
 };
 use smart_default::SmartDefault;
 
+/// The visual appearance of a node.
 #[derive(Debug, Clone, SmartDefault)]
 pub struct Appearance {
     pub(crate) background: PaintStack,

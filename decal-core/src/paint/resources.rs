@@ -5,6 +5,8 @@ use std::fmt::{
     Formatter,
 };
 
+/// Collection managing a deduplicated set of render resources with stable
+/// indexing.
 #[derive(Debug, Clone, Default)]
 pub(crate) struct Resources {
     index_map: HashMap<Resource, usize>,
@@ -12,6 +14,14 @@ pub(crate) struct Resources {
 }
 
 impl Resources {
+    /// Returns the index of the resource, inserting it if it does not already
+    /// exist.
+    ///
+    /// # Arguments
+    /// - `resource`: The [`Resource`] to look up or insert.
+    ///
+    /// # Returns
+    /// - The index associated with the resource.
     pub(crate) fn get_or_add_resource(&mut self, resource: Resource) -> usize {
         if let Some(idx) = self.index_map.get(&resource) {
             return *idx;
@@ -24,6 +34,10 @@ impl Resources {
         idx
     }
 
+    /// Returns `true` if no resources have been added.
+    ///
+    /// # Returns
+    /// - `true` when the resource collection is empty.
     pub(crate) fn is_empty(&self) -> bool {
         self.resources.is_empty()
     }

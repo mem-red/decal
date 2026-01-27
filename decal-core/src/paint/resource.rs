@@ -14,6 +14,7 @@ use crate::{
 use enum_display::EnumDisplay;
 use std::hash::Hash;
 
+/// The resource that will be emitted inside `<defs>` and needs to be deduped.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, EnumDisplay)]
 pub(crate) enum Resource {
     #[display("{0}")]
@@ -32,10 +33,16 @@ pub(crate) enum Resource {
     Path(Path),
 }
 
+/// Conversion trait for extracting render resources from higher-level values.
 pub(crate) trait IntoResources {
+    /// Converts the value into a collection of render resources.
+    ///
+    /// # Returns
+    /// - A vector of [`Resource`] values required for rendering.
     fn into_resources(self) -> Vec<Resource>;
 }
 
+/// Identity conversion for an existing resource collection.
 impl IntoResources for Vec<Resource> {
     #[inline]
     fn into_resources(self) -> Vec<Resource> {
