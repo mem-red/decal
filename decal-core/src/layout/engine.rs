@@ -1,6 +1,5 @@
 use crate::{
     layout::{
-        Decal,
         RasterizeError,
         RasterizeOptions,
         Scene,
@@ -21,24 +20,41 @@ use std::{
 use tiny_skia::Pixmap;
 use usvg::ImageKind;
 
+/// Shared image cache type used to deduplicate decoded raster images across
+/// renders.
 pub(crate) type ImageCache = Arc<Mutex<LruCache<String, ImageKind>>>;
 
+/// Default capacity used for the image cache.
 const DEFAULT_IMAGE_CACHE_CAP: NonZeroUsize = NonZeroUsize::new(128).expect("128 is non-zero");
 
+/// Configuration options controlling engine-wide behavior.
 #[derive(Debug, SmartDefault)]
 pub struct EngineOptions {
+    /// Font registry used for text layout and rendering.
     pub fonts: FontRegistry,
+    /// Maximum number of images retained in the image cache.
     #[default(DEFAULT_IMAGE_CACHE_CAP)]
     pub image_cache_capacity: NonZeroUsize,
 }
 
+/// The rendering engine responsible for preparing scenes and performing
+/// vectorization or rasterization.
 #[derive(Debug)]
 pub struct Engine {
+    /// Shared font registry.
     fonts: Arc<Mutex<FontRegistry>>,
+    /// Global image cache.
     image_cache: ImageCache,
 }
 
 impl Engine {
+    /// Creates a new rendering [`Engine`] with the provided options.
+    ///
+    /// # Arguments
+    /// - `options`: The [`EngineOptions`] used to initialize the engine.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new(options: EngineOptions) -> Self {
         Self {
             fonts: Arc::new(Mutex::new(options.fonts)),
@@ -46,6 +62,14 @@ impl Engine {
         }
     }
 
+    /// Registers a font in the font registry.
+    ///
+    /// The font becomes available to all subsequent layout and render
+    /// operations.
+    ///
+    /// # Arguments
+    /// - `alias`: The font family name used to reference the font.
+    /// - `data`: The raw font data.
     pub fn append_font<T>(&mut self, alias: &str, data: T)
     where
         T: Into<Vec<u8>>,
@@ -53,6 +77,15 @@ impl Engine {
         self.fonts.lock().append_font(alias, data);
     }
 
+    /// Rasterizes the given scene into a [`Pixmap`].
+    ///
+    /// # Arguments
+    /// - `scene`: The scene to rasterize.
+    /// - `options`: The [`RasterizeOptions`] value.
+    ///
+    /// # Returns
+    /// - `(pixmap, scene_size)` on success.
+    /// - [`RasterizeError`] on failure.
     pub fn rasterize(
         &mut self,
         scene: &mut Scene,
@@ -61,6 +94,15 @@ impl Engine {
         self.prepare(scene).rasterize(&self.image_cache, options)
     }
 
+    /// Vectorizes the given scene into an SVG string.
+    ///
+    /// # Arguments
+    /// - `scene`: The scene to vectorize.
+    /// - `options`: The [`VectorizeOptions`] value.
+    ///
+    /// # Returns
+    /// - `(svg_string, scene_size)` on success.
+    /// - [`VectorizeError`] on failure.
     pub fn vectorize(
         &mut self,
         scene: &mut Scene,
@@ -69,6 +111,17 @@ impl Engine {
         self.prepare(scene).vectorize(options)
     }
 
+    /// Streams the vectorized SVG representation of the scene to the provided
+    /// destination.
+    ///
+    /// # Arguments
+    /// - `destination`: The output writer.
+    /// - `scene`: The scene to vectorize.
+    /// - `options`: The [`VectorizeOptions`] value.
+    ///
+    /// # Returns
+    /// - Final scene size on success.
+    /// - [`VectorizeError`] on failure.
     pub fn stream_vector<T>(
         &mut self,
         destination: &mut T,
