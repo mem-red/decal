@@ -47,6 +47,21 @@ impl Image {
     /// - `width`: The intrinsic width of the image.
     /// - `height`: The intrinsic height of the image.
     ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use decal::prelude::*;
+    ///
+    /// let width: f32 = 64.0;
+    /// let height: f32 = 64.0;
+    /// let scene = decal! {
+    ///     Column {
+    ///         Image("<image-href>", width, height)
+    ///         Image(ImageSource::svg("<markup>"), width, height)
+    ///     }
+    /// };
+    /// ```
+    ///
     /// # Returns
     /// - [`Self`]
     pub fn new<S>(source: S, width: f32, height: f32) -> Self

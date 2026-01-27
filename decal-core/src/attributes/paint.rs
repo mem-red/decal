@@ -23,6 +23,40 @@ where
 }
 
 /// Conversion trait for values that can be interpreted as a paint stack.
+///
+/// # Examples
+///
+/// Paint stack from simple paint primitives.
+///
+/// ```rust
+/// # use decal::prelude::*;
+///
+/// let gradients: PaintStack = [
+///     LinearGradient::angle(-30.0).stops([(0.0, rgb(0x0000ff)), (1.0, rgba(0x0000ff00))]),
+///     LinearGradient::angle(180.0).stops([(0.0, rgb(0x00ff00)), (1.0, rgba(0x00ff0000))]),
+/// ]
+/// .into_paint_stack();
+/// ```
+///
+/// Paint stack from paint layers with opacity and blend modes.
+///
+/// ```rust
+/// # use decal::prelude::*;
+///
+/// let complex_stack: PaintStack = [
+///     Color::rgb(25, 25, 25).into_layer(),
+///     ImagePaint::new("<image-href>")
+///         .top_right()
+///         .into_layer()
+///         .blend_mode(BlendMode::Hue)
+///         .opacity(0.5),
+///     LinearGradient::bottom()
+///         .stops([(0.0, rgb(0x0000ff)), (1.0, rgba(0x0000ff00))])
+///         .into_layer()
+///         .blend_mode(BlendMode::Exclusion),
+/// ]
+/// .into_paint_stack();
+/// ```
 pub trait IntoPaintStack {
     /// Converts the value into a paint stack.
     fn into_paint_stack(self) -> PaintStack;

@@ -1,7 +1,16 @@
 use super::Drawable;
 use crate::attributes::IntoPaintStack;
 
+/// Capability for configuring background paint on a node.
 pub trait Background: Drawable {
+    /// Sets the background paint for the node.
+    ///
+    /// # Arguments
+    /// - `value`: The background paint configuration convertible into a paint
+    ///   stack using [`IntoPaintStack`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn background<T>(mut self, value: T) -> Self
     where
         T: IntoPaintStack,
@@ -12,8 +21,16 @@ pub trait Background: Drawable {
         self
     }
 
-    //
-
+    /// Shorthand alias for [`background`].
+    ///
+    /// # Arguments
+    /// - `value`: The background paint configuration convertible into a paint
+    ///   stack using [`IntoPaintStack`].
+    ///
+    /// # Returns
+    /// - [`Self`]
+    ///
+    /// [`background`]: Background::background
     fn bg<T>(self, value: T) -> Self
     where
         T: IntoPaintStack,

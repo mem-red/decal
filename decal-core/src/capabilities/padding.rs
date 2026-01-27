@@ -9,6 +9,13 @@ use crate::{
 
 macro_rules! impl_side {
     ($method:ident, $field:ident) => {
+        #[doc = concat!("Sets the padding for the `", stringify!($field), "` side.")]
+        #[doc = ""]
+        #[doc = "# Arguments"]
+        #[doc = "- `value`: The padding value convertible using [`IntoOptionalLength`]."]
+        #[doc = ""]
+        #[doc = "# Returns"]
+        #[doc = "- [`Self`]"]
         fn $method<T>(mut self, value: T) -> Self
         where
             T: IntoOptionalLength<false, true>,
@@ -20,7 +27,15 @@ macro_rules! impl_side {
     };
 }
 
+/// Capability for configuring padding inside a node.
 pub trait Padding: Drawable {
+    /// Sets the padding for all four sides of the node.
+    ///
+    /// # Arguments
+    /// - `value`: The padding definition convertible using [`IntoPadding`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn padding<T>(mut self, value: T) -> Self
     where
         T: IntoPadding,
@@ -29,6 +44,14 @@ pub trait Padding: Drawable {
         self
     }
 
+    /// Sets the horizontal padding for the left and right sides.
+    ///
+    /// # Arguments
+    /// - `value`: The horizontal padding values convertible using
+    ///   [`IntoPaddingPair`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn padding_x<T>(mut self, value: T) -> Self
     where
         T: IntoPaddingPair,
@@ -39,6 +62,14 @@ pub trait Padding: Drawable {
         self
     }
 
+    /// Sets the vertical padding for the top and bottom sides.
+    ///
+    /// # Arguments
+    /// - `value`: The vertical padding values convertible using
+    ///   [`IntoPaddingPair`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn padding_y<T>(mut self, value: T) -> Self
     where
         T: IntoPaddingPair,

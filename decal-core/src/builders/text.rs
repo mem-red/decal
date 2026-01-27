@@ -53,7 +53,7 @@ impl Text {
     /// Creates a new text node from the provided content.
     ///
     /// # Arguments
-    /// - `content`: Text content convertible into one or more [`TextSpan`]
+    /// - `content`: The text content convertible into one or more [`TextSpan`]
     ///   values.
     ///
     /// # Examples
@@ -338,7 +338,7 @@ impl TextSpan {
     /// Sets the text color for the span.
     ///
     /// # Arguments
-    /// - `color`: The paint value applied to the text.
+    /// - `color`: The [`Paint`] value applied to the text.
     ///
     /// # Returns
     /// - [`Self`]

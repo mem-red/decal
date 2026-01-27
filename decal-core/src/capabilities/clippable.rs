@@ -6,6 +6,13 @@ use crate::{
 
 macro_rules! impl_axis {
     ($method:ident, $field:ident) => {
+        #[doc = concat!("Sets the overflow behavior for the `", stringify!($field), "` axis.")]
+        #[doc = ""]
+        #[doc = "# Arguments"]
+        #[doc = "- `value`: The [`Overflow`] behavior."]
+        #[doc = ""]
+        #[doc = "# Returns"]
+        #[doc = "- [`Self`]"]
         fn $method<T>(mut self, value: T) -> Self
         where
             T: Into<Option<Overflow>>,
@@ -16,7 +23,16 @@ macro_rules! impl_axis {
     };
 }
 
+/// Capability for configuring overflow and clipping behavior on a node.
 pub trait Clippable: Drawable {
+    /// Sets the overflow behavior for both axes.
+    ///
+    /// # Arguments
+    /// - `value`: The overflow configuration convertible using
+    ///   [`IntoOverflow`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn overflow<T>(mut self, value: T) -> Self
     where
         T: IntoOverflow,
@@ -28,12 +44,18 @@ pub trait Clippable: Drawable {
     impl_axis!(overflow_x, x);
     impl_axis!(overflow_y, y);
 
-    //
-
+    /// Sets overflow to [`Overflow::Hidden`] on both axes.
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn overflow_hidden(self) -> Self {
         self.overflow(Overflow::Hidden)
     }
 
+    /// Sets overflow to [`Overflow::Visible`] on both axes.
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn overflow_visible(self) -> Self {
         self.overflow(Overflow::Visible)
     }

@@ -5,7 +5,16 @@ use crate::primitives::{
     JustifySelf,
 };
 
+/// Capability for configuring self-alignment and flex item properties on a
+/// node.
 pub trait SelfAlignment: Drawable {
+    /// Sets how the node is aligned along the cross axis within its container.
+    ///
+    /// # Arguments
+    /// - `value`: The [`AlignSelf`] behavior.
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn align_self<T>(mut self, value: T) -> Self
     where
         T: Into<Option<AlignSelf>>,
@@ -14,6 +23,13 @@ pub trait SelfAlignment: Drawable {
         self
     }
 
+    /// Sets how the node is aligned along the main axis within its container.
+    ///
+    /// # Arguments
+    /// - `value`: The [`JustifySelf`] behavior.
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn justify_self<T>(mut self, value: T) -> Self
     where
         T: Into<Option<JustifySelf>>,
@@ -22,6 +38,14 @@ pub trait SelfAlignment: Drawable {
         self
     }
 
+    /// Sets the initial main size of the node before flexing is applied.
+    ///
+    /// # Arguments
+    /// - `value`: The flex basis length convertible using
+    ///   [`IntoOptionalLength`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn flex_basis<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength,
@@ -33,6 +57,14 @@ pub trait SelfAlignment: Drawable {
         self
     }
 
+    /// Sets the flex grow factor of the node.
+    ///
+    /// # Arguments
+    /// - `value`: The growth factor controlling how much the node expands
+    ///   relative to siblings.
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn flex_grow<T>(mut self, value: T) -> Self
     where
         T: Into<Option<f32>>,
@@ -41,6 +73,14 @@ pub trait SelfAlignment: Drawable {
         self
     }
 
+    /// Sets the flex shrink factor of the node.
+    ///
+    /// # Arguments
+    /// - `value`: The shrink factor controlling how the node contracts when
+    ///   space is limited.
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn flex_shrink<T>(mut self, value: T) -> Self
     where
         T: Into<Option<f32>>,

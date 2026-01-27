@@ -6,6 +6,13 @@ use crate::{
 
 macro_rules! impl_corner {
     ($method:ident, $field:ident) => {
+        #[doc = concat!("Sets the corner radius for the `", stringify!($field), "` corner.")]
+        #[doc = ""]
+        #[doc = "# Arguments"]
+        #[doc = "- `value`: The corner radius value convertible using [`IntoOptionalLength`]."]
+        #[doc = ""]
+        #[doc = "# Returns"]
+        #[doc = "- [`Self`]"]
         fn $method<T>(mut self, value: T) -> Self
         where
             T: IntoOptionalLength<false, true>,
@@ -17,7 +24,16 @@ macro_rules! impl_corner {
     };
 }
 
+/// Capability for configuring rounded corner radii on a node.
 pub trait RoundedCorners: Drawable {
+    /// Sets the corner radius for all four corners of the node.
+    ///
+    /// # Arguments
+    /// - `value`: The corner radius definition convertible using
+    ///   [`IntoCornerRadius`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     fn corner_radius<T>(mut self, value: T) -> Self
     where
         T: IntoCornerRadius,
