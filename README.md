@@ -44,6 +44,7 @@ fn main() {
 
 <details open>
 <summary>Basic layout</summary>
+<br />
 
 ```rust
 decal! {
@@ -83,6 +84,7 @@ decal! {
 
 <details>
 <summary>Filters</summary>
+<br />
 
 ```rust
 decal! {
