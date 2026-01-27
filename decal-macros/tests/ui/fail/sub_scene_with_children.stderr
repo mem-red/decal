@@ -1,0 +1,5 @@
+error: `Scene` node cannot contain children
+  --> tests/ui/fail/sub_scene_with_children.rs:10:13
+   |
+10 |             Scene(frag) {
+   |             ^^^^^

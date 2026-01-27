@@ -1,7 +1,7 @@
 use decal::decal;
 
 fn main() {
-    let frag = decal! {
+    let scene = decal! {
         Column {
             Text("content")
         }
@@ -9,7 +9,7 @@ fn main() {
 
     let _ = decal! {
         Column {
-            Fragment(frag)
+            Scene(scene)
         }
     };
 }

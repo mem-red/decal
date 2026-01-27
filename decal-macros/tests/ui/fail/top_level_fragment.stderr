@@ -1,5 +1,0 @@
-error: top-level node most not be a fragment
- --> tests/ui/fail/top_level_fragment.rs:5:9
-  |
-5 |         Fragment(0)
-  |         ^^^^^^^^

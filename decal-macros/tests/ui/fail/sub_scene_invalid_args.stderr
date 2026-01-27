@@ -1,0 +1,11 @@
+error: `Scene` node expects a single argument
+ --> tests/ui/fail/sub_scene_invalid_args.rs:5:9
+  |
+5 |         Scene()
+  |         ^^^^^
+
+error: `Scene` node expects a single argument
+ --> tests/ui/fail/sub_scene_invalid_args.rs:9:9
+  |
+9 |         Scene(1, 2)
+  |         ^^^^^

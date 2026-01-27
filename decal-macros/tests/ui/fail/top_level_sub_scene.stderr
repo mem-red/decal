@@ -1,0 +1,5 @@
+error: top-level node most not be a scene
+ --> tests/ui/fail/top_level_sub_scene.rs:5:9
+  |
+5 |         Scene(0)
+  |         ^^^^^

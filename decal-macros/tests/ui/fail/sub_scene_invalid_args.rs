@@ -2,10 +2,10 @@ use decal::decal;
 
 fn main() {
     let _ = decal! {
-        Fragment()
+        Scene()
     };
 
     let _ = decal! {
-        Fragment(1, 2)
+        Scene(1, 2)
     };
 }

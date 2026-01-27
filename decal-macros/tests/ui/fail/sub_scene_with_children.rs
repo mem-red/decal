@@ -7,7 +7,7 @@ fn main() {
 
     let _ = decal! {
         Block {
-            Fragment(frag) {
+            Scene(frag) {
                 Text("child")
             }
         }

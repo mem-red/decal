@@ -2,6 +2,6 @@ use decal::decal;
 
 fn main() {
     let _ = decal! {
-        Fragment(0)
+        Scene(0)
     };
 }

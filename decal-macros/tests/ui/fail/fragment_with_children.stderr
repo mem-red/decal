@@ -1,5 +1,0 @@
-error: `Fragment` node cannot contain children
-  --> tests/ui/fail/fragment_with_children.rs:10:13
-   |
-10 |             Fragment(frag) {
-   |             ^^^^^^^^
