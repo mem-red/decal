@@ -1,7 +1,11 @@
+/// The font style property.
 #[derive(Debug, Clone, Copy)]
 pub enum FontStyle {
+    /// The normal font style.
     Normal,
+    /// The italic font style.
     Italic,
+    /// The oblique font style.
     Oblique,
 }
 

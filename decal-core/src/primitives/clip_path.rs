@@ -7,10 +7,19 @@ use std::fmt::{
     Formatter,
 };
 
+/// The SVG clip path element.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
 pub(crate) struct ClipPath(String);
 
 impl ClipPath {
+    /// Builds a [`ClipPath`] by writing SVG content into a buffer.
+    ///
+    /// # Arguments
+    /// - `write_fn`: The closure used to write SVG content into the clip path.
+    ///
+    /// # Returns
+    /// - [`Self`] on success.
+    /// - [`std::fmt::Error`] if writing fails.
     pub(crate) fn build<F>(write_fn: F) -> Result<Self, std::fmt::Error>
     where
         F: FnOnce(&mut String) -> std::fmt::Result,

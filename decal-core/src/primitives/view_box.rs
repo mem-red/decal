@@ -9,6 +9,8 @@ use std::fmt::{
 };
 use strict_num::FiniteF32;
 
+/// The SVG `viewBox`, specifying the position and dimensions of the internal
+/// coordinate system.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 pub struct ViewBox {
     min_x: FiniteF32,
@@ -18,6 +20,16 @@ pub struct ViewBox {
 }
 
 impl ViewBox {
+    /// Creates a new [`ViewBox`] instance.
+    ///
+    /// # Arguments
+    /// - `min_x`: The minimum x-coordinate of the view box.
+    /// - `min_y`: The minimum y-coordinate of the view box.
+    /// - `width`: The width of the view box.
+    /// - `height`: The height of the view box.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new(min_x: f32, min_y: f32, width: f32, height: f32) -> Self {
         Self {
             min_x: ff32!(min_x),

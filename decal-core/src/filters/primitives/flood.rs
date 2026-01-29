@@ -75,7 +75,8 @@ impl<'a> PrimitiveBuilder<'a, Flood> {
     /// Sets the opacity of the flood fill.
     ///
     /// # Arguments
-    /// - `opacity`: The opacity value.
+    /// - `opacity`: The opacity value where `0.0` is fully transparent and
+    ///   `1.0` is fully opaque.
     ///
     /// # Returns
     /// - [`Self`]

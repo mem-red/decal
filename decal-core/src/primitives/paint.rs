@@ -46,14 +46,32 @@ pub enum Paint {
 }
 
 impl Paint {
+    /// Creates a new [`Paint`] value representing no paint.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn none() -> Self {
         Self::None
     }
 
+    /// Creates a [`Paint`] value from a solid color.
+    ///
+    /// # Arguments
+    /// - `color`: The [`Color`] to use.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn color(color: Color) -> Self {
         Self::Color(color)
     }
 
+    /// Creates a [`Paint`] value from an image.
+    ///
+    /// # Arguments
+    /// - `image`: The [`ImagePaint`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn image(image: ImagePaint) -> Self {
         image
             .into_pattern()
@@ -61,18 +79,40 @@ impl Paint {
             .unwrap_or(Self::none())
     }
 
+    /// Creates a [`Paint`] value from a [`LinearGradient`].
+    ///
+    /// # Arguments
+    /// - `linear_gradient`: The [`LinearGradient`] to use.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn linear_gradient(linear_gradient: LinearGradient) -> Self {
         Self::LinearGradient(linear_gradient)
     }
 
+    /// Creates a [`Paint`] value from a [`RadialGradient`].
+    ///
+    /// # Arguments
+    /// - `radial_gradient`: The [`RadialGradient`] to use.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn radial_gradient(radial_gradient: RadialGradient) -> Self {
         Self::RadialGradient(radial_gradient)
     }
 
+    /// Creates a [`Paint`] value from a [`Pattern`].
+    ///
+    /// # Arguments
+    /// - `pattern`: The [`Pattern`] to use.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn pattern(pattern: Pattern) -> Self {
         Self::Pattern(pattern)
     }
 
+    /// Returns `true` if this paint represents the absence of paint.
     pub(crate) fn is_none(&self) -> bool {
         matches!(self, Paint::None)
     }
@@ -91,8 +131,7 @@ impl Display for Paint {
     }
 }
 
-//
-
+/// The image-based paint configuration.
 #[derive(Debug, Clone, SmartDefault)]
 pub struct ImagePaint {
     source: ImageSource,
@@ -108,6 +147,13 @@ pub struct ImagePaint {
 }
 
 impl ImagePaint {
+    /// Creates a new [`ImagePaint`] instance.
+    ///
+    /// # Arguments
+    /// - `source`: The [`ImageSource`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new<S>(source: S) -> Self
     where
         S: Into<ImageSource>,
@@ -118,26 +164,61 @@ impl ImagePaint {
         }
     }
 
+    /// Sets the horizontal anchor position of the image.
+    ///
+    /// # Arguments
+    /// - `x`: The horizontal value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn x(mut self, x: f32) -> Self {
         self.x = nf32!(x);
         self
     }
 
+    /// Sets the vertical anchor position of the image.
+    ///
+    /// # Arguments
+    /// - `x`: The horizontal value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn y(mut self, y: f32) -> Self {
         self.y = nf32!(y);
         self
     }
 
+    /// Sets the normalized (relative to the painted node) width of the image.
+    ///
+    /// # Arguments
+    /// - `width`: The width value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn width(mut self, width: f32) -> Self {
         self.width = nf32!(width);
         self
     }
 
+    /// Sets the normalized (relative to the painted node) height of the image.
+    ///
+    /// # Arguments
+    /// - `width`: The height value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn height(mut self, height: f32) -> Self {
         self.height = nf32!(height);
         self
     }
 
+    /// Sets the cross-origin policy for the image.
+    ///
+    /// # Arguments
+    /// - `value`: The [`CrossOrigin`] policy to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn cross_origin<T>(mut self, value: T) -> Self
     where
         T: Into<Option<CrossOrigin>>,
@@ -146,64 +227,97 @@ impl ImagePaint {
         self
     }
 
-    //
-
+    /// Positions the image in the top-left corner of the painted node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn top_left(mut self) -> Self {
         self.x = nf32!(0.0);
         self.y = nf32!(0.0);
         self
     }
 
+    /// Positions the image in the top-center of the painted node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn top_center(mut self) -> Self {
         self.x = nf32!(0.5);
         self.y = nf32!(0.0);
         self
     }
 
+    /// Positions the image in the top-right corner of the painted node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn top_right(mut self) -> Self {
         self.x = nf32!(1.0);
         self.y = nf32!(0.0);
         self
     }
 
+    /// Positions the image in the middle-left of the painted node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn middle_left(mut self) -> Self {
         self.x = nf32!(0.0);
         self.y = nf32!(0.5);
         self
     }
 
+    /// Positions the image in the center of the painted node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn center(mut self) -> Self {
         self.x = nf32!(0.5);
         self.y = nf32!(0.5);
         self
     }
 
+    /// Positions the image in the middle-right of the painted node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn middle_right(mut self) -> Self {
         self.x = nf32!(1.0);
         self.y = nf32!(0.5);
         self
     }
 
+    /// Positions the image in the bottom-left corner of the painted node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn bottom_left(mut self) -> Self {
         self.x = nf32!(0.0);
         self.y = nf32!(1.0);
         self
     }
 
+    /// Positions the image in the bottom-center of the painted node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn bottom_center(mut self) -> Self {
         self.x = nf32!(0.5);
         self.y = nf32!(1.0);
         self
     }
 
+    /// Positions the image in the bottom-right corner of the painted node.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn bottom_right(mut self) -> Self {
         self.x = nf32!(1.0);
         self.y = nf32!(1.0);
         self
     }
 
-    //
-
+    /// Converts the image configuration into a [`Pattern`] element.
     fn into_pattern(self) -> Option<Pattern> {
         Pattern::build(|out| {
             ElementWriter::new(out, "image")?
@@ -265,8 +379,7 @@ impl From<ImagePaint> for Paint {
     }
 }
 
-//
-
+/// The paint layer with blending and opacity.
 #[derive(Debug, Clone, SmartDefault)]
 pub struct PaintLayer {
     pub(crate) paint: Paint,
@@ -276,16 +389,32 @@ pub struct PaintLayer {
 }
 
 impl PaintLayer {
+    /// Sets the blending mode for the layer.
+    ///
+    /// # Arguments
+    /// - `blend_mode`: The [`BlendMode`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn blend_mode(mut self, blend_mode: BlendMode) -> Self {
         self.blend_mode = blend_mode;
         self
     }
 
+    /// Sets the opacity for the layer.
+    ///
+    /// # Arguments
+    /// - `opacity`: The opacity value where `0.0` is fully transparent and
+    ///   `1.0` is fully opaque.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn opacity(mut self, opacity: f32) -> Self {
         self.opacity = nf32!(opacity);
         self
     }
 
+    /// Returns `true` if this layer has no visible paint.
     pub(crate) fn is_none(&self) -> bool {
         self.paint.is_none()
     }
@@ -304,12 +433,19 @@ where
     }
 }
 
-//
-
+/// The stack of paint layers rendered in order.
 #[derive(Debug, Clone, Default)]
 pub struct PaintStack(Vec<PaintLayer>);
 
 impl PaintStack {
+    /// Creates a paint stack from an iterator of paint layers.
+    ///
+    /// # Arguments
+    /// - `layers`: The iterable collection of values convertible into
+    ///   [`PaintLayer`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub(crate) fn new<I, T>(layers: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -318,14 +454,31 @@ impl PaintStack {
         Self(layers.into_iter().map(Into::into).collect())
     }
 
+    /// Returns `true` if the paint stack produces no visible output.
     pub(crate) fn is_none(&self) -> bool {
         self.0.is_empty() || (self.0.len() == 1 && self.0[0].is_none())
     }
 
+    /// Returns `true` if the paint stack requires isolated blending.
+    ///
+    /// Isolation is needed when any layer uses a non-default [`BlendMode`],
+    /// making sure that blending is evaluated within the stack rather than
+    /// against previously rendered content.
     fn needs_isolation(&self) -> bool {
         self.0.iter().any(|x| !x.blend_mode.is_default())
     }
 
+    /// Renders the paint stack into the provided render context.
+    ///
+    /// # Arguments
+    /// - `ctx`: The current [`RenderContext`].
+    /// - `draw_single_layer`: The closure used to write path data for a single
+    ///   layer.
+    /// - `draw_cached_layer`: The closure used to generate reusable path
+    ///   geometry.
+    /// - `visit_layer`: The visitor invoked for each rendered paint layer.
+    /// - `visit_group`: The visitor invoked for the enclosing group when
+    ///   multiple layers are present.
     pub(crate) fn render<'a, W, D, S, L, G>(
         &self,
         ctx: &mut RenderContext<W>,

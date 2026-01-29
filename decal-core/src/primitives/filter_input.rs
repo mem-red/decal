@@ -20,14 +20,17 @@ enum FilterInputInner {
     Reference(Iri),
 }
 
+/// The input source for a filter primitive.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 pub struct FilterInput(FilterInputInner);
 
 impl FilterInput {
+    /// Uses the original graphic of the filtered element as input.
     pub const fn source_graphic() -> Self {
         Self(FilterInputInner::SourceGraphic)
     }
 
+    /// Uses the alpha channel of the source graphic as input.
     pub const fn source_alpha() -> Self {
         Self(FilterInputInner::SourceAlpha)
     }

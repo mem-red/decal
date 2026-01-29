@@ -3,7 +3,7 @@ use crate::primitives::{
     PaintStack,
 };
 
-/// Defines which glyphs participate in stencil mask generation.
+/// Specifies which glyphs participate in stencil mask generation.
 #[derive(Debug, Copy, Clone, Default)]
 pub enum StencilScope {
     /// Includes only vector glyphs when generating the stencil mask.
@@ -15,7 +15,7 @@ pub enum StencilScope {
     AllGlyphs,
 }
 
-/// Defines how the stencil mask is derived from glyphs.
+/// Specifies how the stencil mask is derived from glyphs.
 #[derive(Debug, Copy, Clone, Default)]
 pub enum StencilType {
     /// Uses the alpha channel of the glyphs to control stencil opacity.

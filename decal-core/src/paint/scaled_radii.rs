@@ -1,6 +1,6 @@
 use crate::attributes::CornerRadius;
 
-/// Represents corner radii scaled to fit within the bounds of an element.
+/// The corner radii scaled to fit within the bounds of an element.
 #[derive(Debug, Clone, Copy, Default)]
 pub(crate) struct ScaledRadii {
     pub(crate) h_tl: f32,

@@ -11,6 +11,7 @@ use std::fmt::{
     Formatter,
 };
 
+/// The SVG mask element.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
 pub(crate) struct Mask {
     content: String,
@@ -18,6 +19,14 @@ pub(crate) struct Mask {
 }
 
 impl Mask {
+    /// Builds a [`Mask`] by writing SVG content into a buffer.
+    ///
+    /// # Arguments
+    /// - `write_fn`: The closure used to write SVG content into the mask.
+    ///
+    /// # Returns
+    /// - [`Self`] on success.
+    /// - [`std::fmt::Error`] if writing fails.
     pub(crate) fn build<F>(write_fn: F) -> Result<Self, std::fmt::Error>
     where
         F: FnOnce(&mut String) -> std::fmt::Result,
@@ -31,6 +40,13 @@ impl Mask {
         })
     }
 
+    /// Sets the type of the mask.
+    ///
+    /// # Arguments
+    /// - `value`: The [`MaskType`] value.
+    ///
+    /// # Returns
+    /// [`Self`]
     pub(crate) fn r#type(mut self, value: MaskType) -> Self {
         self.r#type = value;
         self

@@ -69,10 +69,29 @@ impl Display for LightSourceInner {
     }
 }
 
+/// The light source used by [`DiffuseLighting`] and [`SpecularLighting`] filter
+/// primitives.
+///
+/// [`DiffuseLighting`]: crate::filters::filter_primitives::DiffuseLighting
+/// [`SpecularLighting`]: crate::filters::filter_primitives::SpecularLighting
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 pub struct LightSource(LightSourceInner);
 
 impl LightSource {
+    /// Creates a distant light source with a fixed direction.
+    ///
+    /// # Arguments
+    /// - `azimuth`: The direction of the light source in the `xy` plane, in
+    ///   degrees.
+    /// - `elevation`: The angle of the light source above the `xy` plane, in
+    ///   degrees.
+    ///
+    /// # Returns
+    /// - [`Self`]
+    ///
+    /// # Reference
+    ///
+    /// https://drafts.csswg.org/filter-effects/#feDistantLightElement
     pub fn distant_light(azimuth: f32, elevation: f32) -> Self {
         Self(LightSourceInner::DistantLight {
             azimuth: ff32!(azimuth),
@@ -80,6 +99,19 @@ impl LightSource {
         })
     }
 
+    /// Creates a point light source located at a specific position.
+    ///
+    /// # Arguments
+    /// - `x`: The `x` coordinate of the light source.
+    /// - `y`: The `y` coordinate of the light source.
+    /// - `z`: The `z` coordinate of the light source.
+    ///
+    /// # Returns
+    /// - [`Self`]
+    ///
+    /// # Reference
+    ///
+    /// https://drafts.csswg.org/filter-effects/#fePointLightElement
     pub fn point_light(x: f32, y: f32, z: f32) -> Self {
         Self(LightSourceInner::PointLight {
             x: ff32!(x),
@@ -88,6 +120,20 @@ impl LightSource {
         })
     }
 
+    /// Creates a spotlight that emits light toward a specific target.
+    ///
+    /// # Arguments
+    /// - `location`: The `(x, y, z)` position of the light source.
+    /// - `points_at`: The `(x, y, z)` point the light is directed toward.
+    /// - `specular_exponent`: Controls the focus of the specular highlight.
+    /// - `limiting_cone_angle`: Restricts the spread of the spotlight cone.
+    ///
+    /// # Returns
+    /// - [`Self`]
+    ///
+    /// # Reference
+    ///
+    /// https://drafts.csswg.org/filter-effects/#feSpotLightElement
     pub fn spot_light(
         location: (f32, f32, f32),
         points_at: (f32, f32, f32),

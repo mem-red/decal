@@ -1,10 +1,14 @@
+/// The text wrap property.
 #[derive(Debug, Clone, Copy)]
 pub enum TextWrap {
+    /// Disables wrapping entirely.
     None,
+    /// Allows wrapping at individual glyph boundaries.
     Glyph,
+    /// Allows wrapping only at word boundaries.
     Word,
-    /// wrap at the word level or fallback to glyph level if a word can't fit on
-    /// a line by itself
+    /// Wraps at word boundaries, but falls back to glyph-level wrapping if a
+    /// word cannot fit on a line by itself.
     WordOrGlyph,
 }
 

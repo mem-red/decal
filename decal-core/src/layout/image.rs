@@ -22,7 +22,7 @@ enum ImageSourceInner {
     Svg(String),
 }
 
-/// Represents the source of an image node.
+/// The source of an image node.
 #[derive(Debug, Clone)]
 pub struct ImageSource(ImageSourceInner);
 

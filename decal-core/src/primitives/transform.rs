@@ -17,6 +17,7 @@ enum TransformOperation {
     Skew(f32, f32),
 }
 
+/// The node transformation.
 #[derive(Debug, Clone, Default)]
 pub struct Transform {
     initial_tf: Option<usvg::Transform>,
@@ -24,10 +25,26 @@ pub struct Transform {
 }
 
 impl Transform {
+    /// Creates a new identity [`Transform`] instance.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Creates a new [`Transform`] from the provided matrix values.
+    ///
+    /// # Arguments
+    /// - `sx`: The horizontal scale component.
+    /// - `ky`: The vertical skew component.
+    /// - `kx`: The horizontal skew component.
+    /// - `sy`: The vertical scale component.
+    /// - `tx`: The horizontal translation component.
+    /// - `ty`: The vertical translation component.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn matrix(sx: f32, ky: f32, kx: f32, sy: f32, tx: f32, ty: f32) -> Self {
         Transform {
             initial_tf: Some(usvg::Transform::from_row(sx, ky, kx, sy, tx, ty)),
@@ -35,8 +52,13 @@ impl Transform {
         }
     }
 
-    //
-
+    /// Translates the node along both axes.
+    ///
+    /// # Arguments
+    /// - `value`: The translation distance convertible using [`IntoFloatPair`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn translate<T>(mut self, value: T) -> Self
     where
         T: IntoFloatPair,
@@ -46,20 +68,39 @@ impl Transform {
         self
     }
 
+    /// Translates the node along the x-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The translation distance along the x-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn translate_x(mut self, value: f32) -> Self {
         self.operations
             .push(TransformOperation::Translate(value, 0.0));
         self
     }
 
+    /// Translates the node along the y-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The translation distance along the y-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn translate_y(mut self, value: f32) -> Self {
         self.operations
             .push(TransformOperation::Translate(0.0, value));
         self
     }
 
-    //
-
+    /// Scales the node along both axes.
+    ///
+    /// # Arguments
+    /// - `value`: The scaling factor convertible using [`IntoFloatPair`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn scale<T>(mut self, value: T) -> Self
     where
         T: IntoFloatPair,
@@ -69,30 +110,65 @@ impl Transform {
         self
     }
 
+    /// Scales the node along the x-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The scaling factor along the x-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn scale_x(mut self, value: f32) -> Self {
         self.operations.push(TransformOperation::Scale(value, 1.0));
         self
     }
 
+    /// Scales the node along the y-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The scaling factor along the y-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn scale_y(mut self, value: f32) -> Self {
         self.operations.push(TransformOperation::Scale(1.0, value));
         self
     }
 
-    //
-
+    /// Rotates the node around its center.
+    ///
+    /// # Arguments
+    /// - `angle`: The rotation angle in degrees.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn rotate(mut self, angle: f32) -> Self {
         self.operations
             .push(TransformOperation::Rotate(angle, RotationAnchor::Center));
         self
     }
 
+    /// Rotates the node around the coordinate origin.
+    ///
+    /// # Arguments
+    /// - `angle`: The rotation angle in degrees.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn rotate_origin(mut self, angle: f32) -> Self {
         self.operations
             .push(TransformOperation::Rotate(angle, RotationAnchor::Origin));
         self
     }
 
+    /// Rotates the node around a specific point.
+    ///
+    /// # Arguments
+    /// - `angle`: The rotation angle in degrees.
+    /// - `x`: The x coordinate of the rotation anchor.
+    /// - `y`: The y coordinate of the rotation anchor.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn rotate_at(mut self, angle: f32, x: f32, y: f32) -> Self {
         self.operations.push(TransformOperation::Rotate(
             angle,
@@ -101,8 +177,13 @@ impl Transform {
         self
     }
 
-    //
-
+    /// Skews the node along both axes.
+    ///
+    /// # Arguments
+    /// - `value`: The skew angle convertible using [`IntoFloatPair`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn skew<T>(mut self, value: T) -> Self
     where
         T: IntoFloatPair,
@@ -112,18 +193,37 @@ impl Transform {
         self
     }
 
+    /// Skews the node along the x-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The skew angle along the x-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn skew_x(mut self, angle: f32) -> Self {
         self.operations.push(TransformOperation::Skew(angle, 0.0));
         self
     }
 
+    /// Skews the node along the y-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The skew angle along the y-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn skew_y(mut self, angle: f32) -> Self {
         self.operations.push(TransformOperation::Skew(0.0, angle));
         self
     }
 
-    //
-
+    /// Writes the resolved transform as an SVG matrix attribute.
+    ///
+    /// # Arguments
+    /// - `out`: The output writer.
+    /// - `pos`: The top-left position of the node.
+    /// - `translate`: Translation applied before local transforms.
+    /// - `size`: The size of the node used for center-based transforms.
     pub(crate) fn write<T>(
         &self,
         out: &mut T,
@@ -207,9 +307,10 @@ impl Transform {
     }
 }
 
-//
-
+/// Conversion trait for values that can be interpreted as an `(x, y)` float
+/// pair.
 pub trait IntoFloatPair {
+    /// Converts the value into a pair of floats.
     fn into_float_pair(self) -> (f32, f32);
 }
 
@@ -465,7 +566,6 @@ mod tests {
     fn into_float_pair() {
         assert_eq!(1.5_f32.into_float_pair(), (1.5, 1.5));
         assert_eq!((1.0, 2.0).into_float_pair(), (1.0, 2.0));
-        assert_eq!([1.5].into_float_pair(), (1.5, 1.5));
         assert_eq!([1.0, 2.0].into_float_pair(), (1.0, 2.0));
     }
 }

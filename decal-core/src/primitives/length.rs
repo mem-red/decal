@@ -19,7 +19,6 @@ use taffy::prelude::{
     TaffyZero,
 };
 
-// do not expose this enum in public API to avoid mess
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Copy, Default)]
 enum LengthInner {
     #[default]
@@ -40,10 +39,21 @@ impl LengthInner {
     }
 }
 
+/// The length value used for sizing, positioning, and spacing.
+///
+/// A [`Length`] can represent:
+/// - an absolute value in layout units
+/// - a percentage of the available space
+/// - auto
+/// - zero
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Copy, Default)]
 pub struct Length<const AUTO: bool = true, const PERCENT: bool = true>(LengthInner);
 
 impl<const PERCENT: bool> Length<true, PERCENT> {
+    /// Creates a [`Length`] with the value `auto`.
+    ///
+    /// # Returns
+    /// - [`Self`]
     #[must_use]
     pub const fn auto() -> Self {
         Self(LengthInner::Auto)
@@ -51,11 +61,27 @@ impl<const PERCENT: bool> Length<true, PERCENT> {
 }
 
 impl<const AUTO: bool> Length<AUTO, true> {
+    /// Creates a percentage [`Length`]. The value is interpreted as a
+    /// percentage (e.g. `50.0` as `50%`).
+    ///
+    /// # Arguments
+    /// - `value`: The percentage value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     #[must_use]
     pub fn percent(value: f32) -> Self {
         Self(LengthInner::Percent(ff32!(value / 100.0)))
     }
 
+    /// Creates a normalized percentage [`Length`]. The value is interpreted as
+    /// a normalized fraction (e.g. `0.5` as `50%`).
+    ///
+    /// # Arguments
+    /// - `value`: The normalized percentage value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     #[must_use]
     pub fn percent_normalized(value: f32) -> Self {
         Self(LengthInner::Percent(ff32!(value)))
@@ -63,16 +89,28 @@ impl<const AUTO: bool> Length<AUTO, true> {
 }
 
 impl<const AUTO: bool, const PERCENT: bool> Length<AUTO, PERCENT> {
+    /// Creates a [`Length`] with zero as value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     #[must_use]
     pub const fn zero() -> Self {
         Self(LengthInner::Zero)
     }
 
+    /// Creates an absolute [`Length`] value.
+    ///
+    /// # Arguments
+    /// - `value`: The absolute length in layout units.
+    ///
+    /// # Returns
+    /// - [`Self`]
     #[must_use]
     pub fn units(value: f32) -> Self {
         Self(LengthInner::Absolute(ff32!(value)))
     }
 
+    /// Returns `true` if the length resolves to zero.
     pub(crate) fn is_zero(&self) -> bool {
         match self.0 {
             LengthInner::Zero => true,
@@ -81,6 +119,11 @@ impl<const AUTO: bool, const PERCENT: bool> Length<AUTO, PERCENT> {
         }
     }
 
+    /// Tries to resolve the length into an absolute value.
+    ///
+    /// - Absolute values are returned as it is.
+    /// - Percentage values are resolved relative to `full`.
+    /// - Returns `None` otherwise.
     pub(crate) fn resolve_abs(&self, full: f32) -> Option<f32> {
         match self.0 {
             LengthInner::Absolute(value) => Some(value.get()),
@@ -161,9 +204,12 @@ impl<const AUTO: bool, const PERCENT: bool> From<Length<AUTO, PERCENT>> for taff
     }
 }
 
-//
-
+/// Conversion into an optional [`Length`] value.
+///
+/// This is primarily used by builder APIs to allow both direct values and
+/// `Option` values to be passed ergonomically.
 pub trait IntoOptionalLength<const AUTO: bool = true, const PERCENT: bool = true> {
+    /// Converts the value into an optional length.
     fn into_optional_length(self) -> Option<Length<AUTO, PERCENT>>;
 }
 
@@ -201,16 +247,31 @@ impl_into_unit_length!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f32, 
 pub(super) mod helpers {
     use super::Length;
 
+    /// Returns a zero [`Length`] value.
+    ///
+    /// # Returns
+    /// - [`Length`]
     #[must_use]
     pub const fn zero<const AUTO: bool, const PERCENT: bool>() -> Length<AUTO, PERCENT> {
         Length::zero()
     }
 
+    /// Returns an `auto` [`Length`] value.
+    ///
+    /// # Returns
+    /// - [`Length`]
     #[must_use]
     pub const fn auto<const PERCENT: bool>() -> Length<true, PERCENT> {
         Length::auto()
     }
 
+    /// Creates an absolute [`Length`] value.
+    ///
+    /// # Arguments
+    /// - `value`: The absolute length in layout units.
+    ///
+    /// # Returns
+    /// - [`Length`]
     #[must_use]
     pub fn units<T, const AUTO: bool, const PERCENT: bool>(value: T) -> Length<AUTO, PERCENT>
     where
@@ -219,6 +280,14 @@ pub(super) mod helpers {
         Length::units(value.into() as f32)
     }
 
+    /// Creates a percentage [`Length`] value. The value is interpreted as a
+    /// percentage (e.g. `50.0` as `50%`).
+    ///
+    /// # Arguments
+    /// - `value`: The percentage value.
+    ///
+    /// # Returns
+    /// - [`Length`]
     #[must_use]
     pub fn pct<T, const AUTO: bool>(value: T) -> Length<AUTO, true>
     where
@@ -228,9 +297,17 @@ pub(super) mod helpers {
     }
 
     pub trait LengthExtension<const AUTO: bool, const PERCENT: bool>: Sized + Copy {
+        /// Converts the value into an absolute [`Length`] value.
+        ///
+        /// # Returns
+        /// - [`Length`]
         #[must_use]
         fn units(self) -> Length<AUTO, PERCENT>;
 
+        /// Converts the value into a percentage [`Length`] value.
+        ///
+        /// # Returns
+        /// - [`Length`]
         #[must_use]
         fn pct(self) -> Length<AUTO, true>;
     }

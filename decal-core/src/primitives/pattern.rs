@@ -21,6 +21,7 @@ use std::fmt::{
 
 type PatternUnit = Length<false, true>;
 
+/// The SVG pattern element.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Default)]
 pub struct Pattern {
     content: String,
@@ -36,6 +37,13 @@ pub struct Pattern {
 }
 
 impl Pattern {
+    /// Creates a new [`Pattern`] instance from raw SVG content.
+    ///
+    /// # Arguments
+    /// - `content`: The SVG markup rendered inside the pattern element.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new(content: String) -> Self {
         Self {
             content,
@@ -43,6 +51,14 @@ impl Pattern {
         }
     }
 
+    /// Builds a [`Pattern`] by writing SVG content into a buffer.
+    ///
+    /// # Arguments
+    /// - `write_fn`: The closure used to write SVG content into the pattern.
+    ///
+    /// # Returns
+    /// - [`Self`] on success.
+    /// - [`std::fmt::Error`] if writing fails.
     pub(crate) fn build<F>(write_fn: F) -> Result<Self, std::fmt::Error>
     where
         F: FnOnce(&mut String) -> std::fmt::Result,
@@ -52,6 +68,13 @@ impl Pattern {
         Ok(Pattern::new(data))
     }
 
+    /// Sets the coordinate system used to resolve pattern geometry.
+    ///
+    /// # Arguments
+    /// - `value`: The [`PatternUnits`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn pattern_units<T>(mut self, value: T) -> Self
     where
         T: Into<Option<PatternUnits>>,
@@ -60,6 +83,13 @@ impl Pattern {
         self
     }
 
+    /// Sets the coordinate system used to resolve pattern content.
+    ///
+    /// # Arguments
+    /// - `value`: The [`PatternContentUnits`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn pattern_content_units<T>(mut self, value: T) -> Self
     where
         T: Into<Option<PatternContentUnits>>,
@@ -68,6 +98,13 @@ impl Pattern {
         self
     }
 
+    /// Sets the horizontal position of the pattern tile.
+    ///
+    /// # Arguments
+    /// - `value`: The x position value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn x<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -76,6 +113,13 @@ impl Pattern {
         self
     }
 
+    /// Sets the vertical position of the pattern tile.
+    ///
+    /// # Arguments
+    /// - `value`: The y position value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn y<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -84,6 +128,13 @@ impl Pattern {
         self
     }
 
+    /// Sets the width of the pattern tile.
+    ///
+    /// # Arguments
+    /// - `value`: The width value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn width<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -92,6 +143,13 @@ impl Pattern {
         self
     }
 
+    /// Sets the height of the pattern tile.
+    ///
+    /// # Arguments
+    /// - `value`: The height value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn height<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -100,6 +158,13 @@ impl Pattern {
         self
     }
 
+    /// Sets the aspect ratio handling for the pattern view box.
+    ///
+    /// # Arguments
+    /// - `value`: The [`PreserveAspectRatio`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn preserve_aspect_ratio<T>(mut self, value: T) -> Self
     where
         T: Into<Option<PreserveAspectRatio>>,
@@ -108,6 +173,13 @@ impl Pattern {
         self
     }
 
+    /// Sets the view box used to map pattern content.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ViewBox`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn view_box<T>(mut self, value: T) -> Self
     where
         T: Into<Option<ViewBox>>,
@@ -116,6 +188,13 @@ impl Pattern {
         self
     }
 
+    /// Applies a transformation to the pattern.
+    ///
+    /// # Arguments
+    /// - `value`: The [`PatternTransform`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn transform<T>(mut self, value: T) -> Self
     where
         T: Into<Option<PatternTransform>>,

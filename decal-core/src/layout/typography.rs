@@ -28,7 +28,7 @@ pub(crate) struct Typography {
 }
 
 impl Typography {
-    //noinspection RsLiveness
+    // noinspection RsLiveness
     /// Cascades typography properties from a parent typography context.
     ///
     /// Any field that is not explicitly set on `self` will inherit the

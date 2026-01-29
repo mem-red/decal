@@ -61,7 +61,7 @@ impl NodeKind {
     }
 }
 
-/// A single node in the scene graph.
+/// The single node in the scene graph.
 #[derive(Debug, Clone)]
 pub struct Node {
     pub(crate) kind: NodeKind,

@@ -9,10 +9,12 @@ use std::fmt::{
 };
 use strict_num::PositiveF32;
 
+/// The pair of non-negative float values.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
 pub struct PositiveF32Pair(PositiveF32, PositiveF32);
 
 impl PositiveF32Pair {
+    /// Returns `true` if both values in the pair are zero.
     pub(crate) fn is_zero(&self) -> bool {
         self.0 == PositiveF32::ZERO && self.1 == PositiveF32::ZERO
     }

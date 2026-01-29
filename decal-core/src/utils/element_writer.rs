@@ -210,7 +210,7 @@ where
     /// Writes a closing tag for the given element name.
     ///
     /// # Arguments
-    /// - `out`: Output sink.
+    /// - `out`: The output writer.
     /// - `element_name`: Name of the element to close.
     pub(crate) fn close_tag(out: &'a mut T, element_name: &str) -> std::fmt::Result {
         write!(out, "</{element_name}>")

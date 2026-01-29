@@ -9,6 +9,7 @@ use std::fmt::{
     Write,
 };
 
+/// The sRGB color using 8-bit channels for red, green, blue, and alpha.
 #[derive(Debug, Clone, Copy, Hash, Eq, PartialEq)]
 pub struct Color {
     r: u8,
@@ -18,10 +19,29 @@ pub struct Color {
 }
 
 impl Color {
+    /// Creates an opaque RGB [`Color`] instance.
+    ///
+    /// # Arguments
+    /// - `r`: The red channel value (`[0, 255]`).
+    /// - `g`: The green channel value (`[0, 255]`).
+    /// - `b`: The blue channel value (`[0, 255]`).
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn rgb(r: u8, g: u8, b: u8) -> Self {
         Self { r, g, b, a: 255 }
     }
 
+    /// Creates an RGBA [`Color`] instance.
+    ///
+    /// # Arguments
+    /// - `r`: The red channel value (`[0, 255]`).
+    /// - `g`: The green channel value (`[0, 255]`).
+    /// - `b`: The blue channel value (`[0, 255]`).
+    /// - `a`: The alpha channel value (`[0.0, 1.0]`).
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub const fn rgba(r: u8, g: u8, b: u8, a: f32) -> Self {
         debug_assert!(a >= 0.0 && a <= 1.0);
         Self {
@@ -32,10 +52,31 @@ impl Color {
         }
     }
 
+    /// Parses a [`Color`] from a CSS-compatible string.
+    ///
+    /// Supported formats include:
+    /// - `rgb(r, g, b)`
+    /// - `rgba(r, g, b, a)`
+    /// - Hex colors (`#rgb`, `#rrggbb`, `#rrggbbaa`)
+    /// - Standard color names
+    ///
+    /// # Arguments
+    /// - `value`: The color string to parse.
+    ///
+    /// # Returns
+    /// - Parsed [`Color`] or opaque black on failure
     pub fn parse(value: &str) -> Self {
         Self::try_parse(value).unwrap_or_default()
     }
 
+    /// Attempts to parse a [`Color`] from a CSS-compatible string.
+    ///
+    /// # Arguments
+    /// - `value`: The color string to parse.
+    ///
+    /// # Returns
+    /// - `Some(Color)` if parsing succeeds.
+    /// - `None` if the string is invalid.
     pub fn try_parse(value: &str) -> Option<Self> {
         let color = parse_color(value).ok()?;
         Some(color.into())
@@ -112,7 +153,9 @@ impl From<String> for Color {
 pub(super) mod helpers {
     use super::Color;
 
+    /// Conversion into an opaque RGB [`Color`] value.
     pub trait IntoRgb {
+        /// Converts the value into an RGB [`Color`] value.
         fn into_rgb(self) -> Color;
     }
 
@@ -129,6 +172,22 @@ pub(super) mod helpers {
         }
     }
 
+    /// Creates an opaque RGB [`Color`] value.
+    ///
+    /// # Arguments
+    /// - `value`: The color value convertible using [`IntoRgb`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use decal::prelude::*;
+    ///
+    /// let color = rgb(0x0a0b0c);
+    /// assert_eq!(color.to_string(), "rgb(10,11,12)");
+    /// ```
+    ///
+    /// # Returns
+    /// - [`Color`]
     pub fn rgb<T>(value: T) -> Color
     where
         T: IntoRgb,
@@ -136,9 +195,9 @@ pub(super) mod helpers {
         value.into_rgb()
     }
 
-    //
-
+    /// Conversion into an RGBA [`Color`] value.
     pub trait IntoRgba {
+        /// Converts the value into an RGBA [`Color`] value.
         fn into_rgba(self) -> Color;
     }
 
@@ -155,6 +214,22 @@ pub(super) mod helpers {
         }
     }
 
+    /// Creates an RGBA [`Color`] value.
+    ///
+    /// # Arguments
+    /// - `value`: The color value convertible using [`IntoRgba`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use decal::prelude::*;
+    ///
+    /// let color = rgba(0x0a0b0c80);
+    /// assert_eq!(color.to_string(), "rgba(10,11,12,0.502)");
+    /// ```
+    ///
+    /// # Returns
+    /// - [`Color`]
     pub fn rgba<T>(value: T) -> Color
     where
         T: IntoRgba,

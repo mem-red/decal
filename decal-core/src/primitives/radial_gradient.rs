@@ -25,6 +25,7 @@ use std::fmt::{
 
 type GradientUnit = Length<false, true>;
 
+/// The radial gradient element.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct RadialGradient {
     #[default(GradientUnit::percent(50.0))]
@@ -44,10 +45,21 @@ pub struct RadialGradient {
 }
 
 impl RadialGradient {
+    /// Creates a new [`RadialGradient`] instance.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new() -> Self {
         RadialGradient::default()
     }
 
+    /// Sets the radius of the radial gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The radius value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn r<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -58,6 +70,13 @@ impl RadialGradient {
         self
     }
 
+    /// Sets the x coordinate of the end circle of gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The x coordinate value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn cx<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -68,6 +87,13 @@ impl RadialGradient {
         self
     }
 
+    /// Sets the y coordinate of the end circle of gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The y coordinate value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn cy<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -78,6 +104,13 @@ impl RadialGradient {
         self
     }
 
+    /// Sets the x coordinate of the start circle of gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The x coordinate value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn fx<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -86,6 +119,13 @@ impl RadialGradient {
         self
     }
 
+    /// Sets the y coordinate of the start circle of gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The y coordinate value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn fy<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -94,6 +134,13 @@ impl RadialGradient {
         self
     }
 
+    /// Sets the radius of the start circle.
+    ///
+    /// # Arguments
+    /// - `value`: The radius value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn fr<T>(mut self, value: T) -> Self
     where
         T: IntoOptionalLength<false, true>,
@@ -102,6 +149,13 @@ impl RadialGradient {
         self
     }
 
+    /// Adds a color stop to the gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The [`Stop`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn stop<T>(mut self, value: T) -> Self
     where
         T: Into<Stop>,
@@ -110,6 +164,14 @@ impl RadialGradient {
         self
     }
 
+    // noinspection DuplicatedCode (used by linear gradient too)
+    /// Adds multiple color stops to the gradient.
+    ///
+    /// # Arguments
+    /// - `stops`: Iterable collection of [`Stop`] values.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn stops<I, T>(mut self, stops: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -119,6 +181,14 @@ impl RadialGradient {
         self
     }
 
+    // noinspection DuplicatedCode (used by linear gradient too)
+    /// Sets the coordinate system used for resolving gradient geometry.
+    ///
+    /// # Arguments
+    /// - `value`: The [`GradientUnits`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn units<T>(mut self, value: T) -> Self
     where
         T: Into<Option<GradientUnits>>,
@@ -127,6 +197,14 @@ impl RadialGradient {
         self
     }
 
+    // noinspection DuplicatedCode (used by linear gradient too)
+    /// Applies a transformation to the gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The [`GradientTransform`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn transform<T>(mut self, value: T) -> Self
     where
         T: Into<Option<GradientTransform>>,
@@ -135,6 +213,14 @@ impl RadialGradient {
         self
     }
 
+    // noinspection DuplicatedCode (used by linear gradient too)
+    /// Sets the color interpolation space used by the gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation<T>(mut self, value: T) -> Self
     where
         T: Into<Option<ColorInterpolation>>,
@@ -153,6 +239,7 @@ impl IntoResources for RadialGradient {
 }
 
 impl Display for RadialGradient {
+    // noinspection DuplicatedCode (used by linear gradient too)
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let gradient = ElementWriter::new(f, "radialGradient")?
             .attr("id", (self.iri(),))?

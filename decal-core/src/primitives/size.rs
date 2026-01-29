@@ -1,11 +1,14 @@
 use crate::primitives::Length;
 
+/// The two-dimensional size expressed as a `width` and `height` pair.
 #[derive(Debug, Copy, Clone)]
 pub struct Size<T>
 where
     T: Copy,
 {
+    /// The width value.
     pub width: T,
+    /// The height value.
     pub height: T,
 }
 
@@ -13,15 +16,25 @@ impl<T> Size<T>
 where
     T: Copy,
 {
+    /// Creates a new [`Size`] instance.
+    ///
+    /// # Arguments
+    /// - `width`: The width component.
+    /// - `height`: The height component.
+    ///
+    /// # Returns
+    /// - [`Self`]
     #[must_use]
     pub const fn from_values(width: T, height: T) -> Self {
         Self { width, height }
     }
 
+    /// Returns the width component of the size.
     pub fn width(&self) -> T {
         self.width
     }
 
+    /// Returns the height component of the size.
     pub fn height(&self) -> T {
         self.height
     }
@@ -32,8 +45,6 @@ impl<const AUTO: bool, const PERCENT: bool> Default for Size<Length<AUTO, PERCEN
         Self::from_values(Length::zero(), Length::zero())
     }
 }
-
-//
 
 impl<T> From<taffy::geometry::Size<T>> for Size<T>
 where

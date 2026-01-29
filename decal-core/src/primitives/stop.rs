@@ -10,6 +10,7 @@ use std::fmt::{
 };
 use strict_num::NormalizedF32;
 
+/// The color stop within a gradient definition.
 #[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, SmartDefault)]
 pub struct Stop {
     #[default(NormalizedF32::ZERO)]
@@ -20,20 +21,46 @@ pub struct Stop {
 }
 
 impl Stop {
+    /// Creates a new [`Stop`] instance.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new() -> Self {
         Stop::default()
     }
 
+    /// Sets the offset of the stop within the gradient.
+    ///
+    /// # Arguments
+    /// - `offset`: The offset position in the range `[0.0, 1.0]`.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn offset(mut self, offset: f32) -> Self {
         self.offset = nf32!(offset);
         self
     }
 
+    /// Sets the offset of the stop using a percentage value.
+    ///
+    /// # Arguments
+    /// - `offset`: The offset position expressed as a percentage (`0.0` to
+    ///   `100.0`).
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn offset_pct(self, offset: f32) -> Self {
         self.offset(offset / 100.0);
         self
     }
 
+    /// Sets the color of the gradient stop.
+    ///
+    /// # Arguments
+    /// - `color`: The [`Color`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color<T>(mut self, color: T) -> Self
     where
         T: Into<Color>,
@@ -42,6 +69,14 @@ impl Stop {
         self
     }
 
+    /// Sets the opacity of the gradient stop.
+    ///
+    /// # Arguments
+    /// - `opacity`: The opacity value where `0.0` is fully transparent and
+    ///   `1.0` is fully opaque.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn opacity(mut self, opacity: f32) -> Self {
         self.opacity = nf32!(opacity);
         self

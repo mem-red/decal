@@ -11,9 +11,13 @@ use std::fmt::Write;
 use strict_num::FiniteF32;
 use usvg::Transform;
 
+/// The gradient transformation.
 pub type GradientTransform = PaintTransform;
+
+/// The pattern transformation.
 pub type PatternTransform = PaintTransform;
 
+/// The 2D transformation.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct PaintTransform {
     #[default(ff32!(1.0))]
@@ -42,16 +46,26 @@ impl From<Transform> for PaintTransform {
 impl IsDefault for PaintTransform {}
 
 impl PaintTransform {
+    /// Creates a new identity [`PaintTransform`] instance.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Returns `true` if the transform represents the identity transformation.
     pub fn is_identity(&self) -> bool {
         self.is_default()
     }
 
-    //
-
+    /// Translates the paint along both axes.
+    ///
+    /// # Arguments
+    /// - `value`: The translation distance convertible using [`IntoFloatPair`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn translate<T>(self, value: T) -> Self
     where
         T: IntoFloatPair,
@@ -60,16 +74,35 @@ impl PaintTransform {
         self.transform().post_translate(x, y).into()
     }
 
+    /// Translates the paint along the x-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The translation distance along the x-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn translate_x(self, value: f32) -> Self {
         self.transform().post_translate(value, 0.0).into()
     }
 
+    /// Translates the paint along the y-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The translation distance along the y-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn translate_y(self, value: f32) -> Self {
         self.transform().post_translate(0.0, value).into()
     }
 
-    //
-
+    /// Scales the paint along both axes.
+    ///
+    /// # Arguments
+    /// - `value`: The scaling factor convertible using [`IntoFloatPair`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn scale<T>(self, value: T) -> Self
     where
         T: IntoFloatPair,
@@ -78,26 +111,59 @@ impl PaintTransform {
         self.transform().post_scale(x, y).into()
     }
 
+    /// Scales the paint along the x-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The scaling factor along the x-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn scale_x(self, value: f32) -> Self {
         self.transform().post_scale(value, 1.0).into()
     }
 
+    /// Scales the paint along the y-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The scaling factor along the y-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn scale_y(self, value: f32) -> Self {
         self.transform().post_scale(1.0, value).into()
     }
 
-    //
-
+    /// Rotates the paint around the coordinate origin.
+    ///
+    /// # Arguments
+    /// - `angle`: The rotation angle in degrees.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn rotate(self, angle: f32) -> Self {
         self.transform().post_rotate(angle).into()
     }
 
+    /// Rotates the paint around a specific point.
+    ///
+    /// # Arguments
+    /// - `angle`: The rotation angle in degrees.
+    /// - `x`: The x coordinate of the rotation anchor.
+    /// - `y`: The y coordinate of the rotation anchor.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn rotate_at(self, angle: f32, x: f32, y: f32) -> Self {
         self.transform().post_rotate_at(angle, x, y).into()
     }
 
-    //
-
+    /// Skews the paint along both axes.
+    ///
+    /// # Arguments
+    /// - `value`: The skew angle convertible using [`IntoFloatPair`].
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn skew<T>(self, value: T) -> Self
     where
         T: IntoFloatPair,
@@ -108,20 +174,37 @@ impl PaintTransform {
             .into()
     }
 
+    /// Skews the paint along the x-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The skew angle along the x-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn skew_x(self, angle: f32) -> Self {
         self.transform()
             .post_concat(Transform::from_skew(angle, 0.0))
             .into()
     }
 
+    /// Skews the paint along the y-axis.
+    ///
+    /// # Arguments
+    /// - `value`: The skew angle along the y-axis.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn skew_y(self, angle: f32) -> Self {
         self.transform()
             .post_concat(Transform::from_skew(0.0, angle))
             .into()
     }
 
-    //
-
+    /// Writes the resolved transform as an SVG matrix attribute.
+    ///
+    /// # Arguments
+    /// - `out`: The output writer.
+    /// - `attr_name`: The name of the transform attribute.
     pub(crate) fn write<T>(&self, out: &mut T, attr_name: &str) -> std::fmt::Result
     where
         T: Write,
@@ -149,8 +232,10 @@ impl PaintTransform {
         out.write_str(r#")""#)
     }
 
-    //
-
+    /// Converts the current [`PaintTransform`] into [`tiny_skia::Transform`].
+    ///
+    /// # Returns
+    /// - [`tiny_skia::Transform`]
     fn transform(&self) -> Transform {
         Transform {
             sx: self.sx.get(),

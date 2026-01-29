@@ -9,7 +9,8 @@ use crate::filters::{
     primitives::FilterPrimitive,
 };
 
-/// A fluent builder for constructing and configuring a single filter primitive.
+/// The fluent builder for constructing and configuring a single filter
+/// primitive.
 ///
 /// A primitive is only added to the filter graph when [`finish`] is called.
 ///

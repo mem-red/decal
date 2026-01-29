@@ -29,8 +29,8 @@ use crate::{
 use hashbrown::HashMap;
 use parking_lot::Mutex;
 
-/// A handle to a finalized filter primitive stored in a [`FilterContext`]. Can
-/// be used as a filter input for other filter primitive nodes.
+/// The handle to a finalized filter primitive stored in a [`FilterContext`].
+/// Can be used as a filter input for other filter primitive nodes.
 #[derive(Debug, Copy, Clone)]
 pub struct PrimitiveNode {
     #[allow(dead_code)]
@@ -50,7 +50,7 @@ struct ContextInner {
     primitives: Vec<FilterPrimitive>,
 }
 
-/// A context for building and deduplicating filter primitives.
+/// The context for building and deduplicating filter primitives.
 #[derive(Debug, Default)]
 pub struct FilterContext(Mutex<ContextInner>);
 

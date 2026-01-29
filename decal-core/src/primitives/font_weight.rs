@@ -1,15 +1,26 @@
+/// The weight of the font.
 #[derive(Debug, Clone, Copy, Default)]
 pub enum FontWeight {
-    Thin,       // 100
-    ExtraLight, // 200
-    Light,      // 300
+    /// Thin weight (`100`).
+    Thin,
+    /// Extra-light weight (`200`).
+    ExtraLight,
+    /// Light weight (`300`).
+    Light,
+    /// Normal weight (`400`).
     #[default]
-    Normal, // 400
-    Medium,     // 500
-    SemiBold,   // 600
-    Bold,       // 700
-    ExtraBold,  // 800
-    Black,      // 900
+    Normal,
+    /// Medium weight (`500`).
+    Medium,
+    /// Semi-bold weight (`600`).
+    SemiBold,
+    /// Bold weight (`700`).
+    Bold,
+    /// Extra-bold weight (`800`).
+    ExtraBold,
+    /// Black weight (`900`).
+    Black,
+    /// A custom font weight.
     Value(u16),
 }
 

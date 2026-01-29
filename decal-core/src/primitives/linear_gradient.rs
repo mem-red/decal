@@ -27,6 +27,7 @@ use std::fmt::{
 
 type GradientUnit = Length<false, true>;
 
+/// The linear gradient element.
 #[derive(Debug, Hash, Eq, PartialEq, Clone, SmartDefault)]
 pub struct LinearGradient {
     x1: GradientUnit,
@@ -43,10 +44,21 @@ pub struct LinearGradient {
 }
 
 impl LinearGradient {
+    /// Creates a new [`LinearGradient`] instance.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn new() -> Self {
         LinearGradient::default()
     }
 
+    /// Creates a new [`LinearGradient`] oriented at the given angle.
+    ///
+    /// # Arguments
+    /// - `angle`: The angle of the gradient in degrees.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn angle(angle: f32) -> Self {
         let (x1, y1, x2, y2) = angle_to_line(angle);
         LinearGradient {
@@ -58,6 +70,10 @@ impl LinearGradient {
         }
     }
 
+    /// Creates a gradient flowing from bottom to top.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn top() -> Self {
         Self::new()
             .x1(Length::zero())
@@ -66,10 +82,18 @@ impl LinearGradient {
             .y2(Length::zero())
     }
 
+    /// Creates a gradient flowing from left to right.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn right() -> Self {
         Self::new()
     }
 
+    /// Creates a gradient flowing from top to bottom.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn bottom() -> Self {
         Self::new()
             .x1(Length::zero())
@@ -78,6 +102,10 @@ impl LinearGradient {
             .y2(Length::percent(100.0))
     }
 
+    /// Creates a gradient flowing from right to left.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn left() -> Self {
         Self::new()
             .x1(Length::percent(100.0))
@@ -86,6 +114,10 @@ impl LinearGradient {
             .y2(Length::zero())
     }
 
+    /// Creates a gradient flowing from bottom-right to top-left.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn top_left() -> Self {
         Self::new()
             .x1(Length::percent(100.0))
@@ -94,6 +126,10 @@ impl LinearGradient {
             .y2(Length::zero())
     }
 
+    /// Creates a gradient flowing from bottom-left to top-right.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn top_right() -> Self {
         Self::new()
             .x1(Length::zero())
@@ -102,6 +138,10 @@ impl LinearGradient {
             .y2(Length::zero())
     }
 
+    /// Creates a gradient flowing from top-right to bottom-left.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn bottom_left() -> Self {
         Self::new()
             .x1(Length::percent(100.0))
@@ -110,6 +150,10 @@ impl LinearGradient {
             .y2(Length::percent(100.0))
     }
 
+    /// Creates a gradient flowing from top-left to bottom-right.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn bottom_right() -> Self {
         Self::new()
             .x1(Length::zero())
@@ -118,8 +162,13 @@ impl LinearGradient {
             .y2(Length::percent(100.0))
     }
 
-    //
-
+    /// Adds a color stop to the gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The [`Stop`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn stop<T>(mut self, value: T) -> Self
     where
         T: Into<Stop>,
@@ -128,6 +177,14 @@ impl LinearGradient {
         self
     }
 
+    // noinspection DuplicatedCode (used by radial gradient too)
+    /// Adds multiple color stops to the gradient.
+    ///
+    /// # Arguments
+    /// - `stops`: Iterable collection of [`Stop`] values.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn stops<I, T>(mut self, stops: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -137,6 +194,14 @@ impl LinearGradient {
         self
     }
 
+    // noinspection DuplicatedCode (used by radial gradient too)
+    /// Sets the coordinate system used for resolving gradient geometry.
+    ///
+    /// # Arguments
+    /// - `value`: The [`GradientUnits`] value.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn units<T>(mut self, value: T) -> Self
     where
         T: Into<Option<GradientUnits>>,
@@ -187,6 +252,14 @@ impl LinearGradient {
         self
     }
 
+    // noinspection DuplicatedCode (used by radial gradient too)
+    /// Applies a transformation to the gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The [`GradientTransform`] to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn transform<T>(mut self, value: T) -> Self
     where
         T: Into<Option<GradientTransform>>,
@@ -195,6 +268,14 @@ impl LinearGradient {
         self
     }
 
+    // noinspection DuplicatedCode (used by radial gradient too)
+    /// Sets the color interpolation space used by the gradient.
+    ///
+    /// # Arguments
+    /// - `value`: The [`ColorInterpolation`] space to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
     pub fn color_interpolation<T>(mut self, value: T) -> Self
     where
         T: Into<Option<ColorInterpolation>>,
@@ -213,6 +294,7 @@ impl IntoResources for LinearGradient {
 }
 
 impl Display for LinearGradient {
+    // noinspection DuplicatedCode (used by radial gradient too)
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let gradient = ElementWriter::new(f, "linearGradient")?
             .attr("id", (self.iri(),))?

@@ -159,7 +159,8 @@ impl<'a> PrimitiveBuilder<'a, DropShadow> {
     /// Sets the opacity of the shadow color.
     ///
     /// # Arguments
-    /// - `opacity`: The opacity value.
+    /// - `opacity`: The opacity value where `0.0` is fully transparent and
+    ///   `1.0` is fully opaque.
     ///
     /// # Returns
     /// - [`Self`]
