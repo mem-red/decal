@@ -5,6 +5,7 @@ use crate::{
         LinearGradient,
         Mask,
         Paint,
+        PaintInner,
         Path,
         Pattern,
         RadialGradient,
@@ -53,11 +54,11 @@ impl IntoResources for Vec<Resource> {
 impl IntoResources for Paint {
     #[inline]
     fn into_resources(self) -> Vec<Resource> {
-        match self {
-            Paint::None | Paint::Color(_) => Vec::new(),
-            Paint::LinearGradient(value) => value.into_resources(),
-            Paint::RadialGradient(value) => value.into_resources(),
-            Paint::Image(value) | Paint::Pattern(value) => value.into_resources(),
+        match self.0 {
+            PaintInner::None | PaintInner::Color(_) => Vec::new(),
+            PaintInner::LinearGradient(value) => value.into_resources(),
+            PaintInner::RadialGradient(value) => value.into_resources(),
+            PaintInner::Image(value) | PaintInner::Pattern(value) => value.into_resources(),
         }
     }
 }
