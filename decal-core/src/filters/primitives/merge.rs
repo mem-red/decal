@@ -194,11 +194,7 @@ mod tests {
         ctx.merge()
             .input(FilterInput::source_graphic())
             .input(FilterInput::source_alpha())
-            .inputs([
-                FilterInput::source_graphic(),
-                FilterInput::source_alpha(),
-                FilterInput::background_image(),
-            ])
+            .inputs([FilterInput::source_alpha(), FilterInput::source_graphic()])
             .finish();
 
         let node = &ctx.into_primitives()[0];
@@ -212,15 +208,13 @@ mod tests {
     <feMergeNode in="{}" />
     <feMergeNode in="{}" />
     <feMergeNode in="{}" />
-    <feMergeNode in="{}" />
 </feMerge>
 "#,
                 node.iri(),
                 FilterInput::source_graphic(),
                 FilterInput::source_alpha(),
-                FilterInput::source_graphic(),
                 FilterInput::source_alpha(),
-                FilterInput::background_image(),
+                FilterInput::source_graphic(),
             ),
         );
     }

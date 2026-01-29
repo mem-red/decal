@@ -14,8 +14,6 @@ enum FilterInputInner {
     SourceGraphic,
     #[display("SourceAlpha")]
     SourceAlpha,
-    #[display("BackgroundImage")]
-    BackgroundImage,
     #[display("{0}")]
     Reference(Iri),
 }
@@ -35,10 +33,7 @@ impl FilterInput {
         Self(FilterInputInner::SourceAlpha)
     }
 
-    pub const fn background_image() -> Self {
-        Self(FilterInputInner::BackgroundImage)
-    }
-
+    /// Creates a filter input referencing the output of another primitive.
     pub(crate) const fn reference(iri: Iri) -> Self {
         Self(FilterInputInner::Reference(iri))
     }
