@@ -35,7 +35,7 @@ use std::fmt::{
 use strict_num::NormalizedF32;
 
 #[derive(Debug, Clone, Default)]
-pub enum Paint {
+pub(crate) enum PaintInner {
     #[default]
     None,
     Color(Color),
@@ -45,13 +45,17 @@ pub enum Paint {
     Pattern(Pattern),
 }
 
+/// The paint value.
+#[derive(Debug, Clone, Default)]
+pub struct Paint(pub(crate) PaintInner);
+
 impl Paint {
     /// Creates a new [`Paint`] value representing no paint.
     ///
     /// # Returns
     /// - [`Self`]
     pub const fn none() -> Self {
-        Self::None
+        Self(PaintInner::None)
     }
 
     /// Creates a [`Paint`] value from a solid color.
@@ -62,7 +66,7 @@ impl Paint {
     /// # Returns
     /// - [`Self`]
     pub const fn color(color: Color) -> Self {
-        Self::Color(color)
+        Self(PaintInner::Color(color))
     }
 
     /// Creates a [`Paint`] value from an image.
@@ -75,7 +79,7 @@ impl Paint {
     pub fn image(image: ImagePaint) -> Self {
         image
             .into_pattern()
-            .map(Self::Image)
+            .map(|x| Self(PaintInner::Image(x)))
             .unwrap_or(Self::none())
     }
 
@@ -87,7 +91,7 @@ impl Paint {
     /// # Returns
     /// - [`Self`]
     pub const fn linear_gradient(linear_gradient: LinearGradient) -> Self {
-        Self::LinearGradient(linear_gradient)
+        Self(PaintInner::LinearGradient(linear_gradient))
     }
 
     /// Creates a [`Paint`] value from a [`RadialGradient`].
@@ -98,7 +102,7 @@ impl Paint {
     /// # Returns
     /// - [`Self`]
     pub const fn radial_gradient(radial_gradient: RadialGradient) -> Self {
-        Self::RadialGradient(radial_gradient)
+        Self(PaintInner::RadialGradient(radial_gradient))
     }
 
     /// Creates a [`Paint`] value from a [`Pattern`].
@@ -109,24 +113,26 @@ impl Paint {
     /// # Returns
     /// - [`Self`]
     pub const fn pattern(pattern: Pattern) -> Self {
-        Self::Pattern(pattern)
+        Self(PaintInner::Pattern(pattern))
     }
 
     /// Returns `true` if this paint represents the absence of paint.
     pub(crate) fn is_none(&self) -> bool {
-        matches!(self, Paint::None)
+        matches!(self, Paint(PaintInner::None))
     }
 }
 
 impl Display for Paint {
     #[inline]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Paint::None => f.write_str("none"),
-            Paint::Color(color) => color.fmt(f),
-            Paint::LinearGradient(gradient) => write!(f, "url(#{})", gradient.iri()),
-            Paint::RadialGradient(gradient) => write!(f, "url(#{})", gradient.iri()),
-            Paint::Image(pattern) | Paint::Pattern(pattern) => write!(f, "url(#{})", pattern.iri()),
+        match &self.0 {
+            PaintInner::None => f.write_str("none"),
+            PaintInner::Color(color) => color.fmt(f),
+            PaintInner::LinearGradient(gradient) => write!(f, "url(#{})", gradient.iri()),
+            PaintInner::RadialGradient(gradient) => write!(f, "url(#{})", gradient.iri()),
+            PaintInner::Image(pattern) | PaintInner::Pattern(pattern) => {
+                write!(f, "url(#{})", pattern.iri())
+            }
         }
     }
 }
