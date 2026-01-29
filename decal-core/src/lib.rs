@@ -17,9 +17,8 @@
 //!
 //! ## Examples
 //!
-//! ```rust
+//! ```rust,no_run
 //! use decal::prelude::*;
-//! use std::fs;
 //!
 //! let mut engine = Engine::new(EngineOptions::default());
 //!
@@ -36,7 +35,7 @@
 //!     .vectorize(&mut scene, &VectorizeOptions::default())
 //!     .unwrap();
 //!
-//! fs::write("./markup.svg", svg).unwrap();
+//! std::fs::write("./markup.svg", svg).unwrap();
 //!
 //! let (pixmap, _scene_size) = engine
 //!     .rasterize(&mut scene, &RasterizeOptions::default())
