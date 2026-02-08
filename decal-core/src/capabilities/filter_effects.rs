@@ -17,7 +17,7 @@ pub trait FilterEffects: Drawable {
     ///
     /// let scene = decal! {
     ///     Text("hello")
-    ///         .fx(invert(0.5))
+    ///         .fx(Filter::invert(0.5))
     /// };
     /// ```
     ///
@@ -28,7 +28,7 @@ pub trait FilterEffects: Drawable {
     ///
     /// let scene = decal! {
     ///     Text("hello")
-    ///         .fx([blur(5.0), contrast(1.5)])
+    ///         .fx([Filter::blur(5.0), Filter::contrast(1.5)])
     /// };
     /// ```
     ///

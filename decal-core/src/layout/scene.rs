@@ -26,12 +26,6 @@ use std::{
     sync::Arc,
 };
 use taffy::{
-    CacheTree,
-    LayoutPartialTree,
-    PrintTree,
-    RoundTree,
-    TraversePartialTree,
-    TraverseTree,
     compute_block_layout,
     compute_cached_layout,
     compute_flexbox_layout,
@@ -41,6 +35,12 @@ use taffy::{
     prelude::TaffyMaxContent,
     print_tree,
     round_layout,
+    CacheTree,
+    LayoutPartialTree,
+    PrintTree,
+    RoundTree,
+    TraversePartialTree,
+    TraverseTree,
 };
 use thiserror::Error;
 use tiny_skia::Pixmap;
@@ -70,8 +70,8 @@ pub enum RasterizeError {
 /// management.
 #[derive(Debug)]
 pub struct Scene {
-    fonts: Arc<Mutex<FontRegistry>>,
-    resources: Mutex<Resources>,
+    pub(crate) fonts: Arc<Mutex<FontRegistry>>,
+    pub(crate) resources: Mutex<Resources>,
     nodes: Vec<Node>,
 }
 
@@ -95,6 +95,15 @@ impl Scene {
             fonts: Arc::new(Mutex::new(FontRegistry::new())),
             resources: Mutex::new(resources),
             nodes: vec![root],
+        }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn empty() -> Self {
+        Self {
+            fonts: Arc::new(Mutex::new(FontRegistry::new())),
+            resources: Mutex::new(Resources::default()),
+            nodes: vec![],
         }
     }
 
@@ -249,11 +258,11 @@ impl Scene {
         self.emit_node(
             &mut RenderContext {
                 out,
-                fonts: self.fonts.clone(),
-                resources: &self.resources,
+                scene: &self,
                 scene_size: size,
             },
-            taffy::NodeId::from(ROOT_ID),
+            None,
+            None,
         )?;
 
         //
@@ -397,22 +406,27 @@ impl Scene {
     }
 
     /// Emits a node and its subtree into the render context.
-    fn emit_node<T>(
+    pub(crate) fn emit_node<T>(
         &self,
         ctx: &mut RenderContext<T>,
-        node_id: taffy::NodeId,
+        node_id: Option<taffy::NodeId>,
+        stop_at: Option<taffy::NodeId>,
     ) -> Result<(), VectorizeError>
     where
         T: Write,
     {
-        let node_idx = usize::from(node_id);
+        if node_id == stop_at {
+            return Ok(());
+        }
+
+        let node_idx = node_id.map(usize::from).unwrap_or(ROOT_ID);
         let node = &self.nodes[node_idx];
 
         if node.visual.visible && !matches!(node.layout.display, taffy::Display::None) {
             node.pre_emit(ctx)?;
 
             for child_id in &node.children {
-                self.emit_node(ctx, taffy::NodeId::from(*child_id))?;
+                self.emit_node(ctx, Some(taffy::NodeId::from(*child_id)), stop_at)?;
             }
 
             node.post_emit(ctx)?;

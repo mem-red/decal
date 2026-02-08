@@ -1,20 +1,20 @@
 use crate::{
     layout::{
+        text::TextMeta,
         ImageMeta,
         RenderContext,
         TextVectorizeError,
         Typography,
-        text::TextMeta,
     },
     paint::{
-        Appearance,
-        Resource,
-        ResourceIri,
-        ScaledRadii,
         compute_scaled_radii,
         write_border_path,
         write_clip_path,
         write_fill_path,
+        Appearance,
+        Resource,
+        ResourceIri,
+        ScaledRadii,
     },
     primitives::{
         ClipPath,
@@ -266,7 +266,7 @@ impl Node {
             .attr("clip-path", (format_args!("url(#{})", clip.iri()),))?
             .open()?;
 
-        ctx.resources.lock().get_or_add_resource(clip.into());
+        ctx.scene.resources.lock().get_or_add_resource(clip.into());
 
         Ok(())
     }

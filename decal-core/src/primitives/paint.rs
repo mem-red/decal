@@ -542,7 +542,7 @@ impl PaintStack {
 
         let path = Path::build(draw_cached_layer)?;
         let href = format_args!("#{}", path.iri());
-        ctx.resources.lock().get_or_add_resource(path.into());
+        ctx.scene.resources.lock().get_or_add_resource(path.into());
 
         visit_group(ElementWriter::new(ctx.out, "g")?.attr_if(
             "style",
@@ -578,10 +578,10 @@ impl IntoResources for PaintStack {
 mod tests {
     use super::*;
     use crate::{
-        paint::Resources,
+        layout::Scene
+        ,
         test_utils::assert_xml,
     };
-    use parking_lot::Mutex;
     use std::fmt::Write;
 
     #[test]
@@ -677,11 +677,10 @@ mod tests {
     fn renders_single_layer() {
         let stack = PaintStack::new([Color::rgb(0, 0, 0)]);
         let mut out = String::new();
-        let resources = Mutex::new(Resources::default());
 
         stack
             .render(
-                &mut RenderContext::new(&mut out, &resources),
+                &mut RenderContext::new(&mut out, &Scene::empty()),
                 |out| out.write_str("path_data"),
                 |out| out.write_str("path_data"),
                 |layer, _| Ok(layer),
@@ -696,11 +695,10 @@ mod tests {
     fn visits_single_layer() {
         let stack = PaintStack::new([Color::rgb(0, 0, 0)]);
         let mut out = String::new();
-        let resources = Mutex::new(Resources::default());
 
         stack
             .render(
-                &mut RenderContext::new(&mut out, &resources),
+                &mut RenderContext::new(&mut out, &Scene::empty()),
                 |out| out.write_str("path_data"),
                 |out| out.write_str("path_data"),
                 |layer, _| layer.attr("visited", "true"),
@@ -722,11 +720,11 @@ mod tests {
         ]);
 
         let mut out = String::new();
-        let resources = Mutex::new(Resources::default());
+        let scene = Scene::empty();
 
         stack
             .render(
-                &mut RenderContext::new(&mut out, &resources),
+                &mut RenderContext::new(&mut out, &scene),
                 |out| out.write_str("path_data"),
                 |out| out.write_str("path_data"),
                 |layer, _| Ok(layer),
@@ -734,7 +732,7 @@ mod tests {
             )
             .unwrap();
 
-        let path_iri = match resources.lock().inner().get(0).unwrap() {
+        let path_iri = match scene.resources.lock().inner().get(0).unwrap() {
             Resource::Path(path) => path.iri(),
             _ => panic!("path not found"),
         };
@@ -759,11 +757,11 @@ mod tests {
             PaintLayer::from(Color::rgb(1, 2, 3)).blend_mode(BlendMode::Multiply),
         ]);
         let mut out = String::new();
-        let resources = Mutex::new(Resources::default());
+        let scene = Scene::empty();
 
         stack
             .render(
-                &mut RenderContext::new(&mut out, &resources),
+                &mut RenderContext::new(&mut out, &scene),
                 |out| out.write_str("path_data"),
                 |out| out.write_str("path_data"),
                 |layer, _| Ok(layer),
@@ -771,7 +769,7 @@ mod tests {
             )
             .unwrap();
 
-        let path_iri = match resources.lock().inner().get(0).unwrap() {
+        let path_iri = match scene.resources.lock().inner().get(0).unwrap() {
             Resource::Path(path) => path.iri(),
             _ => panic!("path not found"),
         };
@@ -796,11 +794,11 @@ mod tests {
             PaintLayer::from(Color::rgb(1, 2, 3)).blend_mode(BlendMode::Multiply),
         ]);
         let mut out = String::new();
-        let resources = Mutex::new(Resources::default());
+        let scene = Scene::empty();
 
         stack
             .render(
-                &mut RenderContext::new(&mut out, &resources),
+                &mut RenderContext::new(&mut out, &scene),
                 |out| out.write_str("path_data"),
                 |out| out.write_str("path_data"),
                 |layer, _| layer.attr("visited", "true"),
@@ -808,7 +806,7 @@ mod tests {
             )
             .unwrap();
 
-        let path_iri = match resources.lock().inner().get(0).unwrap() {
+        let path_iri = match scene.resources.lock().inner().get(0).unwrap() {
             Resource::Path(path) => path.iri(),
             _ => panic!("path not found"),
         };

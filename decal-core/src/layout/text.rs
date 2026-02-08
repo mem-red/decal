@@ -1,21 +1,21 @@
 use crate::{
     builders::TextSpan,
     layout::{
-        BASE_FONT_SIZE,
-        BASE_LINE_HEIGHT,
-        DEFAULT_FONT_FAMILY,
         FontRegistry,
         RenderContext,
         Stencil,
         StencilScope,
         StencilType,
         Typography,
+        BASE_FONT_SIZE,
+        BASE_LINE_HEIGHT,
+        DEFAULT_FONT_FAMILY,
     },
     paint::{
+        write_fill_path,
         Iri,
         ResourceIri,
         ScaledRadii,
-        write_fill_path,
     },
     primitives::{
         Color,
@@ -25,14 +25,14 @@ use crate::{
         PaintStack,
     },
     utils::{
+        encode_image,
         ElementWriter,
         PathWriter,
-        encode_image,
     },
 };
 use base64::{
-    Engine,
     engine::general_purpose::STANDARD as BASE64,
+    Engine,
 };
 use cosmic_text::{
     Attrs,
@@ -201,14 +201,14 @@ impl TextMeta {
         W: Write,
     {
         if self.stencil.is_none() {
-            self.render_text(ctx.out, &ctx.fonts, GlyphRenderMode::All)
+            self.render_text(ctx.out, &ctx.scene.fonts, GlyphRenderMode::All)
         } else {
             let Size { width, height } = layout.size;
             let mask = {
                 Mask::build(|out| {
                     self.render_text(
                         out,
-                        &ctx.fonts,
+                        &ctx.scene.fonts,
                         if matches!(self.stencil.scope, StencilScope::VectorGlyphs) {
                             GlyphRenderMode::Vector
                         } else {
@@ -221,11 +221,11 @@ impl TextMeta {
             };
 
             self.render_stencil(ctx, mask.iri(), width, height)?;
-            ctx.resources.lock().get_or_add_resource(mask.into());
+            ctx.scene.resources.lock().get_or_add_resource(mask.into());
 
             // render bitmaps on top
             if matches!(self.stencil.scope, StencilScope::VectorGlyphs) {
-                self.render_text(ctx.out, &ctx.fonts, GlyphRenderMode::Bitmap)?;
+                self.render_text(ctx.out, &ctx.scene.fonts, GlyphRenderMode::Bitmap)?;
             }
 
             Ok(())
