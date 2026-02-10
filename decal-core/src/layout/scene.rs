@@ -415,7 +415,7 @@ impl Scene {
     where
         T: Write,
     {
-        if node_id == stop_at {
+        if stop_at.is_some() && node_id == stop_at {
             return Ok(());
         }
 
