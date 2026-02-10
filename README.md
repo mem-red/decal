@@ -125,7 +125,7 @@ decal! {
 
 </details>
 
-Explore more [examples](https://github.com/mem-red/decal/tree/main/decal-core/examples).
+Explore more [examples](https://github.com/mem-red/decal/tree/main/examples).
 
 ## License
 
