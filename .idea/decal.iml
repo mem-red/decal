@@ -10,12 +10,14 @@
       <sourceFolder url="file://$MODULE_DIR$/examples/gh_card/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/gradients/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/text_stencil/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/grid_golden_ratio/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/decal-core/target" />
       <excludeFolder url="file://$MODULE_DIR$/decal-macros/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/gh_card/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/gradients/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/text_stencil/target" />
-      <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/grid_golden_ratio/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
