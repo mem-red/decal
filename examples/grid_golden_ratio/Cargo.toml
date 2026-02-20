@@ -1,0 +1,8 @@
+[package]
+name = "grid_golden_ratio"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+decal = { path = "../../decal-core", features = ["grid"] }
+taffy = "0.9.2"
