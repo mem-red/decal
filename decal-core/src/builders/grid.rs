@@ -13,12 +13,7 @@ use crate::{
 };
 use taffy::prelude::*;
 
-// TODO: implement grid layout
-
 /// Grid container node.
-///
-/// # Note
-/// Not implemented yet.
 #[derive(Debug, Default)]
 pub struct Grid {
     layout: Style,
@@ -70,7 +65,6 @@ impl RoundedCorners for Grid {}
 impl Dimensions for Grid {}
 impl Gap for Grid {}
 impl ContainerAlignment for Grid {}
-impl GridAlignment for Grid {}
 impl Margin for Grid {}
 impl Padding for Grid {}
 impl Clippable for Grid {}
@@ -82,3 +76,4 @@ impl SelfAlignment for Grid {}
 impl Visibility for Grid {}
 impl FilterEffects for Grid {}
 impl Blendable for Grid {}
+impl GridContainer for Grid {}

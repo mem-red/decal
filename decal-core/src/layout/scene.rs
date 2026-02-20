@@ -25,11 +25,12 @@ use std::{
     fmt::Write,
     sync::Arc,
 };
+#[cfg(feature = "grid")]
+use taffy::compute_grid_layout;
 use taffy::{
     compute_block_layout,
     compute_cached_layout,
     compute_flexbox_layout,
-    compute_grid_layout,
     compute_leaf_layout,
     compute_root_layout,
     prelude::TaffyMaxContent,
@@ -631,6 +632,7 @@ impl LayoutPartialTree for Scene {
                 NodeKind::Flex | NodeKind::Column | NodeKind::Row => {
                     compute_flexbox_layout(tree, node_id, inputs)
                 }
+                #[cfg(feature = "grid")]
                 NodeKind::Grid => compute_grid_layout(tree, node_id, inputs),
                 NodeKind::Text(ref mut meta) => compute_leaf_layout(
                     inputs,
@@ -728,6 +730,7 @@ impl taffy::LayoutFlexboxContainer for Scene {
     }
 }
 
+#[cfg(feature = "grid")]
 impl taffy::LayoutGridContainer for Scene {
     type GridContainerStyle<'a>
         = &'a taffy::Style
@@ -767,6 +770,7 @@ impl PrintTree for Scene {
             NodeKind::Flex => "FLEX",
             NodeKind::Column => "COLUMN",
             NodeKind::Row => "ROW",
+            #[cfg(feature = "grid")]
             NodeKind::Grid => "GRID",
             NodeKind::Text(_) => "TEXT",
             NodeKind::Image(_) => "IMAGE",

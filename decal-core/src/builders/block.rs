@@ -122,7 +122,6 @@ impl Dimensions for Block {}
 impl Gap for Block {}
 impl ContainerAlignment for Block {}
 impl FlexContainer for Block {}
-impl GridAlignment for Block {}
 impl SelfAlignment for Block {}
 impl Margin for Block {}
 impl Padding for Block {}
@@ -134,3 +133,6 @@ impl Transformation for Block {}
 impl Textual for Block {}
 impl FilterEffects for Block {}
 impl Blendable for Block {}
+
+#[cfg(feature = "grid")]
+impl GridContainer for Block {}

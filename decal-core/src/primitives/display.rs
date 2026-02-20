@@ -7,6 +7,7 @@ pub enum Display {
     /// Uses the flexbox layout algorithm.
     Flex,
     /// Uses the CSS Grid layout algorithm.
+    #[cfg(feature = "grid")]
     Grid,
     /// Hides the node.
     None,
@@ -17,6 +18,7 @@ impl Into<taffy::Display> for Display {
         match self {
             Display::Block => taffy::Display::Block,
             Display::Flex => taffy::Display::Flex,
+            #[cfg(feature = "grid")]
             Display::Grid => taffy::Display::Grid,
             Display::None => taffy::Display::None,
         }

@@ -10,7 +10,6 @@ mod drawable;
 mod filter_effects;
 mod flex_container;
 mod gap;
-mod grid_alignment;
 mod hideable;
 mod margin;
 mod opacity;
@@ -34,7 +33,6 @@ pub use drawable::*;
 pub use filter_effects::*;
 pub use flex_container::*;
 pub use gap::*;
-pub use grid_alignment::*;
 pub use hideable::*;
 pub use margin::*;
 pub use opacity::*;
@@ -44,6 +42,11 @@ pub use self_alignment::*;
 pub use textual::*;
 pub use transformation::*;
 pub use visibility::*;
+
+#[cfg(feature = "grid")]
+mod grid_container;
+#[cfg(feature = "grid")]
+pub use grid_container::*;
 
 // Private
 pub(crate) use sealed::private::*;

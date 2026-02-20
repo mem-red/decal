@@ -48,6 +48,7 @@ pub(crate) enum NodeKind {
     Flex,
     Column,
     Row,
+    #[cfg(feature = "grid")]
     Grid,
     #[display("Text: {0}")]
     Text(TextMeta),
@@ -289,11 +290,15 @@ impl Node {
         T: Write,
     {
         match &self.kind {
-            NodeKind::Block
-            | NodeKind::Flex
-            | NodeKind::Column
-            | NodeKind::Row
-            | NodeKind::Grid => {
+            NodeKind::Block | NodeKind::Flex | NodeKind::Column | NodeKind::Row => {
+                self.open_block_group(ctx)?;
+                self.render_block_background(ctx)?;
+                self.render_block_border(ctx)?;
+                self.open_block_clip(ctx, self.should_clip())?;
+            }
+            //
+            #[cfg(feature = "grid")]
+            NodeKind::Grid => {
                 self.open_block_group(ctx)?;
                 self.render_block_background(ctx)?;
                 self.render_block_border(ctx)?;
@@ -328,11 +333,16 @@ impl Node {
         T: Write,
     {
         match &self.kind {
-            NodeKind::Block
-            | NodeKind::Flex
-            | NodeKind::Column
-            | NodeKind::Row
-            | NodeKind::Grid => {
+            NodeKind::Block | NodeKind::Flex | NodeKind::Column | NodeKind::Row => {
+                Self::close_block_group(
+                    self.layout.overflow.x == taffy::Overflow::Hidden
+                        || self.layout.overflow.y == taffy::Overflow::Hidden,
+                    ctx,
+                )?;
+            }
+            //
+            #[cfg(feature = "grid")]
+            NodeKind::Grid => {
                 Self::close_block_group(
                     self.layout.overflow.x == taffy::Overflow::Hidden
                         || self.layout.overflow.y == taffy::Overflow::Hidden,
