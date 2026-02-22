@@ -6,5 +6,6 @@ mod grayscale;
 mod hue_rotate;
 mod invert;
 mod opacity;
+mod posterize;
 mod saturate;
 mod sepia;
