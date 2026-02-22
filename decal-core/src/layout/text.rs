@@ -265,6 +265,10 @@ impl TextMeta {
             brw.set_wrap(wrap.into());
         }
 
+        if let Some(ellipsize) = self.typography.ellipsize {
+            brw.set_ellipsize(ellipsize.into());
+        }
+
         brw.set_rich_text(
             spans,
             &root_attrs,

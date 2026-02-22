@@ -1,4 +1,5 @@
 use crate::primitives::{
+    Ellipsize,
     FontStyle,
     FontWeight,
     Paint,
@@ -21,6 +22,7 @@ pub(crate) struct Typography {
     pub(crate) letter_spacing: Option<f32>,
     pub(crate) align: Option<TextAlign>,
     pub(crate) wrap: Option<TextWrap>,
+    pub(crate) ellipsize: Option<Ellipsize>,
     // TODO pub word_spacing: Option<f32>,
     // TODO pub decoration: Option<TextDecoration>,
     // computed during layout
@@ -55,5 +57,6 @@ impl Typography {
         inherit!(letter_spacing);
         inherit!(align);
         inherit!(wrap);
+        inherit!(ellipsize);
     }
 }

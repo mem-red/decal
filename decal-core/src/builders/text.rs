@@ -16,6 +16,7 @@ use crate::{
         Resource,
     },
     primitives::{
+        Ellipsize,
         FontStyle,
         FontWeight,
         Paint,
@@ -383,6 +384,21 @@ impl TextSpan {
         T: Into<Option<f32>>,
     {
         self.typography.letter_spacing = letter_spacing.into();
+        self
+    }
+
+    /// Sets the ellipsis behavior for the text span.
+    ///
+    /// # Arguments
+    /// - `value`: The [`Ellipsize`] behavior to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
+    pub fn ellipsize<T>(mut self, value: T) -> Self
+    where
+        T: Into<Option<Ellipsize>>,
+    {
+        self.typography.ellipsize = value.into();
         self
     }
 

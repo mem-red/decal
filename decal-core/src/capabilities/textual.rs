@@ -1,5 +1,6 @@
 use super::Drawable;
 use crate::primitives::{
+    Ellipsize,
     FontStyle,
     FontWeight,
     Paint,
@@ -144,6 +145,21 @@ pub trait Textual: Drawable {
         T: Into<Option<TextWrap>>,
     {
         self.typography_mut().wrap = text_wrap.into();
+        self
+    }
+
+    /// Sets the ellipsis behavior of text.
+    ///
+    /// # Arguments
+    /// - `value`: The [`Ellipsize`] behavior to apply.
+    ///
+    /// # Returns
+    /// - [`Self`]
+    fn ellipsize<T>(mut self, value: T) -> Self
+    where
+        T: Into<Option<Ellipsize>>,
+    {
+        self.typography_mut().ellipsize = value.into();
         self
     }
 }
