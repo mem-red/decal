@@ -1,5 +1,5 @@
 [package]
-name = "text_stencil"
+name = "github-card"
 version = "0.1.0"
 edition = "2024"
 

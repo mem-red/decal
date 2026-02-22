@@ -156,9 +156,9 @@ dependencies = [
 
 [[package]]
 name = "cosmic-text"
-version = "0.18.0"
+version = "0.18.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8c19bd4aff026c1481de842c66e974d4d9a222d36faf62666d15b66f24b8e71"
+checksum = "bbe782a9e7520cc7de2232c957a47f99d3a35e855552677d07a557bc1a3b66ed"
 dependencies = [
  "bitflags",
  "fontdb",
@@ -196,7 +196,7 @@ checksum = "be1e0bca6c3637f992fc1cc7cbc52a78c1ef6db076dbf1059c4323d6a2048376"
 
 [[package]]
 name = "decal"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "base64",
  "color",
@@ -226,7 +226,7 @@ dependencies = [
 
 [[package]]
 name = "decal-macros"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "hashbrown",
  "proc-macro2",
@@ -367,13 +367,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gh-card"
-version = "0.1.0"
-dependencies = [
- "decal",
-]
-
-[[package]]
 name = "gif"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -381,6 +374,13 @@ checksum = "f5df2ba84018d80c213569363bdcd0c64e6933c67fe4c1d60ecf822971a3c35e"
 dependencies = [
  "color_quant",
  "weezl",
+]
+
+[[package]]
+name = "github-card"
+version = "0.1.0"
+dependencies = [
+ "decal",
 ]
 
 [[package]]
