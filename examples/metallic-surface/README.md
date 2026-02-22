@@ -1,0 +1,1 @@
+![Metallic surface](./output.png)

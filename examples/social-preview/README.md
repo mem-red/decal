@@ -1,0 +1,1 @@
+![Social preview card](./output.png)

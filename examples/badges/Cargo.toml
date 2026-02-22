@@ -1,0 +1,7 @@
+[package]
+name = "badges"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+decal = { path = "../../decal-core" }
