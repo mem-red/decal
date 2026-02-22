@@ -89,14 +89,18 @@ fn main() {
 
             // Languages
             Row {
-                Block {}.background(rgb(0xf34b7d)).width(pct(61.2))
-                Block {}.background(rgb(0xe34c25)).width(pct(17.5))
-                Block {}.background(rgb(0x3572a5)).width(pct(8.9))
-                Block {}.background(rgb(0x3d6118)).width(pct(5.1))
-                Block {}.background(rgb(0xb07219)).width(pct(3.2))
-                Block {}.background(rgb(0xecdebe)).width(pct(2.1))
-                Block {}.background(rgb(0x555555)).width(pct(1.3))
-                Block {}.background(rgb(0xf0e05a)).width(pct(0.7))
+                for (color, width) in [
+                    (0xf34b7d, 61.2),
+                    (0xe34c25, 17.5),
+                    (0x3572a5, 8.9),
+                    (0x3d6118, 5.1),
+                    (0xb07219, 3.2),
+                    (0xecdebe, 2.1),
+                    (0x555555, 1.3),
+                    (0xf0e05a, 0.7),
+                ] {
+                    Block {}.background(rgb(color)).width(pct(width))
+                }
             }
                 .height(24)
                 .margin_x(-80)
