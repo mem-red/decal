@@ -86,12 +86,6 @@ fn main() {
         .padding(80)
         .color(rgb(0xffffff))
         .justify_content(JustifyContent::SpaceBetween)
-        .background(
-            LinearGradient::top().stops([
-                (0.0, rgb(0x6c5ce7)),
-                (1.0, rgb(0xa29bfe)),
-            ])
-        )
     };
 
     let (svg, _size) = engine
